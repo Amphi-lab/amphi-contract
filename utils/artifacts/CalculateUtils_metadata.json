@@ -100,7 +100,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"Amphi/utils/calculateUtils.sol": "CalculateUtils"
+			"utils/calculateUtils.sol": "CalculateUtils"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -114,14 +114,6 @@
 		"remappings": []
 	},
 	"sources": {
-		"Amphi/utils/calculateUtils.sol": {
-			"keccak256": "0xc165ea47da3fecf2d2f2cca7fa007d4ea0d93bf0fdcf99ee268a783c6cb72db0",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://0f4f3e9ce45e864f79e4c962c74f6667e5b59786c03930a76200939945e48e95",
-				"dweb:/ipfs/QmQr6qzBWZCTmwcZc6mv5nrc14gMwAcsp8Pi8N9Wqk4X3u"
-			]
-		},
 		"https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol": {
 			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
 			"license": "MIT",
@@ -144,6 +136,14 @@
 			"urls": [
 				"bzz-raw://864a40efcffdf408044c332a5aa38ec5618ed7b4eecb8f65faf45671bd6cdc65",
 				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
+			]
+		},
+		"utils/calculateUtils.sol": {
+			"keccak256": "0xc165ea47da3fecf2d2f2cca7fa007d4ea0d93bf0fdcf99ee268a783c6cb72db0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://0f4f3e9ce45e864f79e4c962c74f6667e5b59786c03930a76200939945e48e95",
+				"dweb:/ipfs/QmQr6qzBWZCTmwcZc6mv5nrc14gMwAcsp8Pi8N9Wqk4X3u"
 			]
 		}
 	},

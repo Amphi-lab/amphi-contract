@@ -1,0 +1,500 @@
+{
+	"deploy": {
+		"VM:-": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"main:1": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"ropsten:3": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"rinkeby:4": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"kovan:42": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"goerli:5": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		},
+		"Custom": {
+			"linkReferences": {},
+			"autoDeployLib": true
+		}
+	},
+	"data": {
+		"bytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"linkReferences": {},
+			"object": "",
+			"opcodes": "",
+			"sourceMap": ""
+		},
+		"deployedBytecode": {
+			"functionDebugData": {},
+			"generatedSources": [],
+			"immutableReferences": {},
+			"linkReferences": {},
+			"object": "",
+			"opcodes": "",
+			"sourceMap": ""
+		},
+		"gasEstimates": null,
+		"methodIdentifiers": {
+			"acceptForTranslator(uint256,uint256)": "55fd354c",
+			"acceptForVerifer(uint256,uint256)": "cb088f96",
+			"finishProject(uint256,uint256,string[])": "5d5fb066",
+			"modifyProject((uint256,string,string,uint256,string,string,string[],uint256,uint256,bool,bool,uint256,((string,uint256,uint256,uint256,uint256,uint256,string),uint256,uint8,uint256)[],uint256,uint256,bool,bool,uint8),uint256)": "51b759cb",
+			"postProject((uint256,string,string,uint256,string,string,string[],uint256,uint256,bool,bool,uint256,(string,uint256,uint256,uint256,uint256,uint256,string)[]))": "77613193",
+			"receiveProject(uint256,bool)": "88f07371",
+			"timeOutForTranslator(uint256,uint256)": "e135141a",
+			"timeOutForVerifer(uint256,uint256)": "03aa7bd4",
+			"validate(uint256,bool)": "97ef4e3e"
+		}
+	},
+	"abi": [
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_id",
+					"type": "uint256"
+				},
+				{
+					"internalType": "uint256",
+					"name": "_index",
+					"type": "uint256"
+				}
+			],
+			"name": "acceptForTranslator",
+			"outputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_id",
+					"type": "uint256"
+				},
+				{
+					"internalType": "uint256",
+					"name": "_index",
+					"type": "uint256"
+				}
+			],
+			"name": "acceptForVerifer",
+			"outputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_id",
+					"type": "uint256"
+				},
+				{
+					"internalType": "uint256",
+					"name": "_tranId",
+					"type": "uint256"
+				},
+				{
+					"internalType": "string[]",
+					"name": "_files",
+					"type": "string[]"
+				}
+			],
+			"name": "finishProject",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"components": [
+						{
+							"internalType": "uint256",
+							"name": "releaseTime",
+							"type": "uint256"
+						},
+						{
+							"internalType": "string",
+							"name": "introduce",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "need",
+							"type": "string"
+						},
+						{
+							"internalType": "uint256",
+							"name": "deadline",
+							"type": "uint256"
+						},
+						{
+							"internalType": "string",
+							"name": "sourceLanguage",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "goalLanguage",
+							"type": "string"
+						},
+						{
+							"internalType": "string[]",
+							"name": "preferList",
+							"type": "string[]"
+						},
+						{
+							"internalType": "uint256",
+							"name": "translationType",
+							"type": "uint256"
+						},
+						{
+							"internalType": "uint256",
+							"name": "workLoad",
+							"type": "uint256"
+						},
+						{
+							"internalType": "bool",
+							"name": "isNonDisclosure",
+							"type": "bool"
+						},
+						{
+							"internalType": "bool",
+							"name": "isCustomize",
+							"type": "bool"
+						},
+						{
+							"internalType": "uint256",
+							"name": "bounty",
+							"type": "uint256"
+						},
+						{
+							"components": [
+								{
+									"components": [
+										{
+											"internalType": "string",
+											"name": "name",
+											"type": "string"
+										},
+										{
+											"internalType": "uint256",
+											"name": "size",
+											"type": "uint256"
+										},
+										{
+											"internalType": "uint256",
+											"name": "videoLength",
+											"type": "uint256"
+										},
+										{
+											"internalType": "uint256",
+											"name": "Page",
+											"type": "uint256"
+										},
+										{
+											"internalType": "uint256",
+											"name": "words",
+											"type": "uint256"
+										},
+										{
+											"internalType": "uint256",
+											"name": "fileType",
+											"type": "uint256"
+										},
+										{
+											"internalType": "string",
+											"name": "path",
+											"type": "string"
+										}
+									],
+									"internalType": "struct LibProject.FileInfo",
+									"name": "file",
+									"type": "tuple"
+								},
+								{
+									"internalType": "uint256",
+									"name": "bounty",
+									"type": "uint256"
+								},
+								{
+									"internalType": "enum LibProject.FileProcessing",
+									"name": "state",
+									"type": "uint8"
+								},
+								{
+									"internalType": "uint256",
+									"name": "lastUpload",
+									"type": "uint256"
+								}
+							],
+							"internalType": "struct LibProject.TaskInfo[]",
+							"name": "tasks",
+							"type": "tuple[]"
+						},
+						{
+							"internalType": "uint256",
+							"name": "maxT",
+							"type": "uint256"
+						},
+						{
+							"internalType": "uint256",
+							"name": "maxV",
+							"type": "uint256"
+						},
+						{
+							"internalType": "bool",
+							"name": "isTransActive",
+							"type": "bool"
+						},
+						{
+							"internalType": "bool",
+							"name": "isVerActive",
+							"type": "bool"
+						},
+						{
+							"internalType": "enum LibProject.ProjectState",
+							"name": "state",
+							"type": "uint8"
+						}
+					],
+					"internalType": "struct LibProject.TranslationPro",
+					"name": "_t",
+					"type": "tuple"
+				},
+				{
+					"internalType": "uint256",
+					"name": "_id",
+					"type": "uint256"
+				}
+			],
+			"name": "modifyProject",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"components": [
+						{
+							"internalType": "uint256",
+							"name": "releaseTime",
+							"type": "uint256"
+						},
+						{
+							"internalType": "string",
+							"name": "introduce",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "need",
+							"type": "string"
+						},
+						{
+							"internalType": "uint256",
+							"name": "deadline",
+							"type": "uint256"
+						},
+						{
+							"internalType": "string",
+							"name": "sourceLanguage",
+							"type": "string"
+						},
+						{
+							"internalType": "string",
+							"name": "goalLanguage",
+							"type": "string"
+						},
+						{
+							"internalType": "string[]",
+							"name": "preferList",
+							"type": "string[]"
+						},
+						{
+							"internalType": "uint256",
+							"name": "translationType",
+							"type": "uint256"
+						},
+						{
+							"internalType": "uint256",
+							"name": "workLoad",
+							"type": "uint256"
+						},
+						{
+							"internalType": "bool",
+							"name": "isNonDisclosure",
+							"type": "bool"
+						},
+						{
+							"internalType": "bool",
+							"name": "isCustomize",
+							"type": "bool"
+						},
+						{
+							"internalType": "uint256",
+							"name": "bounty",
+							"type": "uint256"
+						},
+						{
+							"components": [
+								{
+									"internalType": "string",
+									"name": "name",
+									"type": "string"
+								},
+								{
+									"internalType": "uint256",
+									"name": "size",
+									"type": "uint256"
+								},
+								{
+									"internalType": "uint256",
+									"name": "videoLength",
+									"type": "uint256"
+								},
+								{
+									"internalType": "uint256",
+									"name": "Page",
+									"type": "uint256"
+								},
+								{
+									"internalType": "uint256",
+									"name": "words",
+									"type": "uint256"
+								},
+								{
+									"internalType": "uint256",
+									"name": "fileType",
+									"type": "uint256"
+								},
+								{
+									"internalType": "string",
+									"name": "path",
+									"type": "string"
+								}
+							],
+							"internalType": "struct LibProject.FileInfo[]",
+							"name": "files",
+							"type": "tuple[]"
+						}
+					],
+					"internalType": "struct LibProject.PostProjectParam",
+					"name": "_t",
+					"type": "tuple"
+				}
+			],
+			"name": "postProject",
+			"outputs": [
+				{
+					"internalType": "uint256",
+					"name": "",
+					"type": "uint256"
+				}
+			],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_id",
+					"type": "uint256"
+				},
+				{
+					"internalType": "bool",
+					"name": "isPass",
+					"type": "bool"
+				}
+			],
+			"name": "receiveProject",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_id",
+					"type": "uint256"
+				},
+				{
+					"internalType": "uint256",
+					"name": "_taskId",
+					"type": "uint256"
+				}
+			],
+			"name": "timeOutForTranslator",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_id",
+					"type": "uint256"
+				},
+				{
+					"internalType": "uint256",
+					"name": "_taskId",
+					"type": "uint256"
+				}
+			],
+			"name": "timeOutForVerifer",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		},
+		{
+			"inputs": [
+				{
+					"internalType": "uint256",
+					"name": "_id",
+					"type": "uint256"
+				},
+				{
+					"internalType": "bool",
+					"name": "isPass",
+					"type": "bool"
+				}
+			],
+			"name": "validate",
+			"outputs": [],
+			"stateMutability": "nonpayable",
+			"type": "function"
+		}
+	]
+}
