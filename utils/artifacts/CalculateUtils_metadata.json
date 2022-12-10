@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.17+commit.8df45f5f"
+		"version": "0.8.7+commit.e28d00a7"
 	},
 	"language": "Solidity",
 	"output": {
@@ -100,7 +100,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"utils/calculateUtils.sol": "CalculateUtils"
+			"Amphi/amphi-contract/amphi-contract/utils/calculateUtils.sol": "CalculateUtils"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -114,7 +114,7 @@
 		"remappings": []
 	},
 	"sources": {
-		"https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol": {
+		"Amphi/amphi-contract/amphi-contract/contracts/access/Ownable.sol": {
 			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
 			"license": "MIT",
 			"urls": [
@@ -122,7 +122,7 @@
 				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
 			]
 		},
-		"https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Context.sol": {
+		"Amphi/amphi-contract/amphi-contract/contracts/utils/Context.sol": {
 			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
 			"license": "MIT",
 			"urls": [
@@ -130,7 +130,7 @@
 				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
 			]
 		},
-		"https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/math/SafeMath.sol": {
+		"Amphi/amphi-contract/amphi-contract/contracts/utils/math/SafeMath.sol": {
 			"keccak256": "0x0f633a0223d9a1dcccfcf38a64c9de0874dfcbfac0c6941ccf074d63a2ce0e1e",
 			"license": "MIT",
 			"urls": [
@@ -138,12 +138,12 @@
 				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
 			]
 		},
-		"utils/calculateUtils.sol": {
-			"keccak256": "0xc165ea47da3fecf2d2f2cca7fa007d4ea0d93bf0fdcf99ee268a783c6cb72db0",
+		"Amphi/amphi-contract/amphi-contract/utils/calculateUtils.sol": {
+			"keccak256": "0x14505bd160b8f069651857f2b0ae766ca255db8b551ef11bc9ef76c8d9bf5b8b",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://0f4f3e9ce45e864f79e4c962c74f6667e5b59786c03930a76200939945e48e95",
-				"dweb:/ipfs/QmQr6qzBWZCTmwcZc6mv5nrc14gMwAcsp8Pi8N9Wqk4X3u"
+				"bzz-raw://88f3752c6c41d7cc735d2f54e85214cb0aa7ee262eb7f9ebc646c6a0a0fe7469",
+				"dweb:/ipfs/QmZHeBtuyUB6LVhh3QS8SkWBnrU1vtmFPVyJifry3z5kUq"
 			]
 		}
 	},

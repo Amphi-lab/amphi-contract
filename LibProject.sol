@@ -21,15 +21,26 @@ library LibProject {
  struct TaskInfo {
      FileInfo file; 
      uint256 bounty; 
+     string info;
      FileState state;
      uint256 lastUpload;
+ }
+ struct SubtaskInfo {
+     uint256 taskIndex;
+     uint256 TaskerState;
+     string file;
  }
  struct Tasker {
      address taskerAddress;
      uint256[] taskIndex;
+     TaskerState[] states;
+     string[] files;
+     //SubtaskInfo[] taskInfo;
+     //string[] files;
  }
  //项目
  struct TranslationPro {
+        address buyer;
         uint256 releaseTime;  //发布时间
         string introduce;     //项目介绍
         string need;          //项目需求说明
@@ -50,5 +61,23 @@ library LibProject {
         bool isTransActive;  //翻译者状态: true.开启 false：关闭 
         bool isVerActive;    //校验者状态: true:开启 false:关闭
         ProjectState state;        //项目状态
+ }
+ //项目
+ struct ProParm {
+        uint256 releaseTime;  //发布时间
+        string introduce;     //项目介绍
+        string need;          //项目需求说明
+        uint256 deadline;     //截至日期
+        string sourceLanguage;//源语言
+        string goalLanguage;  //目标语言
+        string[] preferList;  //偏好
+        uint256 translationType;//类型
+        uint256 workLoad;
+        bool isNonDisclosure; //是否保密
+        bool isCustomize;     //是否为自定义支付
+        uint256 bounty;        //赏金
+        TaskInfo[] tasks;     //子任务
+        uint256 maxT;        //翻译者最大人数
+        uint256 maxV;        //校验者最大人数
  }
 }

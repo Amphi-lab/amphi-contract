@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.17+commit.8df45f5f"
+		"version": "0.8.7+commit.e28d00a7"
 	},
 	"language": "Solidity",
 	"output": {
@@ -81,7 +81,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"AmphiService.sol": "AmphiService"
+			"Amphi/amphi-contract/amphi-contract/AmphiService.sol": "AmphiService"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -95,31 +95,31 @@
 		"remappings": []
 	},
 	"sources": {
-		"AmphiService.sol": {
-			"keccak256": "0x96e580d8cf89aa2ada65f6893dd0ecd38f8df8cff7d2cf49188f66943ca58d97",
+		"Amphi/amphi-contract/amphi-contract/AmphiService.sol": {
+			"keccak256": "0x97be82a90187faa2458babd89e884918fcd34565f9cb6db0e3afd811f9bb9989",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://77622799299c1fca996fe1b4fc6e355d1d12a5b1c8d196bc78e122ebe4113831",
-				"dweb:/ipfs/Qmbf6vFeoigh9iSbrnpoWw5FBEjaBU1KugGAi28aG4f1wk"
+				"bzz-raw://2574d3f3cad40cb7da58e88d45d8d74d5a90c5cb5d42f6c503343f870a7b8000",
+				"dweb:/ipfs/QmeQi3TJDLrqFLcrsRKpY4YAYeX75QhhAU9pZ2YkaNd5dF"
 			]
 		},
-		"LibProject.sol": {
-			"keccak256": "0xcb9509eae5cea7720d174826cef53ca4e55c3e91e0116d9ff4816500225a30fd",
+		"Amphi/amphi-contract/amphi-contract/LibProject.sol": {
+			"keccak256": "0x6f9c76af647474c55915c530c76162ad7c3fe81f8041117bc743d830420301e9",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://465fb3c97356fff7ac8bd1c3bae73fc00acbffa6e59478fda992cefe96824094",
-				"dweb:/ipfs/QmVDU6aLxc9HKLD4VrN2ikCZEfpdpwdSrSokjAFsAFuDPT"
+				"bzz-raw://6bd3ac7df24cd4db0ed06fc6fe3a5114011547efebd8792215ec956d3be2bd16",
+				"dweb:/ipfs/QmUvYrqtSLcWe2ngme9zr8WRcfejpk2G5LvbgceN5LjFHw"
 			]
 		},
-		"TransService.sol": {
-			"keccak256": "0xd51d061f347f417dc4eeec30f75bb1639679b9808ba23674fe10d16d558f78f4",
+		"Amphi/amphi-contract/amphi-contract/TransService.sol": {
+			"keccak256": "0xa160a8320a0735eb85d0f3f7d884aa46ddeec69440c50c8a8c8b09a436466d0a",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://16a95588b0b623508371689a329a389f7beaebeb6ee259787248b384047dd151",
-				"dweb:/ipfs/QmVpenTyRJYUEpaEr5fBRg2f7vPPBgYPdgNUwPRfVS23km"
+				"bzz-raw://d07c538bcc5edbb29ee495fdf2f19416a93cedc6bfba00bb5e4344eff414c3ca",
+				"dweb:/ipfs/QmZ6YyfoFvVxKHzykMkMVvMAfDseadxJDq7KURejna2kBo"
 			]
 		},
-		"https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol": {
+		"Amphi/amphi-contract/amphi-contract/contracts/access/Ownable.sol": {
 			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
 			"license": "MIT",
 			"urls": [
@@ -127,7 +127,7 @@
 				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
 			]
 		},
-		"https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Context.sol": {
+		"Amphi/amphi-contract/amphi-contract/contracts/utils/Context.sol": {
 			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
 			"license": "MIT",
 			"urls": [
@@ -135,7 +135,7 @@
 				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
 			]
 		},
-		"https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/math/SafeMath.sol": {
+		"Amphi/amphi-contract/amphi-contract/contracts/utils/math/SafeMath.sol": {
 			"keccak256": "0x0f633a0223d9a1dcccfcf38a64c9de0874dfcbfac0c6941ccf074d63a2ce0e1e",
 			"license": "MIT",
 			"urls": [
@@ -143,12 +143,12 @@
 				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
 			]
 		},
-		"utils/calculateUtils.sol": {
-			"keccak256": "0xc165ea47da3fecf2d2f2cca7fa007d4ea0d93bf0fdcf99ee268a783c6cb72db0",
+		"Amphi/amphi-contract/amphi-contract/utils/calculateUtils.sol": {
+			"keccak256": "0x14505bd160b8f069651857f2b0ae766ca255db8b551ef11bc9ef76c8d9bf5b8b",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://0f4f3e9ce45e864f79e4c962c74f6667e5b59786c03930a76200939945e48e95",
-				"dweb:/ipfs/QmQr6qzBWZCTmwcZc6mv5nrc14gMwAcsp8Pi8N9Wqk4X3u"
+				"bzz-raw://88f3752c6c41d7cc735d2f54e85214cb0aa7ee262eb7f9ebc646c6a0a0fe7469",
+				"dweb:/ipfs/QmZHeBtuyUB6LVhh3QS8SkWBnrU1vtmFPVyJifry3z5kUq"
 			]
 		}
 	},

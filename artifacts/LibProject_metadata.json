@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.17+commit.8df45f5f"
+		"version": "0.8.7+commit.e28d00a7"
 	},
 	"language": "Solidity",
 	"output": {
@@ -18,7 +18,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"LibProject.sol": "LibProject"
+			"Amphi/amphi-contract/amphi-contract/LibProject.sol": "LibProject"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -32,12 +32,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"LibProject.sol": {
-			"keccak256": "0xe48a47c8fa9385a8d1c343eda7a761767b364685118a2fd116affa01777101b8",
+		"Amphi/amphi-contract/amphi-contract/LibProject.sol": {
+			"keccak256": "0x6f9c76af647474c55915c530c76162ad7c3fe81f8041117bc743d830420301e9",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://c672745badb4d9d1019e2c08e9a1d009beb766dea301298e978c15947295a953",
-				"dweb:/ipfs/QmS4beZChFPyd81nMsZWMws9T5KmGfhDAwd6C54c2bitFj"
+				"bzz-raw://6bd3ac7df24cd4db0ed06fc6fe3a5114011547efebd8792215ec956d3be2bd16",
+				"dweb:/ipfs/QmUvYrqtSLcWe2ngme9zr8WRcfejpk2G5LvbgceN5LjFHw"
 			]
 		}
 	},
