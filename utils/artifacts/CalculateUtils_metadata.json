@@ -100,7 +100,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"Amphi/amphi-contract/amphi-contract/utils/calculateUtils.sol": "CalculateUtils"
+			"utils/calculateUtils.sol": "CalculateUtils"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -114,7 +114,7 @@
 		"remappings": []
 	},
 	"sources": {
-		"Amphi/amphi-contract/amphi-contract/contracts/access/Ownable.sol": {
+		"contracts/access/Ownable.sol": {
 			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
 			"license": "MIT",
 			"urls": [
@@ -122,7 +122,7 @@
 				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
 			]
 		},
-		"Amphi/amphi-contract/amphi-contract/contracts/utils/Context.sol": {
+		"contracts/utils/Context.sol": {
 			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
 			"license": "MIT",
 			"urls": [
@@ -130,7 +130,7 @@
 				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
 			]
 		},
-		"Amphi/amphi-contract/amphi-contract/contracts/utils/math/SafeMath.sol": {
+		"contracts/utils/math/SafeMath.sol": {
 			"keccak256": "0x0f633a0223d9a1dcccfcf38a64c9de0874dfcbfac0c6941ccf074d63a2ce0e1e",
 			"license": "MIT",
 			"urls": [
@@ -138,12 +138,12 @@
 				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
 			]
 		},
-		"Amphi/amphi-contract/amphi-contract/utils/calculateUtils.sol": {
-			"keccak256": "0x14505bd160b8f069651857f2b0ae766ca255db8b551ef11bc9ef76c8d9bf5b8b",
+		"utils/calculateUtils.sol": {
+			"keccak256": "0x0ef76f2a992d95098bfef28aa7240c5384278c2f2cceb72396ec503a47a01dd2",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://88f3752c6c41d7cc735d2f54e85214cb0aa7ee262eb7f9ebc646c6a0a0fe7469",
-				"dweb:/ipfs/QmZHeBtuyUB6LVhh3QS8SkWBnrU1vtmFPVyJifry3z5kUq"
+				"bzz-raw://f656aac0eb73f5c0b38e3de47894ff6a41bc0b8eaca9b0b7c25de29b77a2ab9c",
+				"dweb:/ipfs/QmUvybThDM7bijdKpZXSrcs79hVYCgQUrpHMf9MEK2kJWn"
 			]
 		}
 	},

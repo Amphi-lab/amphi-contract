@@ -5,6 +5,7 @@ import "./../contracts/access/Ownable.sol";
 contract CalculateUtils is Ownable{
     uint256 private rate;
     uint256 private vfN;
+    uint256 private TransRate ;
     //获得罚金比率
     function punishRatio(uint256 _bounts) internal view returns(uint256) {
         uint256 ratio;
@@ -42,9 +43,8 @@ contract CalculateUtils is Ownable{
         }
         return _maxV;
     }
-    //计算任务赏金
-    /**计算任务所需翻译人数：
-    1.求出阈值day
-    2.判断文件类型：1.文档类  
-    */
+    //计算任务赏金-非自定义赏金&翻译者
+    function getTaskTrans(uint256 _bounty) internal returns(uint256 _money) {
+        _money = _bounty;
+    }
 }

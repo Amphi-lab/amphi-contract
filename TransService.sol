@@ -150,6 +150,9 @@ contract TransService is CalculateUtils{
     // }
     //翻译者接收任务
     function acceptTrans(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex,address _tasker) public isCanAcceptTrans(_index) {
+       //计算赏金
+       uint256 _bounty;
+       //若_taskerIndex为0，说明该任务者是首次接收该任务
        if(_taskerIndex==0) {
             LibProject.Tasker[] storage _taskerList= taskList[_index].translators;
            LibProject.Tasker memory _taskerInfo; 
@@ -238,6 +241,22 @@ contract TransService is CalculateUtils{
     }
     function _addCount() internal {
         count++;
+    }
+    //查询任务者超时未完成任务数
+    function overTimeTasker(uint256 _index, uint256 _taskerIndex, bool _isTrans) public view returns(uint256) {
+        LibProject.TaskerState[] memory _states;
+        if(_isTrans) {
+            _states  = getProject(_index).translators[_taskerIndex].states; 
+        }else {
+            _states  = getProject(_index).verifiers[_taskerIndex].states; 
+        }
+        uint256 _count;
+        for(uint256 i=0;i<_states.length;i++) {
+            if(_states[i]<LibProject.TaskerState.Submitted) {
+                _count++;
+            }
+        }
+        return _count;
     }
     
 }

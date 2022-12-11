@@ -135,13 +135,31 @@ contract TransImpl{
         //修改任务者状态
         service.updateTaskerState(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Submitted,true);
     }
-   //提交任务-翻译者
+   //提交任务-校验者
     function _sumbitTaskVf(uint256 _index,uint256 _taskerIndex, uint256 _fileIndex,string memory _file) internal {
         //修改文件的状态和最新加载时间
-        service.updateFileStateAndTime(_index,_taskerIndex,LibProject.FileState.Validating);
+        service.updateFileStateAndTime(_index,_taskerIndex,LibProject.FileState.WaitModify);
         //上传文件
-        service.updateFileInfo(_index,_taskerIndex,_fileIndex,_file,true);
+        service.updateFileInfo(_index,_taskerIndex,_fileIndex,_file,false);
         //修改任务者状态
-        service.updateTaskerState(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Submitted,true);
+        service.updateTaskerState(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Submitted,false);
     }
+    //超时未提交-翻译者
+    function _overTimeTrans(uint256 _index, uint256 _taskerIndex)internal returns(bool) {
+        //查询超时任务数
+        uint256 _unCompleted = service.overTimeTasker(_index,_taskerIndex,true);
+        if(_unCompleted ==0) {
+            return false;
+        }
+        //计算罚金
+        /**
+        1.根据赏金获得处罚比率
+        */
+        //将罚金转给发布者
+    }
+    //超时未提交-校验者
+    //打回
+    //扣除赏金
+    //发布者验收
+    
 }

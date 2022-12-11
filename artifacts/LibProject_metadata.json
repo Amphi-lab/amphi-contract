@@ -18,7 +18,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"Amphi/amphi-contract/amphi-contract/LibProject.sol": "LibProject"
+			"LibProject.sol": "LibProject"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -32,7 +32,7 @@
 		"remappings": []
 	},
 	"sources": {
-		"Amphi/amphi-contract/amphi-contract/LibProject.sol": {
+		"LibProject.sol": {
 			"keccak256": "0x6f9c76af647474c55915c530c76162ad7c3fe81f8041117bc743d830420301e9",
 			"license": "MIT",
 			"urls": [
