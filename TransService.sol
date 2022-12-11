@@ -5,7 +5,7 @@ import "./utils/calculateUtils.sol";
 error OperationException(string,uint256);
 error ParameterException(string);
 //import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
-contract TransService is CalculateUtils{
+contract TransService {
     event addProjectEv(address,uint256,LibProject.ProParm);
     event updateProjectEv(uint256,LibProject.ProParm);
     event updateProSateEv(uint256,LibProject.ProjectState);
