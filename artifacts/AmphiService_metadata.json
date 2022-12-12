@@ -1,0 +1,156 @@
+{
+	"compiler": {
+		"version": "0.8.7+commit.e28d00a7"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {
+				"owner()": {
+					"details": "Returns the address of the current owner."
+				},
+				"renounceOwnership()": {
+					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+				},
+				"transferOwnership(address)": {
+					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				}
+			},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"AmphiService.sol": "AmphiService"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"AmphiService.sol": {
+			"keccak256": "0x97be82a90187faa2458babd89e884918fcd34565f9cb6db0e3afd811f9bb9989",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://2574d3f3cad40cb7da58e88d45d8d74d5a90c5cb5d42f6c503343f870a7b8000",
+				"dweb:/ipfs/QmeQi3TJDLrqFLcrsRKpY4YAYeX75QhhAU9pZ2YkaNd5dF"
+			]
+		},
+		"LibProject.sol": {
+			"keccak256": "0x9bc4b3dc0b81900a1179956b4367c4ab784b45961e7788ff263ca8e881601059",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c31002111674d3449d7916c8e2bcdfdc21dc4c01da8729b61d61cb34c8609faf",
+				"dweb:/ipfs/QmbF8W9BhHkhP3xXNBr91Tzpru479nL1oSBaQa9zMGPfUR"
+			]
+		},
+		"TransService.sol": {
+			"keccak256": "0xa833ece02a0121874ee1cf409d711c371b7ec65ebbc3e969aa2ffbd92ac50f7c",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9dddca551381926f2352b7fcd6be52a82b3e5b333b05c79aca5d462c0ffd4325",
+				"dweb:/ipfs/QmeAgqFgDTVHz8HWbZaEkJ2j7AEhwSE6MPgjoLQmmu6ikz"
+			]
+		},
+		"contracts/access/Ownable.sol": {
+			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2",
+				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
+			]
+		},
+		"contracts/utils/Context.sol": {
+			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92",
+				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
+			]
+		},
+		"contracts/utils/math/SafeMath.sol": {
+			"keccak256": "0x0f633a0223d9a1dcccfcf38a64c9de0874dfcbfac0c6941ccf074d63a2ce0e1e",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://864a40efcffdf408044c332a5aa38ec5618ed7b4eecb8f65faf45671bd6cdc65",
+				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
+			]
+		},
+		"utils/calculateUtils.sol": {
+			"keccak256": "0x1b5a2ca16c768e3c6cf924cb72b7cfbf981d4d71f8b334fb50895482ac8db832",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://93f20ebaad6d624ad49715d0b37432e2b7fd02214d1f6f6ed9c146a72424977c",
+				"dweb:/ipfs/Qmbf8RayEorkvCqeGfHufXFsAFkTgNRQTghNSRdwffMikz"
+			]
+		}
+	},
+	"version": 1
+}

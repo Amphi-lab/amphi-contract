@@ -4,7 +4,7 @@ library LibProject {
 //项目状态：已发布、进行中、超时、无人选择、已关闭,已完成
  enum ProjectState { Published,Processing,Overtime, NoOnePick, Closed,Completed }
  // 校验者||翻译者状态 
- enum TaskerState { Waiting, Processing, Submitted,Pass,Fail, Return, Completed, TimeOut }
+ enum TaskerState { Waiting, Processing, Submitted,Return,Completed,Overtime }
  //文件状态
  enum FileState { Waiting, Translating, Validating, WaitModify, BuyerReview, Accepted }
  //文件
@@ -35,6 +35,7 @@ library LibProject {
      uint256[] taskIndex;
      TaskerState[] states;
      string[] files;
+     uint256 bounty;
      //SubtaskInfo[] taskInfo;
      //string[] files;
  }

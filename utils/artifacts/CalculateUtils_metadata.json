@@ -6,23 +6,28 @@
 	"output": {
 		"abi": [
 			{
-				"anonymous": false,
 				"inputs": [
 					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "previousOwner",
-						"type": "address"
+						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
 					},
 					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "newOwner",
-						"type": "address"
+						"internalType": "uint256",
+						"name": "_deduct",
+						"type": "uint256"
 					}
 				],
-				"name": "OwnershipTransferred",
-				"type": "event"
+				"name": "getDeductMoney",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
 			},
 			{
 				"inputs": [
@@ -40,56 +45,56 @@
 						"type": "uint256"
 					}
 				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "owner",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "renounceOwnership",
-				"outputs": [],
-				"stateMutability": "nonpayable",
+				"stateMutability": "pure",
 				"type": "function"
 			},
 			{
 				"inputs": [
 					{
-						"internalType": "address",
-						"name": "newOwner",
-						"type": "address"
+						"internalType": "uint256",
+						"name": "_ratio",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
 					}
 				],
-				"name": "transferOwnership",
-				"outputs": [],
-				"stateMutability": "nonpayable",
+				"name": "getPunish",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_bounts",
+						"type": "uint256"
+					}
+				],
+				"name": "punishRatio",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
 				"type": "function"
 			}
 		],
 		"devdoc": {
 			"kind": "dev",
-			"methods": {
-				"owner()": {
-					"details": "Returns the address of the current owner."
-				},
-				"renounceOwnership()": {
-					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
-				},
-				"transferOwnership(address)": {
-					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
-				}
-			},
+			"methods": {},
 			"version": 1
 		},
 		"userdoc": {
@@ -139,11 +144,11 @@
 			]
 		},
 		"utils/calculateUtils.sol": {
-			"keccak256": "0x0ef76f2a992d95098bfef28aa7240c5384278c2f2cceb72396ec503a47a01dd2",
+			"keccak256": "0x1b5a2ca16c768e3c6cf924cb72b7cfbf981d4d71f8b334fb50895482ac8db832",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://f656aac0eb73f5c0b38e3de47894ff6a41bc0b8eaca9b0b7c25de29b77a2ab9c",
-				"dweb:/ipfs/QmUvybThDM7bijdKpZXSrcs79hVYCgQUrpHMf9MEK2kJWn"
+				"bzz-raw://93f20ebaad6d624ad49715d0b37432e2b7fd02214d1f6f6ed9c146a72424977c",
+				"dweb:/ipfs/Qmbf8RayEorkvCqeGfHufXFsAFkTgNRQTghNSRdwffMikz"
 			]
 		}
 	},

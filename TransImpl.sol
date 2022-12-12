@@ -2,7 +2,8 @@
 pragma solidity ^0.8.0;
 import "./LibProject.sol";
 import "./TransService.sol";
-import "../utils/"
+import "./utils/calculateUtils.sol";
+//校验者任务分配？
 contract TransImpl{
     TransService service;
     constructor(address _serAddress) {
@@ -39,7 +40,7 @@ contract TransImpl{
              _t.maxV =1;
          }else{
              _t.maxT = _t.tasks.length; 
-             _t.maxV=service.getMatNumber(_t.maxT );
+             _t.maxV=CalculateUtils.getMatNumber(_t.maxT );
          }
         // _t.buyer = msg.sender;
        _index = service.addProject( _t);
@@ -52,7 +53,7 @@ contract TransImpl{
              _t.maxV =1;
          }else{
              _t.maxT = _t.tasks.length; 
-             _t.maxV=service.getMatNumber(_t.maxT );
+             _t.maxV=CalculateUtils.getMatNumber(_t.maxT );
          }
          service.updateProject(_index,_t);
     }
@@ -148,19 +149,69 @@ contract TransImpl{
     //超时未提交-翻译者
     function _overTimeTrans(uint256 _index, uint256 _taskerIndex)internal returns(bool) {
         //查询超时任务数
-        uint256 _unCompleted = service.overTimeTasker(_index,_taskerIndex,true);
-        if(_unCompleted ==0) {
+        uint256[] memory _unCompleted;
+        uint256 _money;
+        (_unCompleted,_money) = service.overTimeTasker(_index,_taskerIndex,true);
+        if(_unCompleted.length ==0) {
             return false;
         }
+        //修改任务状态
+        for(uint256 i=0;i<_unCompleted.length;i++){
+             service.updateTaskerState(_index,_taskerIndex,i,LibProject.TaskerState.Overtime,true);
+        }
+       
         //计算罚金
-        /**
-        1.根据赏金获得处罚比率
-        */
-        //将罚金转给发布者
+        //1.根据赏金获得处罚比率
+      uint256 _rate=  CalculateUtils.punishRatio(service.getTranslators(_index,_taskerIndex).bounty);
+      uint256 _punish = CalculateUtils.getPunish(_money,_rate);
+        //将罚金转给发布者-待完成
+        return true;
     }
-    //超时未提交-校验者
-    //打回
-    //扣除赏金
+      //超时未提交-校验者
+    function _overTimeVf(uint256 _index, uint256 _taskerIndex)internal returns(bool) {
+        //查询超时任务数
+        uint256[] memory _unCompleted;
+        uint256 _money;
+        (_unCompleted,_money) = service.overTimeTasker(_index,_taskerIndex,false);
+        if(_unCompleted.length ==0) {
+            return false;
+        }
+        //修改任务状态
+        for(uint256 i=0;i<_unCompleted.length;i++){
+             service.updateTaskerState(_index,_taskerIndex,i,LibProject.TaskerState.Overtime,false);
+        }
+       
+        //计算罚金
+        //1.根据赏金获得处罚比率
+      uint256 _rate=  CalculateUtils.punishRatio(service.getVerifiers(_index,_taskerIndex).bounty);
+      uint256 _punish = CalculateUtils.getPunish(_money,_rate);
+        //将罚金转给发布者-待完成
+        return true;
+    }
+    //校验者验收
+     function validate(uint256 _index,uint256 _taskerIndex,uint256 _fileIndex, bool _isPass) public returns(uint256) {
+         //若校验通过，将任务者的状态修改为已完成
+         if(_isPass) {
+             service.updateTaskerState(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Completed,true);
+             //若用户为自定义支付，则完成后支付任务者赏金
+         }else{
+             //任务不通过，将任务者的状态修改为被打回状态
+             service.updateTaskerState(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Return,true);
+         }
+         
+     }
+      //扣除赏金
+     function deduct(uint256 _index, uint256 _taskerIndex,uint256 _fileIndex,uint256 _deduct, bool _isTrans) public  {
+         uint256 _bounty = service.getProjectOne(_index).tasks[_fileIndex].bounty;
+         uint256 _deductMoney ;
+         if(_isTrans) {
+           _deductMoney =  CalculateUtils.getDeductMoney( CalculateUtils.getTaskTrans(_bounty),_deduct);
+         }else {
+           _deductMoney =  CalculateUtils.getDeductMoney( CalculateUtils.getTaskVf(_bounty),_deduct); 
+         }
+         service.deductBounty(_index,_taskerIndex,_deductMoney,_isTrans);
+     }
     //发布者验收
+    //function receiveProject(uint256 _index,)
     
 }

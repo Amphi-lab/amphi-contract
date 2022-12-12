@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 import "./LibProject.sol";
 import "./utils/calculateUtils.sol";
+
 error OperationException(string,uint256);
 error ParameterException(string);
 //import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
@@ -15,6 +16,7 @@ contract TransService {
     event updateFileStateAndTimeEv(uint256,uint256,address,LibProject.FileState);
     event updateTaskerStateEv(uint256,uint256,uint256,address,LibProject.TaskerState,bool);
     event updateFileInfoEv(uint256,uint256,uint256,address,string,bool);
+    event deductBountyEv(uint256,uint256,uint256,address);
 
     mapping (uint256 => LibProject.TranslationPro) private taskList;
     modifier isCanAcceptTrans(uint256 _index) {
@@ -140,24 +142,27 @@ contract TransService {
         taskList[_index].isVerActive = true;
          emit uploadAcceptStateEv(msg.sender, _index,"ts",true);
     }
-    //查询指定项目翻译者名单
-    // function getTranslators(address _buyer,uint256 _index) public returns(LibProject.Tasker[] memory) {
-    //     return taskList[_buyer][_index].translators;
-    // }
+    //查询指定项目翻译者信息
+    function getTranslators(uint256 _index, uint256 _taskerIndex) public view returns(LibProject.Tasker memory) {
+        return taskList[_index].translators[_taskerIndex];
+    }
     // //查询指定项目校验者名单
-    // function getVerifiers(address _buyer,uint256 _index) public returns(LibProject.Tasker[] memory) {
-    //     return taskList[_buyer][_index].translators;
-    // }
+    function getVerifiers(uint256 _index,uint256 _taskerIndex) public view returns(LibProject.Tasker memory) {
+        return taskList[_index].verifiers[_taskerIndex];
+    }
     //翻译者接收任务
     function acceptTrans(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex,address _tasker) public isCanAcceptTrans(_index) {
-       //计算赏金
-       uint256 _bounty;
        //若_taskerIndex为0，说明该任务者是首次接收该任务
        if(_taskerIndex==0) {
             LibProject.Tasker[] storage _taskerList= taskList[_index].translators;
-           LibProject.Tasker memory _taskerInfo; 
+           LibProject.Tasker memory _taskerInfo;
+           
            _taskerInfo.taskerAddress = _tasker;
            _taskerInfo.taskIndex = _fileIndex;
+           for(uint256 i=0;i<_fileIndex.length;i++){
+               uint256 _bounty=getProjectOne(_index).tasks[i].bounty;
+               _taskerInfo.bounty+= CalculateUtils.getTaskTrans(_bounty);
+           }
            _taskerList.push(_taskerInfo);
            emit acceptTaskEv(_index,_fileIndex,_taskerList.length-1,_tasker,"translator");
        }else{
@@ -174,6 +179,9 @@ contract TransService {
     function acceptTrans(uint256 _index,uint256  _fileIndex, uint256 _taskerIndex,address _tasker) public  isCanAcceptTrans(_index){
            LibProject.Tasker storage _taskerInfo = taskList[_index].translators[_taskerIndex];
                _taskerInfo.taskIndex.push(_fileIndex);
+               uint256 _bounty=getProjectOne(_index).tasks[_fileIndex].bounty;
+               _taskerInfo.bounty+= CalculateUtils.getTaskTrans(_bounty);
+
            emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"translators");
     }
      //校验者接收任务
@@ -183,6 +191,10 @@ contract TransService {
            LibProject.Tasker memory _taskerInfo; 
            _taskerInfo.taskerAddress = _tasker;
            _taskerInfo.taskIndex = _fileIndex;
+           for(uint256 i=0;i<_fileIndex.length;i++){
+               uint256 _bounty=getProjectOne(_index).tasks[i].bounty;
+               _taskerInfo.bounty+= CalculateUtils.getTaskVf(_bounty);
+           }
            _taskerList.push(_taskerInfo);
            emit acceptTaskEv(_index,_fileIndex,_taskerList.length-1,_tasker,"verifiers");
        }else{
@@ -199,7 +211,18 @@ contract TransService {
     function acceptVf(uint256 _index,uint256  _fileIndex, uint256 _taskerIndex,address _tasker) public  isCanAcceptVf(_index) {
            LibProject.Tasker storage _taskerInfo = taskList[_index].verifiers[_taskerIndex];
                _taskerInfo.taskIndex.push(_fileIndex);
+           uint256 _bounty=getProjectOne(_index).tasks[_fileIndex].bounty;
+               _taskerInfo.bounty+= CalculateUtils.getTaskVf(_bounty);
            emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"verifiers");
+    }
+    //扣除罚金
+    function deductBounty(uint256 _index,uint256 _taskerIndex,uint256 _money,bool _isTrans) public  {
+        if(_isTrans){
+            taskList[_index].translators[_taskerIndex].bounty-= _money;
+        }else{
+            taskList[_index].verifiers[_taskerIndex].bounty-= _money;
+        }
+        emit deductBountyEv(_index,_taskerIndex,_money,msg.sender);
     }
     //查询指定项目信息
     function getProject(uint256 _index) public view returns (LibProject.TranslationPro memory) {
@@ -242,21 +265,27 @@ contract TransService {
     function _addCount() internal {
         count++;
     }
+    function isCustomizeState(uint256 _index) public view returns(bool){
+        return taskList[_index].isCustomize;
+    }
     //查询任务者超时未完成任务数
-    function overTimeTasker(uint256 _index, uint256 _taskerIndex, bool _isTrans) public view returns(uint256) {
+    function overTimeTasker(uint256 _index, uint256 _taskerIndex, bool _isTrans) public view returns(uint256[] memory,uint256) {
+        LibProject.TranslationPro memory _pro = getProject(_index);
         LibProject.TaskerState[] memory _states;
+        uint256 money;
         if(_isTrans) {
-            _states  = getProject(_index).translators[_taskerIndex].states; 
+            _states  = _pro.translators[_taskerIndex].states; 
         }else {
-            _states  = getProject(_index).verifiers[_taskerIndex].states; 
+            _states  = _pro.verifiers[_taskerIndex].states; 
         }
-        uint256 _count;
+        uint256[] memory _list;
         for(uint256 i=0;i<_states.length;i++) {
             if(_states[i]<LibProject.TaskerState.Submitted) {
-                _count++;
+               _list[_list.length] = i;
             }
+            money+=_pro.tasks[i].bounty;
         }
-        return _count;
+        return (_list,money);
     }
     
 }
