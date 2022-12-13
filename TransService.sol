@@ -7,40 +7,8 @@ error OperationException(string,uint256);
 error ParameterException(string);
 //import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
 contract TransService {
-    event addProjectEv(address,uint256,LibProject.ProParm);
-    event updateProjectEv(uint256,LibProject.ProParm);
-    event updateProSateEv(uint256,LibProject.ProjectState);
-    event uploadAcceptStateEv(address,uint256,string,bool);
-    event acceptTaskEv(uint256,uint256[],uint256,address,string);
-    event acceptTaskEv(uint256,uint256,uint256,address,string);
-    event updateFileStateAndTimeEv(uint256,uint256,address,LibProject.FileState);
-    event updateTaskerStateEv(uint256,uint256,uint256,address,LibProject.TaskerState,bool);
-    event updateFileInfoEv(uint256,uint256,uint256,address,string,bool);
-    event deductBountyEv(uint256,uint256,uint256,address);
-
+    
     mapping (uint256 => LibProject.TranslationPro) private taskList;
-    modifier isCanAcceptTrans(uint256 _index) {
-        if(taskList[_index].isTransActive == false || isFull(_index,true)== true){
-            revert OperationException("OperationException: Can't receive task",_index);
-        }
-        _;
-    }
-    modifier isCanAcceptVf(uint256 _index) {
-        if(taskList[_index].isVerActive == true || isFull(_index,false)== false){
-            revert OperationException("OperationException: Can't receive task",_index);
-        }
-        _;
-    }
-    modifier onlyBuyer(uint256 _index) {
-        require(getProjectOne(_index).buyer == msg.sender,"Only buyer can call this.");
-        _;
-    }
-     modifier isExist(uint256 _index){
-        if(_index>getCount()){
-            revert ParameterException("Wrong index value!");
-        }
-        _;
-    }
     uint256 private count;
     //增加项目
     function addProject(LibProject.ProParm memory _t)  public returns(uint256) {
@@ -68,10 +36,10 @@ contract TransService {
         for(uint256 i=0;i< _t.tasks.length;i++) {
             _pro.tasks.push(_t.tasks[i]);
         }
-        emit addProjectEv(msg.sender,count,_t);
+       // emit addProjectEv(msg.sender,count,_t);
         return count;
     }
-        function updateProject(uint256 _index,LibProject.ProParm memory _t)  public onlyBuyer(_index){
+        function updateProject(uint256 _index,LibProject.ProParm memory _t)  public{
         LibProject.TranslationPro storage _pro= taskList[_index];
         _pro.releaseTime = _t.releaseTime;
         _pro.introduce = _t.introduce;
@@ -93,19 +61,19 @@ contract TransService {
         for(uint256 i=0;i< _t.tasks.length;i++) {
             _pro.tasks.push(_t.tasks[i]);
         }
-        emit updateProjectEv(_index,_t);
+     //   emit updateProjectEv(_index,_t);
     }
     //修改项目状态
     function updateState(uint256 _index, LibProject.ProjectState _state) public {
         taskList[_index].state = _state;
-        emit updateProSateEv(_index,_state);
+      //  emit updateProSateEv(_index,_state);
     }
     //修改文件状态
     function updateFileStateAndTime(uint256 _index,uint256 _fileIndex,LibProject.FileState _state) public {
         LibProject.TaskInfo storage _task= taskList[_index].tasks[_fileIndex];
         _task.state = _state;
         _task.lastUpload = block.timestamp;
-        emit updateFileStateAndTimeEv(_index,_fileIndex,msg.sender,_state);
+      //  emit updateFileStateAndTimeEv(_index,_fileIndex,msg.sender,_state);
     }
     //修改任务者状态
     function updateTaskerState(uint256 _index,uint256 _taskerIndex,uint256 _stateIndex,LibProject.TaskerState _state, bool _isTrans) public {
@@ -115,7 +83,7 @@ contract TransService {
            taskList[_index].verifiers[_taskerIndex].states[_stateIndex] = _state;
         }
 
-       emit updateTaskerStateEv(_index,_taskerIndex,_stateIndex,msg.sender,_state,_isTrans);
+      // emit updateTaskerStateEv(_index,_taskerIndex,_stateIndex,msg.sender,_state,_isTrans);
     }
     //修改/上传任务文件
     function updateFileInfo(uint256 _index,uint256 _taskerIndex,uint256 _fileIndex,string memory _fileInfo,bool _isTrans) public {
@@ -124,23 +92,23 @@ contract TransService {
         }else{
             taskList[_index].verifiers[_taskerIndex].files[_fileIndex] = _fileInfo;
         }
-        emit updateFileInfoEv(_index,_taskerIndex,_fileIndex,msg.sender,_fileInfo,_isTrans);
+      //  emit updateFileInfoEv(_index,_taskerIndex,_fileIndex,msg.sender,_fileInfo,_isTrans);
     }
     function closeTransAccept(uint256 _index) public {
         taskList[_index].isTransActive = false;
-        emit uploadAcceptStateEv(msg.sender, _index,"ts",false);
+       // emit uploadAcceptStateEv(msg.sender, _index,"ts",false);
     }
     function closeVfAccept( uint256 _index) public {
         taskList[_index].isVerActive = false;
-         emit uploadAcceptStateEv(msg.sender, _index,"vf",false);
+       //  emit uploadAcceptStateEv(msg.sender, _index,"vf",false);
     }
     function openTransAccept( uint256 _index) public {
         taskList[_index].isTransActive = true;
-         emit uploadAcceptStateEv(msg.sender, _index,"ts",true);
+        // emit uploadAcceptStateEv(msg.sender, _index,"ts",true);
     }
     function openVfAccept( uint256 _index) public {
         taskList[_index].isVerActive = true;
-         emit uploadAcceptStateEv(msg.sender, _index,"ts",true);
+       //  emit uploadAcceptStateEv(msg.sender, _index,"ts",true);
     }
     //查询指定项目翻译者信息
     function getTranslators(uint256 _index, uint256 _taskerIndex) public view returns(LibProject.Tasker memory) {
@@ -151,7 +119,7 @@ contract TransService {
         return taskList[_index].verifiers[_taskerIndex];
     }
     //翻译者接收任务
-    function acceptTrans(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex,address _tasker) public isCanAcceptTrans(_index) {
+    function acceptTrans(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex,address _tasker) public{
        //若_taskerIndex为0，说明该任务者是首次接收该任务
        if(_taskerIndex==0) {
             LibProject.Tasker[] storage _taskerList= taskList[_index].translators;
@@ -164,28 +132,28 @@ contract TransService {
                _taskerInfo.bounty+= CalculateUtils.getTaskTrans(_bounty);
            }
            _taskerList.push(_taskerInfo);
-           emit acceptTaskEv(_index,_fileIndex,_taskerList.length-1,_tasker,"translator");
+         //  emit acceptTaskEv(_index,_fileIndex,_taskerList.length-1,_tasker,"translator");
        }else{
            LibProject.Tasker storage _taskerInfo = taskList[_index].translators[_taskerIndex];
            for(uint256 i=0;i<_fileIndex.length;i++) {
                _taskerInfo.taskIndex.push(_fileIndex[i]);
            }
-           emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"translators");
+           //emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"translators");
        }
        if(isFull(_index,true)) {
            closeTransAccept(_index);
        }
     }
-    function acceptTrans(uint256 _index,uint256  _fileIndex, uint256 _taskerIndex,address _tasker) public  isCanAcceptTrans(_index){
+    function acceptTrans(uint256 _index,uint256  _fileIndex, uint256 _taskerIndex) public {
            LibProject.Tasker storage _taskerInfo = taskList[_index].translators[_taskerIndex];
                _taskerInfo.taskIndex.push(_fileIndex);
                uint256 _bounty=getProjectOne(_index).tasks[_fileIndex].bounty;
                _taskerInfo.bounty+= CalculateUtils.getTaskTrans(_bounty);
 
-           emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"translators");
+          // emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"translators");
     }
      //校验者接收任务
-    function acceptVf(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex,address _tasker) public isCanAcceptVf(_index) {
+    function acceptVf(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex,address _tasker) public {
        if(_taskerIndex==0) {
             LibProject.Tasker[] storage _taskerList= taskList[_index].verifiers;
            LibProject.Tasker memory _taskerInfo; 
@@ -196,24 +164,24 @@ contract TransService {
                _taskerInfo.bounty+= CalculateUtils.getTaskVf(_bounty);
            }
            _taskerList.push(_taskerInfo);
-           emit acceptTaskEv(_index,_fileIndex,_taskerList.length-1,_tasker,"verifiers");
+           //emit acceptTaskEv(_index,_fileIndex,_taskerList.length-1,_tasker,"verifiers");
        }else{
            LibProject.Tasker storage _taskerInfo = taskList[_index].verifiers[_taskerIndex];
            for(uint256 i=0;i<_fileIndex.length;i++) {
                _taskerInfo.taskIndex.push(_fileIndex[i]);
            }
-           emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"verifiers");
+           //emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"verifiers");
        }
        if(isFull(_index,false)) {
            closeTransAccept(_index);
        }
     }
-    function acceptVf(uint256 _index,uint256  _fileIndex, uint256 _taskerIndex,address _tasker) public  isCanAcceptVf(_index) {
+    function acceptVf(uint256 _index,uint256  _fileIndex, uint256 _taskerIndex) public  {
            LibProject.Tasker storage _taskerInfo = taskList[_index].verifiers[_taskerIndex];
                _taskerInfo.taskIndex.push(_fileIndex);
            uint256 _bounty=getProjectOne(_index).tasks[_fileIndex].bounty;
                _taskerInfo.bounty+= CalculateUtils.getTaskVf(_bounty);
-           emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"verifiers");
+          // emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"verifiers");
     }
     //扣除罚金
     function deductBounty(uint256 _index,uint256 _taskerIndex,uint256 _money,bool _isTrans) public  {
@@ -222,7 +190,7 @@ contract TransService {
         }else{
             taskList[_index].verifiers[_taskerIndex].bounty-= _money;
         }
-        emit deductBountyEv(_index,_taskerIndex,_money,msg.sender);
+       // emit deductBountyEv(_index,_taskerIndex,_money,msg.sender);
     }
     //查询指定项目信息
     function getProject(uint256 _index) public view returns (LibProject.TranslationPro memory) {

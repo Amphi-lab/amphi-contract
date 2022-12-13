@@ -11,11 +11,6 @@
 						"internalType": "address",
 						"name": "_serAddress",
 						"type": "address"
-					},
-					{
-						"internalType": "address",
-						"name": "_utilsAddress",
-						"type": "address"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -295,6 +290,34 @@
 					},
 					{
 						"internalType": "uint256",
+						"name": "_taskerIndex",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_fileIndex",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "_isPass",
+						"type": "bool"
+					}
+				],
+				"name": "receiveProject",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_index",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
 						"name": "_taskIndex",
 						"type": "uint256"
 					},
@@ -531,19 +554,19 @@
 	},
 	"sources": {
 		"LibProject.sol": {
-			"keccak256": "0x9bc4b3dc0b81900a1179956b4367c4ab784b45961e7788ff263ca8e881601059",
+			"keccak256": "0x56a8025e3a655c989156850d3cd783d8dd1e50b059afe55fe22643aebe985c82",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://c31002111674d3449d7916c8e2bcdfdc21dc4c01da8729b61d61cb34c8609faf",
-				"dweb:/ipfs/QmbF8W9BhHkhP3xXNBr91Tzpru479nL1oSBaQa9zMGPfUR"
+				"bzz-raw://3da3b55852529ca7e71ae6c7544b56c010928189dd62b44c8b36368f85614b46",
+				"dweb:/ipfs/QmPC1YfAdSW7oJ2K9wXKShjLkWBpQPnGbo5P3T5PPUgQ9n"
 			]
 		},
 		"TransImpl.sol": {
-			"keccak256": "0x8b7fd9bf34547b0a17b78f9c5837bb6fa1996c265f502905fe665e781c8a6e9c",
+			"keccak256": "0x3d1bd948e7c90eeebcdedb61768312f4bba857ce9ad4c5eb1125d13229e8d00a",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://d2338b2b7a341192ccd1162043c531171c2a9c6cc1c228cb371b2ee5a4ef5dd3",
-				"dweb:/ipfs/QmPqNJxE68MAzZCzktZLTYZDEwavp7F2d3VZE99gjKPnLn"
+				"bzz-raw://4b8229fde36dd6e228b4d398aab7e599955689d4a0424c6591db994dea9f5222",
+				"dweb:/ipfs/QmU8pq5QTYDPRFHVEPbRgwKKdr9YkJvLz1e6ANBF3A9sPw"
 			]
 		},
 		"TransService.sol": {

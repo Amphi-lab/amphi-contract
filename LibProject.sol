@@ -6,7 +6,7 @@ library LibProject {
  // 校验者||翻译者状态 
  enum TaskerState { Waiting, Processing, Submitted,Return,Completed,Overtime }
  //文件状态
- enum FileState { Waiting, Translating, Validating, WaitModify, BuyerReview, Accepted }
+ enum FileState { Waiting, Translating, Validating, WaitTransModify, BuyerReview, WaitVfModify,Accepted,NoOnePick}
  //文件
  struct FileInfo {
      string  name;

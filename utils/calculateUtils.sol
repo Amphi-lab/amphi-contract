@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./../contracts/utils/math/SafeMath.sol";
-import "./../contracts/access/Ownable.sol";
+
 library CalculateUtils {
     uint256 constant RATE = 273;
     uint256 constant VF_N = 3;

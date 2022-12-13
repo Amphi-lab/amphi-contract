@@ -119,22 +119,6 @@
 		"remappings": []
 	},
 	"sources": {
-		"contracts/access/Ownable.sol": {
-			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2",
-				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
-			]
-		},
-		"contracts/utils/Context.sol": {
-			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92",
-				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
-			]
-		},
 		"contracts/utils/math/SafeMath.sol": {
 			"keccak256": "0x0f633a0223d9a1dcccfcf38a64c9de0874dfcbfac0c6941ccf074d63a2ce0e1e",
 			"license": "MIT",
@@ -144,11 +128,11 @@
 			]
 		},
 		"utils/calculateUtils.sol": {
-			"keccak256": "0x1b5a2ca16c768e3c6cf924cb72b7cfbf981d4d71f8b334fb50895482ac8db832",
+			"keccak256": "0xc3fd1cfca6b520628dffdc3804b709e9739f9f88a746a259aa6e9837e00d1381",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://93f20ebaad6d624ad49715d0b37432e2b7fd02214d1f6f6ed9c146a72424977c",
-				"dweb:/ipfs/Qmbf8RayEorkvCqeGfHufXFsAFkTgNRQTghNSRdwffMikz"
+				"bzz-raw://ad342e890e02f303d04b71f9c664fa4f181ef70569d473408907eef770b280cc",
+				"dweb:/ipfs/QmbGJLKtjkETVWoySV3VQorVQfPZXtRn2sChZCC66FqHnn"
 			]
 		}
 	},

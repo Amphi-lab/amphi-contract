@@ -3,8 +3,41 @@ pragma solidity ^0.8.0;
 import "./LibProject.sol";
 import "./TransService.sol";
 import "./utils/calculateUtils.sol";
-//校验者任务分配？
-contract TransImpl{
+import "./contracts/access/Ownable.sol";
+contract TransImpl is Ownable{
+    event addProjectEv(address,uint256,LibProject.ProParm);
+    event updateProjectEv(uint256,LibProject.ProParm);
+    event updateProSateEv(uint256,LibProject.ProjectState);
+    event uploadAcceptStateEv(address,uint256,string,bool);
+    event acceptTaskEv(uint256,uint256[],uint256,address,string);
+    event acceptTaskEv(uint256,uint256,uint256,address,string);
+    event updateFileStateAndTimeEv(uint256,uint256,address,LibProject.FileState);
+    event updateTaskerStateEv(uint256,uint256,uint256,address,LibProject.TaskerState,bool);
+    event updateFileInfoEv(uint256,uint256,uint256,address,string,bool);
+    event deductBountyEv(uint256,uint256,uint256,address);
+
+    modifier isCanAcceptTrans(uint256 _index) {
+        if(service.getProjectOne(_index).isTransActive == false || service.isFull(_index,true)== true){
+            revert OperationException("OperationException: Can't receive task",_index);
+        }
+        _;
+    }
+    modifier isCanAcceptVf(uint256 _index) {
+        if(service.getProjectOne(_index).isVerActive == true || service.isFull(_index,false)== false){
+            revert OperationException("OperationException: Can't receive task",_index);
+        }
+        _;
+    }
+    modifier onlyBuyer(uint256 _index) {
+        require(service.getProjectOne(_index).buyer == msg.sender,"Only buyer can call this.");
+        _;
+    }
+     modifier isExist(uint256 _index){
+        if(_index>service.getCount()){
+            revert ParameterException("Wrong index value!");
+        }
+        _;
+    }
     TransService service;
     constructor(address _serAddress) {
        service = TransService(_serAddress);
@@ -25,12 +58,27 @@ contract TransImpl{
     function acceptForTranslator(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex) public {
         service.acceptTrans(_index,_fileIndex,_taskerIndex,msg.sender);
     }
-    function acceptForVerifer(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex) public {
-        service.acceptVf(_index,_fileIndex,_taskerIndex,msg.sender);
+    // function acceptForVerifer(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex) public {
+    //     service.acceptVf(_index,_fileIndex,_taskerIndex,msg.sender);
+    // }
+    function validate(uint256 _index,uint256 _transIndex,uint256 _vfIndex,uint256 _fileIndex, bool _isPass,string memory _file) public {
+        _validate(_index,_transIndex,_vfIndex,_fileIndex,_isPass,_file);
     }
-    function sumbitTask(uint256 _index,uint256 _taskIndex, uint256 _fileIndex) public {
-
+    function sumbitTaskTrans(uint256 _index,uint256 _taskerIndex, uint256 _fileIndex,string memory _file) public {
+        _sumbitTaskTrans(_index,_taskerIndex,_fileIndex,_file);
     }
+    function overTimeTrans(uint256 _index, uint256 _taskerIndex)public returns(bool){
+      return  _overTimeTrans(_index,_taskerIndex);
+    }
+     function overTimeVf(uint256 _index, uint256 _taskerIndex)public returns(bool) {
+        return _overTimeVf(_index,_taskerIndex);
+     }
+     function deduct(uint256 _index, uint256 _taskerIndex,uint256 _fileIndex,uint256 _deduct, bool _isTrans) public {
+         deduct(_index,_taskerIndex,_fileIndex,_deduct,_isTrans);
+     }
+     function receiveProject(uint256 _index,uint256 _taskerIndex,uint256 _fileIndex, bool _isPass) public {
+         _receiveProject(_index,_taskerIndex,_fileIndex,_isPass);
+     }
     //发布任务
      function _postProject(LibProject.ProParm memory _t) internal returns(uint256) {
          uint256 _index;
@@ -40,7 +88,8 @@ contract TransImpl{
              _t.maxV =1;
          }else{
              _t.maxT = _t.tasks.length; 
-             _t.maxV=CalculateUtils.getMatNumber(_t.maxT );
+             _t.maxV = _t.tasks.length;
+             //_t.maxV=CalculateUtils.getMatNumber(_t.maxT );
          }
         // _t.buyer = msg.sender;
        _index = service.addProject( _t);
@@ -53,7 +102,7 @@ contract TransImpl{
              _t.maxV =1;
          }else{
              _t.maxT = _t.tasks.length; 
-             _t.maxV=CalculateUtils.getMatNumber(_t.maxT );
+             _t.maxV=_t.tasks.length;
          }
          service.updateProject(_index,_t);
     }
@@ -66,7 +115,7 @@ contract TransImpl{
       if(service.isFull(_index,true)){
           return true;
       }else if(_transList.length == 0) {
-          service.updateState(_index,LibProject.ProjectState.NoOnePick);
+          //service.updateState(_index,LibProject.ProjectState.NoOnePick);
           service.closeTransAccept(_index);
           return false;
       }else {
@@ -83,7 +132,7 @@ contract TransImpl{
                       continue;
                   }
                   //将当前任务分配给翻译者
-                  service.acceptTrans(_index,i,q,_transList[q].taskerAddress);
+                  service.acceptTrans(_index,i,q);
                   break;
               }
             }      
@@ -119,7 +168,7 @@ contract TransImpl{
                       continue;
                   }
                   //将当前任务分配给翻译者
-                  service.acceptTrans(_index,i,q,_vfList[q].taskerAddress);
+                  service.acceptTrans(_index,i,q);
                   break;
               }
             }      
@@ -140,7 +189,7 @@ contract TransImpl{
    //提交任务-校验者
     function _sumbitTaskVf(uint256 _index,uint256 _taskerIndex, uint256 _fileIndex,string memory _file) internal {
         //修改文件的状态和最新加载时间
-        service.updateFileStateAndTime(_index,_taskerIndex,LibProject.FileState.WaitModify);
+        service.updateFileStateAndTime(_index,_taskerIndex,LibProject.FileState.BuyerReview);
         //上传文件
         service.updateFileInfo(_index,_taskerIndex,_fileIndex,_file,false);
         //修改任务者状态
@@ -158,8 +207,7 @@ contract TransImpl{
         //修改任务状态
         for(uint256 i=0;i<_unCompleted.length;i++){
              service.updateTaskerState(_index,_taskerIndex,i,LibProject.TaskerState.Overtime,true);
-        }
-       
+        }  
         //计算罚金
         //1.根据赏金获得处罚比率
       uint256 _rate=  CalculateUtils.punishRatio(service.getTranslators(_index,_taskerIndex).bounty);
@@ -189,19 +237,22 @@ contract TransImpl{
         return true;
     }
     //校验者验收
-     function validate(uint256 _index,uint256 _taskerIndex,uint256 _fileIndex, bool _isPass) public returns(uint256) {
+     function _validate(uint256 _index,uint256 _transIndex,uint256 _vfIndex,uint256 _fileIndex, bool _isPass,string memory _file) internal {
          //若校验通过，将任务者的状态修改为已完成
          if(_isPass) {
-             service.updateTaskerState(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Completed,true);
+             service.updateTaskerState(_index,_transIndex,_fileIndex,LibProject.TaskerState.Completed,true);
+             _sumbitTaskVf(_index,_vfIndex,_fileIndex,_file);
              //若用户为自定义支付，则完成后支付任务者赏金
          }else{
-             //任务不通过，将任务者的状态修改为被打回状态
-             service.updateTaskerState(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Return,true);
+             //任务不通过，将任务者的状态修改为被打回状态 
+             service.updateTaskerState(_index,_vfIndex,_fileIndex,LibProject.TaskerState.Return,true);
+             //文件状态修改为等待翻译者修改
+              service.updateFileStateAndTime(_index,_fileIndex,LibProject.FileState.WaitTransModify);
          }
          
      }
       //扣除赏金
-     function deduct(uint256 _index, uint256 _taskerIndex,uint256 _fileIndex,uint256 _deduct, bool _isTrans) public  {
+     function _deduct(uint256 _index, uint256 _taskerIndex,uint256 _fileIndex,uint256 _deduct, bool _isTrans) internal  {
          uint256 _bounty = service.getProjectOne(_index).tasks[_fileIndex].bounty;
          uint256 _deductMoney ;
          if(_isTrans) {
@@ -212,6 +263,17 @@ contract TransImpl{
          service.deductBounty(_index,_taskerIndex,_deductMoney,_isTrans);
      }
     //发布者验收
-    //function receiveProject(uint256 _index,)
-    
+    function _receiveProject(uint256 _index,uint256 _taskerIndex,uint256 _fileIndex, bool _isPass) internal {
+         //若校验通过，将任务者的状态修改为已完成
+         if(_isPass) {
+             service.updateTaskerState(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Completed,false);
+             service.updateFileStateAndTime(_index,_fileIndex,LibProject.FileState.Accepted);
+             //若用户为自定义支付，则完成后支付校验者赏金，若为非自定义支付，则支付翻译者与校验者赏金
+         }else{
+             //任务不通过，将任务者的状态修改为被打回状态
+             service.updateTaskerState(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Return,false);
+              service.updateFileStateAndTime(_index,_fileIndex,LibProject.FileState.WaitVfModify);
+         }
+         
+     }
 }
