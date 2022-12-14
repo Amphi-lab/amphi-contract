@@ -65,4 +65,5 @@ library CalculateUtils {
     function getDeductMoney(uint256 _bounty,uint256 _deduct) public pure returns(uint256) {
         return _getPercentage(_bounty,_deduct);
     }
+    
 }

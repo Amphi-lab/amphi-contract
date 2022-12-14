@@ -1,11 +1,12 @@
 {
 	"compiler": {
-		"version": "0.8.6+commit.11564f7e"
+		"version": "0.8.17+commit.8df45f5f"
 	},
 	"language": "Solidity",
 	"output": {
 		"abi": [],
 		"devdoc": {
+			"details": "Standard math utilities missing in the Solidity language.",
 			"kind": "dev",
 			"methods": {},
 			"version": 1
@@ -18,9 +19,9 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"LibProject.sol": "LibProject"
+			"contracts/utils/math/Math.sol": "Math"
 		},
-		"evmVersion": "berlin",
+		"evmVersion": "london",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -32,12 +33,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"LibProject.sol": {
-			"keccak256": "0x1849b340d5e1c75f6f3bdd60656cc20076abe2e6c4b6c378a55f4d3c0dcc9f71",
+		"contracts/utils/math/Math.sol": {
+			"keccak256": "0xba1ae0497d71bf30f3710c38aba13a5b68c31d81ff04dd73e5dd55a05a9c903d",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://e186f65fdaaa4651363f1ec7f9d7762b441bd8b6652021d6e4b613dbf854c445",
-				"dweb:/ipfs/QmPpEXGduRpBdwSgCtxSWJPiQCqNnRKShe57xSXCQiLHas"
+				"bzz-raw://d77f4aee3f6534fe2dbc6583385fc123340f8ccb9bf3c8c04555e538a3d9a4b5",
+				"dweb:/ipfs/QmVtP4Fz9tB2DFvMHJaSFbLxnEHE1NKDA92fviV7jDkEnL"
 			]
 		}
 	},

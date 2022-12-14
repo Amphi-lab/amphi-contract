@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.6+commit.11564f7e"
+		"version": "0.8.17+commit.8df45f5f"
 	},
 	"language": "Solidity",
 	"output": {
@@ -105,9 +105,9 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"utils/calculateUtils.sol": "CalculateUtils"
+			"TransImpl_flat.sol": "CalculateUtils"
 		},
-		"evmVersion": "berlin",
+		"evmVersion": "london",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -119,20 +119,11 @@
 		"remappings": []
 	},
 	"sources": {
-		"contracts/utils/math/SafeMath.sol": {
-			"keccak256": "0x0f633a0223d9a1dcccfcf38a64c9de0874dfcbfac0c6941ccf074d63a2ce0e1e",
-			"license": "MIT",
+		"TransImpl_flat.sol": {
+			"keccak256": "0xeb2e77cd4d729cc98c31eb7558c62d34e0d7662c78fdc882c4fa1182f27089ea",
 			"urls": [
-				"bzz-raw://864a40efcffdf408044c332a5aa38ec5618ed7b4eecb8f65faf45671bd6cdc65",
-				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
-			]
-		},
-		"utils/calculateUtils.sol": {
-			"keccak256": "0x35870f8e4d7f5548a5eeaa5886d755cc8bc932f24c53882229dc4dd61e24878d",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://f7a6dec634760980a9b1b05cd726ba4b560684d6900be5060bb7c6de014c0446",
-				"dweb:/ipfs/QmSjijqrSnEEayeUtastc67Ho4WBzDQJCLVb3rryjig5sM"
+				"bzz-raw://5c448d8ac11d36be131e9b84c486de478886d570f4c6a80a348cefb365d18ca0",
+				"dweb:/ipfs/QmXXei2sCuEe6HwQu82ynAMPvq49PEgZp6QLac2Npo5QDQ"
 			]
 		}
 	},

@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.7+commit.e28d00a7"
+		"version": "0.8.17+commit.8df45f5f"
 	},
 	"language": "Solidity",
 	"output": {
@@ -11,10 +11,612 @@
 						"internalType": "address",
 						"name": "_serAddress",
 						"type": "address"
+					},
+					{
+						"internalType": "address payable",
+						"name": "_transferService",
+						"type": "address"
 					}
 				],
 				"stateMutability": "nonpayable",
 				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256[]",
+						"name": "",
+						"type": "uint256[]"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "acceptTaskEv",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "acceptTaskEv",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "releaseTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "introduce",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "need",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "deadline",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "sourceLanguage",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "goalLanguage",
+								"type": "string"
+							},
+							{
+								"internalType": "string[]",
+								"name": "preferList",
+								"type": "string[]"
+							},
+							{
+								"internalType": "uint256",
+								"name": "translationType",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "workLoad",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "isNonDisclosure",
+								"type": "bool"
+							},
+							{
+								"internalType": "bool",
+								"name": "isCustomize",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "bounty",
+								"type": "uint256"
+							},
+							{
+								"components": [
+									{
+										"components": [
+											{
+												"internalType": "string",
+												"name": "name",
+												"type": "string"
+											},
+											{
+												"internalType": "uint256",
+												"name": "size",
+												"type": "uint256"
+											},
+											{
+												"internalType": "uint256",
+												"name": "videoLength",
+												"type": "uint256"
+											},
+											{
+												"internalType": "uint256",
+												"name": "Page",
+												"type": "uint256"
+											},
+											{
+												"internalType": "uint256",
+												"name": "words",
+												"type": "uint256"
+											},
+											{
+												"internalType": "uint256",
+												"name": "fileType",
+												"type": "uint256"
+											},
+											{
+												"internalType": "string",
+												"name": "path",
+												"type": "string"
+											}
+										],
+										"internalType": "struct LibProject.FileInfo",
+										"name": "file",
+										"type": "tuple"
+									},
+									{
+										"internalType": "uint256",
+										"name": "bounty",
+										"type": "uint256"
+									},
+									{
+										"internalType": "string",
+										"name": "info",
+										"type": "string"
+									},
+									{
+										"internalType": "enum LibProject.FileState",
+										"name": "state",
+										"type": "uint8"
+									},
+									{
+										"internalType": "uint256",
+										"name": "lastUpload",
+										"type": "uint256"
+									}
+								],
+								"internalType": "struct LibProject.TaskInfo[]",
+								"name": "tasks",
+								"type": "tuple[]"
+							}
+						],
+						"indexed": false,
+						"internalType": "struct LibProject.ProParm",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"name": "addProjectEv",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "deductBountyEv",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"name": "updateFileInfoEv",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum LibProject.FileState",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"name": "updateFileStateAndTimeEv",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum LibProject.ProjectState",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"name": "updateProSateEv",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "releaseTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "introduce",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "need",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "deadline",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "sourceLanguage",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "goalLanguage",
+								"type": "string"
+							},
+							{
+								"internalType": "string[]",
+								"name": "preferList",
+								"type": "string[]"
+							},
+							{
+								"internalType": "uint256",
+								"name": "translationType",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "workLoad",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "isNonDisclosure",
+								"type": "bool"
+							},
+							{
+								"internalType": "bool",
+								"name": "isCustomize",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "bounty",
+								"type": "uint256"
+							},
+							{
+								"components": [
+									{
+										"components": [
+											{
+												"internalType": "string",
+												"name": "name",
+												"type": "string"
+											},
+											{
+												"internalType": "uint256",
+												"name": "size",
+												"type": "uint256"
+											},
+											{
+												"internalType": "uint256",
+												"name": "videoLength",
+												"type": "uint256"
+											},
+											{
+												"internalType": "uint256",
+												"name": "Page",
+												"type": "uint256"
+											},
+											{
+												"internalType": "uint256",
+												"name": "words",
+												"type": "uint256"
+											},
+											{
+												"internalType": "uint256",
+												"name": "fileType",
+												"type": "uint256"
+											},
+											{
+												"internalType": "string",
+												"name": "path",
+												"type": "string"
+											}
+										],
+										"internalType": "struct LibProject.FileInfo",
+										"name": "file",
+										"type": "tuple"
+									},
+									{
+										"internalType": "uint256",
+										"name": "bounty",
+										"type": "uint256"
+									},
+									{
+										"internalType": "string",
+										"name": "info",
+										"type": "string"
+									},
+									{
+										"internalType": "enum LibProject.FileState",
+										"name": "state",
+										"type": "uint8"
+									},
+									{
+										"internalType": "uint256",
+										"name": "lastUpload",
+										"type": "uint256"
+									}
+								],
+								"internalType": "struct LibProject.TaskInfo[]",
+								"name": "tasks",
+								"type": "tuple[]"
+							}
+						],
+						"indexed": false,
+						"internalType": "struct LibProject.ProParm",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"name": "updateProjectEv",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum LibProject.TaskerState",
+						"name": "",
+						"type": "uint8"
+					},
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"name": "updateTaskerStateEv",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"name": "uploadAcceptStateEv",
+				"type": "event"
 			},
 			{
 				"inputs": [
@@ -124,6 +726,67 @@
 			{
 				"inputs": [
 					{
+						"internalType": "uint256",
+						"name": "_index",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_taskerIndex",
+						"type": "uint256"
+					}
+				],
+				"name": "overTimeTrans",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_index",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_taskerIndex",
+						"type": "uint256"
+					}
+				],
+				"name": "overTimeVf",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"components": [
 							{
 								"internalType": "uint256",
@@ -253,16 +916,6 @@
 								"internalType": "struct LibProject.TaskInfo[]",
 								"name": "tasks",
 								"type": "tuple[]"
-							},
-							{
-								"internalType": "uint256",
-								"name": "maxT",
-								"type": "uint256"
-							},
-							{
-								"internalType": "uint256",
-								"name": "maxV",
-								"type": "uint256"
 							}
 						],
 						"internalType": "struct LibProject.ProParm",
@@ -310,6 +963,13 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -318,16 +978,34 @@
 					},
 					{
 						"internalType": "uint256",
-						"name": "_taskIndex",
+						"name": "_taskerIndex",
 						"type": "uint256"
 					},
 					{
 						"internalType": "uint256",
 						"name": "_fileIndex",
 						"type": "uint256"
+					},
+					{
+						"internalType": "string",
+						"name": "_file",
+						"type": "string"
 					}
 				],
-				"name": "sumbitTask",
+				"name": "sumbitTaskTrans",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -469,16 +1147,6 @@
 								"internalType": "struct LibProject.TaskInfo[]",
 								"name": "tasks",
 								"type": "tuple[]"
-							},
-							{
-								"internalType": "uint256",
-								"name": "maxT",
-								"type": "uint256"
-							},
-							{
-								"internalType": "uint256",
-								"name": "maxV",
-								"type": "uint256"
 							}
 						],
 						"internalType": "struct LibProject.ProParm",
@@ -500,7 +1168,12 @@
 					},
 					{
 						"internalType": "uint256",
-						"name": "_taskerIndex",
+						"name": "_transIndex",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_vfIndex",
 						"type": "uint256"
 					},
 					{
@@ -512,23 +1185,32 @@
 						"internalType": "bool",
 						"name": "_isPass",
 						"type": "bool"
+					},
+					{
+						"internalType": "string",
+						"name": "_file",
+						"type": "string"
 					}
 				],
 				"name": "validate",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
+				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			}
 		],
 		"devdoc": {
 			"kind": "dev",
-			"methods": {},
+			"methods": {
+				"owner()": {
+					"details": "Returns the address of the current owner."
+				},
+				"renounceOwnership()": {
+					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+				},
+				"transferOwnership(address)": {
+					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				}
+			},
 			"version": 1
 		},
 		"userdoc": {
@@ -554,27 +1236,35 @@
 	},
 	"sources": {
 		"LibProject.sol": {
-			"keccak256": "0x56a8025e3a655c989156850d3cd783d8dd1e50b059afe55fe22643aebe985c82",
+			"keccak256": "0x3e5f47d59b574b2a07a468afc66175aab77a4cc067ce6b0d57206b8d5f8761c6",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://3da3b55852529ca7e71ae6c7544b56c010928189dd62b44c8b36368f85614b46",
-				"dweb:/ipfs/QmPC1YfAdSW7oJ2K9wXKShjLkWBpQPnGbo5P3T5PPUgQ9n"
+				"bzz-raw://42c5e56d2c81ff61d549adf3944d2a302ff363dbfb7988d436f67350e6d33e42",
+				"dweb:/ipfs/QmRTofQoGuFyBLR2c7trH6gJ9zMmuzY8sftsg1oUQLKZKC"
 			]
 		},
 		"TransImpl.sol": {
-			"keccak256": "0x3d1bd948e7c90eeebcdedb61768312f4bba857ce9ad4c5eb1125d13229e8d00a",
+			"keccak256": "0xc6bd2f89c99c0e71f212dcbda918122affd01f72c785aad15d71334d7b546b94",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://4b8229fde36dd6e228b4d398aab7e599955689d4a0424c6591db994dea9f5222",
-				"dweb:/ipfs/QmU8pq5QTYDPRFHVEPbRgwKKdr9YkJvLz1e6ANBF3A9sPw"
+				"bzz-raw://3f71135f2302fc70896a08fcd177805d4d371d1471a77ad04a452bc692a791e3",
+				"dweb:/ipfs/QmZut1sForcKKmCmpTVkjh51B2ZW4ZPMZLb8UX5RD98SiV"
 			]
 		},
 		"TransService.sol": {
-			"keccak256": "0xa833ece02a0121874ee1cf409d711c371b7ec65ebbc3e969aa2ffbd92ac50f7c",
+			"keccak256": "0x14759f05c11f001f514b046e78e381e0dc6bcf8f04a533e9270fcab615d5258e",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://9dddca551381926f2352b7fcd6be52a82b3e5b333b05c79aca5d462c0ffd4325",
-				"dweb:/ipfs/QmeAgqFgDTVHz8HWbZaEkJ2j7AEhwSE6MPgjoLQmmu6ikz"
+				"bzz-raw://2bae7e1e9140e322382645fee33400ff3e2ea9572fa16a9ddcd28bc0a7a2eccd",
+				"dweb:/ipfs/QmaKJQnUnVYax4VdmSHhxk3QSKNjQ5dXbed8AGvh7NpehL"
+			]
+		},
+		"TransferService.sol": {
+			"keccak256": "0x5f6b763a0e27b984737d46b0abd17a1e002991d64f39600759ed47b3f393bcda",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://dee4d86ab225da2d2a5373c1e1767ca0f4e919de2e219862e7f64c1a401a633d",
+				"dweb:/ipfs/QmWDzmjLRwFaHWiyyqunYHcyZYMn94yVv4pcixMSr8x8Y6"
 			]
 		},
 		"contracts/access/Ownable.sol": {
@@ -602,11 +1292,11 @@
 			]
 		},
 		"utils/calculateUtils.sol": {
-			"keccak256": "0x1b5a2ca16c768e3c6cf924cb72b7cfbf981d4d71f8b334fb50895482ac8db832",
+			"keccak256": "0xc3fd1cfca6b520628dffdc3804b709e9739f9f88a746a259aa6e9837e00d1381",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://93f20ebaad6d624ad49715d0b37432e2b7fd02214d1f6f6ed9c146a72424977c",
-				"dweb:/ipfs/Qmbf8RayEorkvCqeGfHufXFsAFkTgNRQTghNSRdwffMikz"
+				"bzz-raw://ad342e890e02f303d04b71f9c664fa4f181ef70569d473408907eef770b280cc",
+				"dweb:/ipfs/QmbGJLKtjkETVWoySV3VQorVQfPZXtRn2sChZCC66FqHnn"
 			]
 		}
 	},
