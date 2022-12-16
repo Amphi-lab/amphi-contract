@@ -3,11 +3,8 @@ pragma solidity ^0.8.0;
 import "./LibProject.sol";
 import "./utils/calculateUtils.sol";
 
-error OperationException(string,uint256);
-error ParameterException(string);
-//import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
+
 contract TransService {
-   
     mapping (uint256 => LibProject.TranslationPro) private taskList;
     uint256 private count;
     //增加项目
@@ -15,6 +12,7 @@ contract TransService {
        count++;
        //  taskIndex[_buyer].push(count);
         LibProject.TranslationPro storage _pro= taskList[count];
+        _pro.buyer = msg.sender;
         _pro.releaseTime = _t.releaseTime;
         _pro.introduce = _t.introduce;
         _pro.need=_t.need;
@@ -29,11 +27,11 @@ contract TransService {
         _pro.isCustomize = _t.isCustomize;
         if(_t.isCustomize) {
             _pro.maxT = _t.tasks.length; 
-             _pro.maxT = _t.tasks.length;
+             _pro.maxV = _t.tasks.length;
             
          }else{
             _pro.maxT =1;
-            _pro.maxT =1;
+            _pro.maxV =1;
          }
           _pro.state = LibProject.ProjectState.Published;
         _pro.isTransActive = true;
@@ -43,7 +41,7 @@ contract TransService {
         }
         return count;
     }
-        function updateProject(uint256 _index,LibProject.ProParm memory _t)  public{
+    function updateProject(uint256 _index,LibProject.ProParm memory _t)  public{
         LibProject.TranslationPro storage _pro= taskList[_index];
         _pro.releaseTime = _t.releaseTime;
         _pro.introduce = _t.introduce;
@@ -77,32 +75,26 @@ contract TransService {
         taskList[_index].state = _state;
     }
     //批量修改任务状态
-    function updateTaskerState(uint256 _index,uint256  _taskerIndex,uint256[] memory _stateIndex,LibProject.TaskerState _state, bool _isTrans) public {
-        LibProject.Tasker storage _tasker ;
-         if(_isTrans){
-             _tasker=taskList[_index].translators[_taskerIndex];
-        }else{
-            _tasker=taskList[_index].verifiers[_taskerIndex];
+    function updateTaskerState(uint256 _index,address  _taskerAddress,uint256[] memory _fileIndex,LibProject.TaskerState _state, bool _isTrans) public {
+        if(_isTrans){
+            //  _tasker=taskList[_index].transInfo[_taskerAddress];
+        for(uint256 i=0;i<_fileIndex.length;i++) {
+            taskList[_index].transInfo[_taskerAddress].info[_fileIndex[i]].state = _state;
+         
         }
-        for(uint256 i=0;i<_stateIndex.length;i++) {
-            _tasker.states[_stateIndex[i]] = _state;
+        }else{
+        for(uint256 i=0;i<_fileIndex.length;i++) {
+            taskList[_index].vfInfo[_taskerAddress].info[_fileIndex[i]].state = _state;
+        }
         }
     }
-    //修改/上传任务文件
-    // function updateFileInfo(uint256 _index,uint256 _taskerIndex,uint256 _fileIndex,string memory _fileInfo,bool _isTrans) public {
-    //     if(_isTrans){
-    //        taskList[_index].translators[_taskerIndex].files[_fileIndex] = _fileInfo;
-    //     }else{
-    //         taskList[_index].verifiers[_taskerIndex].files[_fileIndex] = _fileInfo;
-    //     }
-    // }
-    function returnTasker(uint256 _index,uint256 _taskerIndex,uint256 _fileIndex,bool _isTrans)public {
+    function returnTasker(uint256 _index,address _taskerIndex,uint256 _fileIndex,bool _isTrans)public {
         //修改任务者状态&修改文件状态
         if(_isTrans) {
-            taskList[_index].translators[_taskerIndex].states[_fileIndex]=LibProject.TaskerState.Return;
+            taskList[_index].transInfo[_taskerIndex].info[_fileIndex].state=LibProject.TaskerState.Return;
             taskList[_index].tasks[_fileIndex].state = LibProject.FileState.WaitTransModify;
         }else {
-            taskList[_index].verifiers[_taskerIndex].states[_fileIndex]=LibProject.TaskerState.Return;
+            taskList[_index].vfInfo[_taskerIndex].info[_fileIndex].state=LibProject.TaskerState.Return;
             taskList[_index].tasks[_fileIndex].state = LibProject.FileState.WaitVfModify;
         }
     }
@@ -116,182 +108,249 @@ contract TransService {
     function getTaskBounty(uint256 _index,uint256 _fileIndex) public view returns(uint256) {
         return taskList[_index].tasks[_fileIndex].bounty;
     }
+    function getTaskBounty(uint256 _index) public view returns(uint256) {
+        return taskList[_index].bounty;
+    }
     function closeVfAccept( uint256 _index) public {
         taskList[_index].isVerActive = false;
         // emit uploadAcceptStateEv(msg.sender, _index,"vf",false);
     }
-    // function openTransAccept( uint256 _index) public {
-    //     taskList[_index].isTransActive = true;
-    //    //  emit uploadAcceptStateEv(msg.sender, _index,"ts",true);
-    // }
-    // function openVfAccept( uint256 _index) public {
-    //     taskList[_index].isVerActive = true;
-    //    //  emit uploadAcceptStateEv(msg.sender, _index,"ts",true);
-    // }
     //翻译者提交任务
-    function sumbitTransTask(uint256 _index,uint256 _taskerIndex, uint256 _fileIndex,string memory _file) public {
+    function sumbitTransTask(uint256 _index,address _taskerIndex, uint256 _fileIndex,string memory _file) public {
          LibProject.TranslationPro storage _pro= taskList[_index];
          _pro.tasks[_fileIndex].state = LibProject.FileState.Validating;
         _pro.tasks[_fileIndex].lastUpload = block.timestamp;
-        _pro.translators[_taskerIndex].files[_fileIndex] = _file;
-        _pro.translators[_taskerIndex].states[_fileIndex] = LibProject.TaskerState.Submitted;
+        _pro.transInfo[_taskerIndex].info[_fileIndex].file = _file;
+        _pro.transInfo[_taskerIndex].info[_fileIndex].state= LibProject.TaskerState.Submitted;
     }
     //校验者验收&提交任务
-    function sumbitVfTask(uint256 _index,uint256 _transIndex,uint256 _vfIndex, uint256 _fileIndex,string memory _file) public {
+    function sumbitVfTask(uint256 _index,address _transIndex,address _vfIndex, uint256 _fileIndex,string memory _file) public {
         
          LibProject.TranslationPro storage _pro= taskList[_index];
-         _pro.translators[_transIndex].states[_fileIndex] =LibProject.TaskerState.Completed;
+         _pro.transInfo[_transIndex].info[_fileIndex].state =LibProject.TaskerState.Completed;
          //校验者提交任务
          _pro.tasks[_fileIndex].state = LibProject.FileState.BuyerReview;
         _pro.tasks[_fileIndex].lastUpload = block.timestamp;
-        _pro.verifiers[_vfIndex].files[_fileIndex] = _file;
-        _pro.verifiers[_vfIndex].states[_fileIndex] = LibProject.TaskerState.Submitted;
+        _pro.vfInfo[_vfIndex].info[_fileIndex].file = _file;
+        _pro.vfInfo[_vfIndex].info[_fileIndex].state = LibProject.TaskerState.Submitted;
     }
-    //查询指定项目翻译者信息
-    // function getTranslators(uint256 _index, uint256 _taskerIndex) public view returns(LibProject.Tasker memory) {
-    //     return taskList[_index].translators[_taskerIndex];
-    // }
-    // // //查询指定项目校验者名单
-    // function getVerifiers(uint256 _index,uint256 _taskerIndex) public view returns(LibProject.Tasker memory) {
-    //     return taskList[_index].verifiers[_taskerIndex];
-    // }
     //翻译者接收任务
-    function acceptTrans(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex,address _tasker) public returns(uint256){
-       //若_taskerIndex为0，说明该任务者是首次接收该任务
-       uint256 _returnIndex;
-       if(_taskerIndex==0) {
-            LibProject.Tasker[] storage _taskerList= taskList[_index].translators;
-           LibProject.Tasker memory _taskerInfo;
-           
-           _taskerInfo.taskerAddress = _tasker;
-           _taskerInfo.taskIndex = _fileIndex;
-        //    for(uint256 i=0;i<_fileIndex.length;i++){
-        //        uint256 _bounty=getProjectOne(_index).tasks[i].bounty;
-        //        _taskerInfo.bounty+= CalculateUtils.getTaskTrans(_bounty);
-        //    }
-           _taskerList.push(_taskerInfo);
-        //    emit acceptTaskEv(_index,_fileIndex,_taskerList.length-1,_tasker,"translator");
-           _returnIndex=_taskerList.length;
-       }else{
-           LibProject.Tasker storage _taskerInfo = taskList[_index].translators[_taskerIndex];
-           for(uint256 i=0;i<_fileIndex.length;i++) {
-               _taskerInfo.taskIndex.push(_fileIndex[i]);
+    function acceptTrans(uint256 _index,uint256[] memory _fileIndex, address _taskerIndex) public{
+       //若长度为0，说明该任务者是首次接收该任务,将翻译者存入到翻译者名单中
+       LibProject.Tasker storage _taskerInfo = taskList[_index].transInfo[_taskerIndex];
+       if(_taskerInfo.taskIndex.length==0) {
+           taskList[_index].translators.push(_taskerIndex);
+        }
+        //若任务为自定义支付，则计算任务赏金并记录
+           if(isCustomizeState(_index)) {
+               uint256 _taskBountyInitial;
+               for(uint256 q=0;q<_fileIndex.length;q++) {
+               taskList[_index].tasks[_fileIndex[q]].state= LibProject.FileState.Translating;
+               _taskBountyInitial = taskList[_index].tasks[_fileIndex[q]].bounty;
+               _taskerInfo.info[_fileIndex[q]].bounty = CalculateUtils.getTaskTrans(_taskBountyInitial);
+               _taskerInfo.taskIndex.push(_fileIndex[q]);
            }
-        //    emit acceptTaskEv(_index,_fileIndex,_taskerIndex,_tasker,"translators");
-       }
+           }else {
+               for(uint256 i=0;i<_fileIndex.length;i++) {
+               _taskerInfo.taskIndex.push(_fileIndex[i]);
+               taskList[_index].tasks[_fileIndex[i]].state= LibProject.FileState.Translating;
+
+           }
+           }
+        //    //文件状态修改为翻译中
+       taskList[_index].numberT++;
        if(isFull(_index,true)) {
           taskList[_index].isTransActive = false;
        }
-       return _returnIndex;
     }
-    // function acceptTrans(uint256 _index,uint256  _fileIndex, uint256 _taskerIndex) public {
-    //        LibProject.Tasker storage _taskerInfo = taskList[_index].translators[_taskerIndex];
-    //            _taskerInfo.taskIndex.push(_fileIndex);
-    //           // uint256 _bounty=getProjectOne(_index).tasks[_fileIndex].bounty;
-    //            //_taskerInfo.bounty+= CalculateUtils.getTaskTrans(_bounty);
-
-    //     //    emit acceptTaskEv(_index,_fileIndex,_taskerIndex,msg.sender,"translators");
-    // }
      //校验者接收任务
-    function acceptVf(uint256 _index,uint256[] memory _fileIndex, uint256 _taskerIndex,address _tasker) public returns(uint256 _returnIndex){
-       if(_taskerIndex==0) {
-            LibProject.Tasker[] storage _taskerList= taskList[_index].verifiers;
-           LibProject.Tasker memory _taskerInfo; 
-           _taskerInfo.taskerAddress = _tasker;
-           _taskerInfo.taskIndex = _fileIndex;
-           _taskerList.push(_taskerInfo);
-          _returnIndex=_taskerList.length;
-       }else{
-           LibProject.Tasker storage _taskerInfo = taskList[_index].verifiers[_taskerIndex];
-           for(uint256 i=0;i<_fileIndex.length;i++) {
-               _taskerInfo.taskIndex.push(_fileIndex[i]);
-           }
-       }
-       if(isFull(_index,false)) {
-           taskList[_index].isVerActive = false;
-       }
-       return _returnIndex;
-    }
-    function accept(uint256 _index,uint256  _fileIndex, uint256 _taskerIndex, bool _isTrans) public  {
-         LibProject.Tasker storage _taskerInfo;
-        if(_isTrans) {
-            _taskerInfo = taskList[_index].translators[_taskerIndex];
-        }else{
-            _taskerInfo = taskList[_index].verifiers[_taskerIndex];
+    function acceptVf(uint256 _index,uint256[] memory _fileIndex, address _taskerIndex) public {
+       //若长度为0，说明该任务者是首次接收该任务,将翻译者存入到翻译者名单中
+       LibProject.Tasker storage _taskerInfo = taskList[_index].vfInfo[_taskerIndex];
+       if(_taskerInfo.taskIndex.length==0) {
+           taskList[_index].verifiers.push(_taskerIndex);
         }
-               _taskerInfo.taskIndex.push(_fileIndex);
+        //若任务为自定义支付，则计算任务赏金并记录
+           if(isCustomizeState(_index)) {
+               uint256 _taskBountyInitial;
+               for(uint256 q=0;q<_fileIndex.length;q++) {
+               taskList[_index].tasks[_fileIndex[q]].state= LibProject.FileState.Translating;
+               _taskBountyInitial = taskList[_index].tasks[_fileIndex[q]].bounty;
+               _taskerInfo.info[_fileIndex[q]].bounty = CalculateUtils.getTaskTrans(_taskBountyInitial);
+               _taskerInfo.taskIndex.push(_fileIndex[q]);
+           }
+           }else {
+               for(uint256 i=0;i<_fileIndex.length;i++) {
+               _taskerInfo.taskIndex.push(_fileIndex[i]);
+               taskList[_index].tasks[_fileIndex[i]].state= LibProject.FileState.Translating;
+
+           }
+           }
+        //    //文件状态修改为翻译中
+       taskList[_index].numberV++;
+       if(isFull(_index,false)) {
+          taskList[_index].isVerActive = false;
+       }
+    }
+    function accept(uint256 _index,uint256  _fileIndex, address _taskerIndex, bool _isTrans) public  {
+         LibProject.FileIndexInfo storage _taskerInfo;
+        if(_isTrans) {
+            _taskerInfo = taskList[_index].transInfo[_taskerIndex].info[_fileIndex];
+             taskList[_index].numberT++;
+        }else{
+            _taskerInfo = taskList[_index].vfInfo[_taskerIndex].info[_fileIndex];
+             taskList[_index].numberV++;
+        }
+               taskList[_index].transInfo[_taskerIndex].taskIndex.push(_fileIndex);
+        if(isCustomizeState(_index)) {
+            uint256 _taskBountyInitial = taskList[_index].tasks[_fileIndex].bounty;
+            _taskerInfo.bounty = CalculateUtils.getTaskTrans(_taskBountyInitial);
+        }
     }
     //扣除罚金
-    function deductBounty(uint256 _index,uint256 _taskerIndex,uint256 _fileIndex,uint256 _money,bool _isTrans) public  {
+    function deductBounty(uint256 _index,address _taskerIndex,uint256 _fileIndex,uint256 _money,bool _isTrans) public  {
         if(_isTrans){
-            taskList[_index].translators[_taskerIndex].bounty[_fileIndex]+= _money;
+            taskList[_index].transInfo[_taskerIndex].info[_fileIndex].bounty-= _money;
         }else{
-            taskList[_index].verifiers[_taskerIndex].bounty[_fileIndex]+= _money;
+            taskList[_index].vfInfo[_taskerIndex].info[_fileIndex].bounty-= _money;
         }
         // emit deductBountyEv(_index,_taskerIndex,_money,msg.sender);
     }
-    //获得翻译者已接单任务数
-    function getTransNumber(uint256 _index) public view returns(uint256) {
-        LibProject.Tasker[] memory _taskers= taskList[_index].translators;
-        uint256 num;
-        for(uint256 i=0;i<_taskers.length;i++) {
-            num+=_taskers[i].taskIndex.length;
-        }
-        return  num;
-    }
-    function getVfNumber(uint256 _index) public view returns(uint256) {
-        LibProject.Tasker[] memory _taskers= taskList[_index].verifiers;
-        uint256 num;
-        for(uint256 i=0;i<_taskers.length;i++) {
-            num+=_taskers[i].taskIndex.length;
-        }
-        return  num;
-    }
     //判断任务是否已满
     function isFull(uint256 _index, bool _isTrans) public view returns(bool) {
-       uint256 fileNumber = taskList[_index].tasks.length;
-       uint256 acceptNumber;
        if(_isTrans){
-          acceptNumber  = getTransNumber(_index);
+          return taskList[_index].maxT <= taskList[_index].numberT;
        }else{
-          acceptNumber  = getVfNumber(_index);
+          return taskList[_index].maxV <= taskList[_index].numberV;
        }
-       return acceptNumber == fileNumber;
     }
-    function getProjectOne(uint256 _index) public view returns(LibProject.TranslationPro memory) {
-        return taskList[_index];
+    function getProjectOne(uint256 _index) public view returns(LibProject.ReturnTask memory) {
+        LibProject.ReturnTask memory _returnTask;
+        _returnTask.buyer =taskList[_index].buyer;
+        _returnTask.releaseTime = taskList[_index].releaseTime;
+        _returnTask.introduce = taskList[_index].introduce;
+        _returnTask.need = taskList[_index].need;
+        _returnTask.deadline = taskList[_index].deadline;
+        _returnTask.sourceLanguage = taskList[_index].sourceLanguage;
+        _returnTask.goalLanguage = taskList[_index].goalLanguage;
+        _returnTask.preferList = taskList[_index].preferList;
+        _returnTask.translationType = taskList[_index].translationType;
+        _returnTask.workLoad = taskList[_index].workLoad;
+        _returnTask.isNonDisclosure = taskList[_index].isNonDisclosure;
+        _returnTask.isCustomize = taskList[_index].isCustomize;
+        _returnTask.bounty = taskList[_index].bounty;
+        _returnTask.maxT = taskList[_index].maxT;
+        _returnTask.maxV = taskList[_index].maxV;
+        _returnTask.numberT = taskList[_index].numberT;
+        _returnTask.numberV = taskList[_index].numberV;
+        _returnTask.isTransActive = taskList[_index].isTransActive;
+        _returnTask.isVerActive = taskList[_index].isVerActive;
+        _returnTask.state = taskList[_index].state;
+        _returnTask.tasks = taskList[_index].tasks;
+        for(uint256 i=0;i<taskList[_index].translators.length;i++) {
+            LibProject.ReturnTasker memory  _taskerInfo;
+            address _taskerAddress =taskList[_index].translators[i];
+            _taskerInfo.taskerAddress = _taskerAddress;
+            for(uint256 q=0;i<taskList[_index].transInfo[_taskerAddress].taskIndex.length;q++) {
+                LibProject.ReturnFileInfo memory _fileInfo;
+                _fileInfo.taskIndex =  taskList[_index].transInfo[_taskerAddress].taskIndex[q];
+                _fileInfo.state = taskList[_index].transInfo[_taskerAddress].info[_fileInfo.taskIndex].state;
+                _fileInfo.file = taskList[_index].transInfo[_taskerAddress].info[_fileInfo.taskIndex].file;
+                _fileInfo.bounty = taskList[_index].transInfo[_taskerAddress].info[_fileInfo.taskIndex].bounty;
+                _taskerInfo.taskerinfo[q] = _fileInfo;
+            }
+            _returnTask.translators[i] = _taskerInfo;
+        }
+        for(uint256 i=0;i<taskList[_index].verifiers.length;i++) {
+            LibProject.ReturnTasker memory  _taskerInfo;
+            address _taskerAddress =taskList[_index].verifiers[i];
+            _taskerInfo.taskerAddress = _taskerAddress;
+            for(uint256 q=0;i<taskList[_index].vfInfo[_taskerAddress].taskIndex.length;q++) {
+                LibProject.ReturnFileInfo memory _fileInfo;
+                _fileInfo.taskIndex =  taskList[_index].vfInfo[_taskerAddress].taskIndex[q];
+                _fileInfo.state = taskList[_index].vfInfo[_taskerAddress].info[_fileInfo.taskIndex].state;
+                _fileInfo.file = taskList[_index].vfInfo[_taskerAddress].info[_fileInfo.taskIndex].file;
+                _fileInfo.bounty = taskList[_index].vfInfo[_taskerAddress].info[_fileInfo.taskIndex].bounty;
+                _taskerInfo.taskerinfo[q] = _fileInfo;
+            }
+            _returnTask.verifiers[i] = _taskerInfo;
+        }
+       return _returnTask;
     }
-    // function getCount() public view returns(uint256) {
-    //     return count;
-    // }
-    // function _addCount() internal {
-    //     count++;
-    // }
+    function getTasks(uint256 _index) public view returns(LibProject.TaskInfo[] memory) {
+        return taskList[_index].tasks;
+    }
+    function getCount() public view returns(uint256) {
+        return count;
+    }
+    //任务翻译者总数量
+   function getTransNumber(uint256 _index) public view returns(uint256) {
+       return taskList[_index].translators.length;
+   }
+   function getVfNumber(uint256 _index) public view returns(uint256) {
+       return taskList[_index].verifiers.length;
+   }
+   //获得指定任务翻译者接单数
+   function getAcceptTransNumber(uint256 _index,address _taskerIndex) public view returns(uint256) {
+       return taskList[_index].transInfo[_taskerIndex].taskIndex.length;
+   }
+   function getAcceptVfNumber(uint256 _index, address _taskerIndex) public view returns(uint256) {
+       return taskList[_index].vfInfo[_taskerIndex].taskIndex.length;
+   }
+   //获得翻译者名单
+   function getTranslatorsList(uint256 _index) public view returns(address[] memory) {
+       return taskList[_index].translators;
+   }
+   //获得校验者任务
+   function getVfList(uint256 _index) public view returns(address[] memory) {
+       return taskList[_index].verifiers;
+   }
     function isCustomizeState(uint256 _index) public view returns(bool){
         return taskList[_index].isCustomize;
     }
     //查询任务者超时未完成任务数
-    function overTimeTasker(uint256 _index, uint256 _taskerIndex, bool _isTrans) public view returns(uint256[] memory,uint256) {
-        LibProject.TranslationPro memory _pro = getProjectOne(_index);
-        LibProject.TaskerState[] memory _states;
-        uint256 money;
-        if(_isTrans) {
-            _states  = _pro.translators[_taskerIndex].states; 
-        }else {
-            _states  = _pro.verifiers[_taskerIndex].states; 
-        }
+    function overTimeTasker(uint256 _index, address _taskerIndex, bool _isTrans) public view returns(uint256[] memory,uint256) {
+        uint256[] memory _filesIndex ;
         uint256[] memory _list;
-        for(uint256 i=0;i<_states.length;i++) {
-            if(_states[i]<LibProject.TaskerState.Submitted) {
-               _list[_list.length] = i;
-            }
-            money+=_pro.tasks[i].bounty;
+        uint256 money;
+        uint256 q;
+        if(_isTrans) {
+          _filesIndex  = taskList[_index].transInfo[_taskerIndex].taskIndex; 
+        }else { 
+            _filesIndex  = taskList[_index].vfInfo[_taskerIndex].taskIndex;
         }
+        LibProject.FileIndexInfo memory  _info;
+        for(uint256 i=0;i<_filesIndex.length;i++) {
+           _info = taskList[_index].transInfo[_taskerIndex].info[_filesIndex[i]];
+            if(_info.state < LibProject.TaskerState.Submitted){
+                _list[q] = _filesIndex[i];
+                q++;
+                money+= taskList[_index].tasks[_filesIndex[i]].bounty;
+            }
+        }   
         return (_list,money);
     }
-    function receivePass(uint256 _index, uint256 _taskerIndex,uint256 _fileIndex) public {
-        taskList[_index].verifiers[_taskerIndex].states[_fileIndex]=LibProject.TaskerState.Completed;
+    function receivePass(uint256 _index, address _taskerIndex,uint256 _fileIndex) public {
+        taskList[_index].vfInfo[_taskerIndex].info[_fileIndex].state=LibProject.TaskerState.Completed;
         taskList[_index].tasks[_fileIndex].state= LibProject.FileState.Accepted;
     }
-    
+    function getSubTaskBounty(uint256 _index,address _tasker,uint256 _fileIndex,bool _isTrans) public view returns(uint256){
+        if(_isTrans) {
+           return taskList[_index].transInfo[_tasker].info[_fileIndex].bounty;
+        }else {
+            return taskList[_index].vfInfo[_tasker].info[_fileIndex].bounty;
+        }
+    }
+    function getBuyer(uint256 _index) public view returns(address) {
+        return taskList[_index].buyer;
+    }
+    function getTaskState(uint256 _index) public view returns(LibProject.ProjectState) {
+        return taskList[_index].state;
+    }
+    function getTaskStateVf(uint256 _index) public view returns(bool) {
+        return taskList[_index].isVerActive;
+    }
+    function getTaskStateTrans(uint256 _index) public view returns(bool) {
+        return taskList[_index].isTransActive;
+    }
 }

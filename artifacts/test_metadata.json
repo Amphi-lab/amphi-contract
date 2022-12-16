@@ -1,159 +1,31 @@
 {
 	"compiler": {
-		"version": "0.8.7+commit.e28d00a7"
+		"version": "0.8.6+commit.11564f7e"
 	},
 	"language": "Solidity",
 	"output": {
 		"abi": [
 			{
 				"inputs": [],
-				"name": "getP",
+				"name": "aaa",
 				"outputs": [
 					{
-						"components": [
-							{
-								"internalType": "uint256",
-								"name": "releaseTime",
-								"type": "uint256"
-							},
-							{
-								"internalType": "string",
-								"name": "introduce",
-								"type": "string"
-							},
-							{
-								"internalType": "string",
-								"name": "need",
-								"type": "string"
-							},
-							{
-								"internalType": "uint256",
-								"name": "deadline",
-								"type": "uint256"
-							},
-							{
-								"internalType": "string",
-								"name": "sourceLanguage",
-								"type": "string"
-							},
-							{
-								"internalType": "string",
-								"name": "goalLanguage",
-								"type": "string"
-							},
-							{
-								"internalType": "string[]",
-								"name": "preferList",
-								"type": "string[]"
-							},
-							{
-								"internalType": "uint256",
-								"name": "translationType",
-								"type": "uint256"
-							},
-							{
-								"internalType": "uint256",
-								"name": "workLoad",
-								"type": "uint256"
-							},
-							{
-								"internalType": "bool",
-								"name": "isNonDisclosure",
-								"type": "bool"
-							},
-							{
-								"internalType": "bool",
-								"name": "isCustomize",
-								"type": "bool"
-							},
-							{
-								"internalType": "uint256",
-								"name": "bounty",
-								"type": "uint256"
-							},
-							{
-								"components": [
-									{
-										"components": [
-											{
-												"internalType": "string",
-												"name": "name",
-												"type": "string"
-											},
-											{
-												"internalType": "uint256",
-												"name": "size",
-												"type": "uint256"
-											},
-											{
-												"internalType": "uint256",
-												"name": "videoLength",
-												"type": "uint256"
-											},
-											{
-												"internalType": "uint256",
-												"name": "Page",
-												"type": "uint256"
-											},
-											{
-												"internalType": "uint256",
-												"name": "words",
-												"type": "uint256"
-											},
-											{
-												"internalType": "uint256",
-												"name": "fileType",
-												"type": "uint256"
-											},
-											{
-												"internalType": "string",
-												"name": "path",
-												"type": "string"
-											}
-										],
-										"internalType": "struct LibProject.FileInfo",
-										"name": "file",
-										"type": "tuple"
-									},
-									{
-										"internalType": "uint256",
-										"name": "bounty",
-										"type": "uint256"
-									},
-									{
-										"internalType": "string",
-										"name": "info",
-										"type": "string"
-									},
-									{
-										"internalType": "enum LibProject.FileState",
-										"name": "state",
-										"type": "uint8"
-									},
-									{
-										"internalType": "uint256",
-										"name": "lastUpload",
-										"type": "uint256"
-									}
-								],
-								"internalType": "struct LibProject.TaskInfo[]",
-								"name": "tasks",
-								"type": "tuple[]"
-							},
-							{
-								"internalType": "uint256",
-								"name": "maxT",
-								"type": "uint256"
-							},
-							{
-								"internalType": "uint256",
-								"name": "maxV",
-								"type": "uint256"
-							}
-						],
-						"internalType": "struct LibProject.ProParm",
+						"internalType": "bool",
 						"name": "",
-						"type": "tuple"
+						"type": "bool"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "ttt",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
 					}
 				],
 				"stateMutability": "pure",
@@ -175,7 +47,7 @@
 		"compilationTarget": {
 			"test.sol": "test"
 		},
-		"evmVersion": "london",
+		"evmVersion": "berlin",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -187,20 +59,28 @@
 		"remappings": []
 	},
 	"sources": {
-		"LibProject.sol": {
-			"keccak256": "0x56a8025e3a655c989156850d3cd783d8dd1e50b059afe55fe22643aebe985c82",
+		"contracts/access/Ownable.sol": {
+			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://3da3b55852529ca7e71ae6c7544b56c010928189dd62b44c8b36368f85614b46",
-				"dweb:/ipfs/QmPC1YfAdSW7oJ2K9wXKShjLkWBpQPnGbo5P3T5PPUgQ9n"
+				"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2",
+				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
+			]
+		},
+		"contracts/utils/Context.sol": {
+			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92",
+				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
 			]
 		},
 		"test.sol": {
-			"keccak256": "0x4bd9d49c09814281383d845ab8ffc5371d47b6cb345322800f5df861bd2fb540",
+			"keccak256": "0x0649c4da2ac6197e6381f3fc2865896d85118b656cdb13c63bc1ed169dee69a0",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://5eb3d569a71431737291f1a1a24ed4291a533ba996634832f571282febd96964",
-				"dweb:/ipfs/Qman7PxUsnkHjTTHApNqsFg3dSro5reFeXsFxWp1iSgvfg"
+				"bzz-raw://e4e9cf7060424d3917488b54fba4f7d18995cf8aa63821416f234511228452a5",
+				"dweb:/ipfs/QmdS9wzksxA1yAriEqvKrbsZiFzEhfpC5iDQ1KyGV64iwE"
 			]
 		}
 	},

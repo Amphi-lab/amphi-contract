@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.6+commit.11564f7e"
+		"version": "0.8.7+commit.e28d00a7"
 	},
 	"language": "Solidity",
 	"output": {
@@ -20,24 +20,24 @@
 		"compilationTarget": {
 			"LibProject.sol": "LibProject"
 		},
-		"evmVersion": "berlin",
+		"evmVersion": "london",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": false,
-			"runs": 200
+			"enabled": true,
+			"runs": 400
 		},
 		"remappings": []
 	},
 	"sources": {
 		"LibProject.sol": {
-			"keccak256": "0x1849b340d5e1c75f6f3bdd60656cc20076abe2e6c4b6c378a55f4d3c0dcc9f71",
+			"keccak256": "0xcb96a8c11bc9e1eec084db01c27b7f9592d4efb51d90bd1fa657f88becc05a36",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://e186f65fdaaa4651363f1ec7f9d7762b441bd8b6652021d6e4b613dbf854c445",
-				"dweb:/ipfs/QmPpEXGduRpBdwSgCtxSWJPiQCqNnRKShe57xSXCQiLHas"
+				"bzz-raw://18807e2a30aef294d24578a7c0dbaa5c227f33a1686fbee9ea15720f56d69795",
+				"dweb:/ipfs/QmPnMJcQ1N15sjxBZtsE8cGrrUqBUdgghUscpi3ZQMwzCy"
 			]
 		}
 	},

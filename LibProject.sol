@@ -4,7 +4,7 @@ library LibProject {
 //项目状态：已发布、进行中、超时、无人选择、已关闭,已完成
  enum ProjectState {Waiting ,Published,Processing,Overtime, NoOnePick, Closed,Completed }
  // 校验者||翻译者状态 
- enum TaskerState { Waiting, Processing, Submitted,Return,Completed,Overtime }
+ enum TaskerState {  Processing, Submitted,Return,Completed,Overtime }
  //文件状态
  enum FileState { Waiting, Translating, Validating, WaitTransModify, BuyerReview, WaitVfModify,Accepted,NoOnePick}
  //文件
@@ -25,20 +25,27 @@ library LibProject {
      FileState state; //任务状态
      uint256 lastUpload; //最后更新时间
  }
+ struct FileIndexInfo {
+     TaskerState state;
+     string file;
+     uint256 bounty;
+ }
  //任务者
   struct Tasker {
-     address taskerAddress; //任务者地址
      uint256[] taskIndex;   //任务（文件）索引
-     TaskerState[] states;  //任务状态
-     string[] files;        //上传的文件
-     uint256[] bounty;        //赏金
+     mapping(uint256 => FileIndexInfo) info;
  }
- struct SubtaskInfo {
-     uint256 taskIndex;
-     uint256 TaskerState;
-     string file;
- }
-
+//返回的
+struct ReturnFileInfo {
+    uint256 taskIndex;
+    TaskerState state;
+    string file;
+    uint256 bounty;
+}
+struct ReturnTasker {
+    address taskerAddress; 
+    ReturnFileInfo[] taskerinfo;
+}
  //项目
  struct TranslationPro {
         address buyer;        //发布者
@@ -46,40 +53,70 @@ library LibProject {
         string introduce;     //项目介绍
         string need;          //项目需求说明
         uint256 deadline;     //截至日期
-        string sourceLanguage;//源语言
-        string goalLanguage;  //目标语言
-        string[] preferList;  //偏好
+        uint256 sourceLanguage;//源语言
+        uint256 goalLanguage;  //目标语言
+        uint256[] preferList;  //偏好
         uint256 translationType;//类型
         uint256 workLoad;       //工作量
         bool isNonDisclosure; //是否保密
         bool isCustomize;     //是否为自定义支付
         uint256 bounty;        //赏金
         TaskInfo[] tasks;     //子任务
-        Tasker[] translators; //翻译者
-        Tasker[] verifiers;   //校验者
-        uint256 maxT;        //翻译者最大人数
-        uint256 maxV;        //校验者最大人数
+        address[] translators;
+        address[] verifiers;
+        mapping(address => Tasker)transInfo;
+        mapping(address => Tasker ) vfInfo;
+        // Tasker[] translators; //翻译者
+        // Tasker[] verifiers;   //校验者
+        uint256 maxT;        //任务总量-翻译
+        uint256 maxV;        //任务总量-校验
+        uint256 numberT;     //已接任务数-翻译
+        uint256 numberV;     //已接任务数-校对
         bool isTransActive;  //翻译者状态: true.开启 false：关闭 
         bool isVerActive;    //校验者状态: true:开启 false:关闭
         ProjectState state;        //项目状态
-        bool payState;             //支付状态
  }
- //项目
+ //项目发布参数
  struct ProParm {
         uint256 releaseTime;  //发布时间
         string introduce;     //项目介绍
         string need;          //项目需求说明
         uint256 deadline;     //截至日期
-        string sourceLanguage;//源语言
-        string goalLanguage;  //目标语言
-        string[] preferList;  //偏好
+        uint256 sourceLanguage;//源语言
+        uint256 goalLanguage;  //目标语言
+        uint256[] preferList;  //偏好
         uint256 translationType;//类型
         uint256 workLoad;
         bool isNonDisclosure; //是否保密
         bool isCustomize;     //是否为自定义支付
         uint256 bounty;        //赏金
         TaskInfo[] tasks;     //子任务
-        // uint256 maxT;        //翻译者最大人数
-        // uint256 maxV;        //校验者最大人数
+ }
+ //返回任务详情
+ struct ReturnTask {
+        address buyer;        //发布者
+        uint256 releaseTime;  //发布时间
+        string introduce;     //项目介绍
+        string need;          //项目需求说明
+        uint256 deadline;     //截至日期
+        uint256 sourceLanguage;//源语言
+        uint256 goalLanguage;  //目标语言
+        uint256[] preferList;  //偏好
+        uint256 translationType;//类型
+        uint256 workLoad;       //工作量
+        bool isNonDisclosure; //是否保密
+        bool isCustomize;     //是否为自定义支付
+        uint256 bounty;        //赏金
+        ReturnFileInfo[] fileInfo;
+        TaskInfo[] tasks;     //子任务
+        ReturnTasker[] translators; //翻译者
+        ReturnTasker[] verifiers;   //校验者
+        uint256 maxT;        //任务总量-翻译
+        uint256 maxV;        //任务总量-校验
+        uint256 numberT;     //已接任务数-翻译
+        uint256 numberV;     //已接任务数-校对
+        bool isTransActive;  //翻译者状态: true.开启 false：关闭 
+        bool isVerActive;    //校验者状态: true:开启 false:关闭
+        ProjectState state;        //项目状态
  }
 }
