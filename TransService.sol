@@ -2,11 +2,29 @@
 pragma solidity ^0.8.0;
 import "./LibProject.sol";
 import "./utils/calculateUtils.sol";
-
-
+error FileException(string,LibProject.FileState);
 contract TransService {
+    //任务索引值，文件索引值，文件状态，操作者
+    event changeFileStateEv(uint256,uint256,LibProject.FileState,address);
+    //任务索引值，文件状态，操作者
+    event changeProjectStateEv(uint256,LibProject.ProjectState,address);
+    //任务索引值、任务者地址、文件索引值，任务者状态，是否为翻译者,操作者
+    event changeTaskerStateEv(uint256,address,uint256,LibProject.TaskerState,bool,address);
+    //任务索引值，是否关闭，操作者
+    event changeTransActive(uint256,bool,address);
+    event changeVerActive(uint256,bool,address);
     mapping (uint256 => LibProject.TranslationPro) private taskList;
+    mapping (address => uint256) private payList;
     uint256 private count;
+    function addPay(address _tasker,uint256 _money) public {
+        payList[_tasker] += _money;
+    }
+    function deductPay(address _tasker, uint256 _money) public {
+        payList[_tasker]-= _money;
+    }
+    function getPay(address _tasker) public view returns(uint256) {
+        return payList[_tasker];
+    }
     //增加项目
     function addProject(LibProject.ProParm memory _t)  public returns(uint256) {
        count++;
@@ -33,7 +51,7 @@ contract TransService {
             _pro.maxT =1;
             _pro.maxV =1;
          }
-          _pro.state = LibProject.ProjectState.Published;
+        _pro.state = LibProject.ProjectState.Published;
         _pro.isTransActive = true;
         _pro.isVerActive = true;
         for(uint256 i=0;i< _t.tasks.length;i++) {
@@ -73,6 +91,7 @@ contract TransService {
     //修改项目状态
     function updateState(uint256 _index, LibProject.ProjectState _state) public {
         taskList[_index].state = _state;
+        emit changeProjectStateEv(_index,_state,msg.sender);
     }
     //批量修改任务状态
     function updateTaskerState(uint256 _index,address  _taskerAddress,uint256[] memory _fileIndex,LibProject.TaskerState _state, bool _isTrans) public {
@@ -80,11 +99,12 @@ contract TransService {
             //  _tasker=taskList[_index].transInfo[_taskerAddress];
         for(uint256 i=0;i<_fileIndex.length;i++) {
             taskList[_index].transInfo[_taskerAddress].info[_fileIndex[i]].state = _state;
-         
+            emit changeTaskerStateEv(_index,_taskerAddress,_fileIndex[i],_state,true,msg.sender);
         }
         }else{
         for(uint256 i=0;i<_fileIndex.length;i++) {
             taskList[_index].vfInfo[_taskerAddress].info[_fileIndex[i]].state = _state;
+            emit changeTaskerStateEv(_index,_taskerAddress,_fileIndex[i],_state,false,msg.sender);
         }
         }
     }
@@ -92,18 +112,29 @@ contract TransService {
         //修改任务者状态&修改文件状态
         if(_isTrans) {
             taskList[_index].transInfo[_taskerIndex].info[_fileIndex].state=LibProject.TaskerState.Return;
+             emit changeTaskerStateEv(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Return,true,msg.sender);
             taskList[_index].tasks[_fileIndex].state = LibProject.FileState.WaitTransModify;
+            emit changeFileStateEv(_index,_fileIndex,LibProject.FileState.WaitTransModify,msg.sender);
         }else {
             taskList[_index].vfInfo[_taskerIndex].info[_fileIndex].state=LibProject.TaskerState.Return;
+            emit changeTaskerStateEv(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Return,false,msg.sender);
             taskList[_index].tasks[_fileIndex].state = LibProject.FileState.WaitVfModify;
+            emit changeFileStateEv(_index,_fileIndex,LibProject.FileState.WaitVfModify,msg.sender);
         }
     }
     function onNoOnePink(uint256 _index) public {
         taskList[_index].state = LibProject.ProjectState.NoOnePick;
-         taskList[_index].isVerActive = false;
+        emit changeProjectStateEv(_index,LibProject.ProjectState.NoOnePick,msg.sender);
+        taskList[_index].isVerActive = false;
+        emit changeTransActive(_index,false,msg.sender);
     }
     function closeTransAccept(uint256 _index) public {
         taskList[_index].isTransActive = false;
+        emit changeTransActive(_index,false,msg.sender);
+    }
+    function closeFileState(uint256 _index,uint256 _fileIndex) public {
+        taskList[_index].tasks[_fileIndex].state = LibProject.FileState.Closed;
+        emit changeFileStateEv(_index,_fileIndex,LibProject.FileState.Closed,msg.sender);
     }
     function getTaskBounty(uint256 _index,uint256 _fileIndex) public view returns(uint256) {
         return taskList[_index].tasks[_fileIndex].bounty;
@@ -113,26 +144,31 @@ contract TransService {
     }
     function closeVfAccept( uint256 _index) public {
         taskList[_index].isVerActive = false;
-        // emit uploadAcceptStateEv(msg.sender, _index,"vf",false);
+        emit changeVerActive(_index,false,msg.sender);
     }
     //翻译者提交任务
     function sumbitTransTask(uint256 _index,address _taskerIndex, uint256 _fileIndex,string memory _file) public {
          LibProject.TranslationPro storage _pro= taskList[_index];
-         _pro.tasks[_fileIndex].state = LibProject.FileState.Validating;
+        _pro.tasks[_fileIndex].state = LibProject.FileState.Validating;
+        emit changeFileStateEv(_index,_fileIndex,LibProject.FileState.Validating,msg.sender);
         _pro.tasks[_fileIndex].lastUpload = block.timestamp;
         _pro.transInfo[_taskerIndex].info[_fileIndex].file = _file;
         _pro.transInfo[_taskerIndex].info[_fileIndex].state= LibProject.TaskerState.Submitted;
+        emit changeTaskerStateEv(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Submitted,true,msg.sender);
     }
     //校验者验收&提交任务
     function sumbitVfTask(uint256 _index,address _transIndex,address _vfIndex, uint256 _fileIndex,string memory _file) public {
         
          LibProject.TranslationPro storage _pro= taskList[_index];
          _pro.transInfo[_transIndex].info[_fileIndex].state =LibProject.TaskerState.Completed;
+         emit changeTaskerStateEv(_index,_transIndex,_fileIndex,LibProject.TaskerState.Completed,true,msg.sender);
          //校验者提交任务
          _pro.tasks[_fileIndex].state = LibProject.FileState.BuyerReview;
+         emit changeFileStateEv(_index,_fileIndex,LibProject.FileState.BuyerReview,msg.sender);
         _pro.tasks[_fileIndex].lastUpload = block.timestamp;
         _pro.vfInfo[_vfIndex].info[_fileIndex].file = _file;
         _pro.vfInfo[_vfIndex].info[_fileIndex].state = LibProject.TaskerState.Submitted;
+         emit changeTaskerStateEv(_index,_vfIndex,_fileIndex,LibProject.TaskerState.Submitted,false,msg.sender);
     }
     //翻译者接收任务
     function acceptTrans(uint256 _index,uint256[] memory _fileIndex, address _taskerIndex) public{
@@ -141,26 +177,27 @@ contract TransService {
        if(_taskerInfo.taskIndex.length==0) {
            taskList[_index].translators.push(_taskerIndex);
         }
-        //若任务为自定义支付，则计算任务赏金并记录
-           if(isCustomizeState(_index)) {
-               uint256 _taskBountyInitial;
-               for(uint256 q=0;q<_fileIndex.length;q++) {
-               taskList[_index].tasks[_fileIndex[q]].state= LibProject.FileState.Translating;
-               _taskBountyInitial = taskList[_index].tasks[_fileIndex[q]].bounty;
-               _taskerInfo.info[_fileIndex[q]].bounty = CalculateUtils.getTaskTrans(_taskBountyInitial);
-               _taskerInfo.taskIndex.push(_fileIndex[q]);
-           }
-           }else {
-               for(uint256 i=0;i<_fileIndex.length;i++) {
-               _taskerInfo.taskIndex.push(_fileIndex[i]);
-               taskList[_index].tasks[_fileIndex[i]].state= LibProject.FileState.Translating;
-
-           }
-           }
+        LibProject.FileState _state;
+        for(uint256 q=0;q<_fileIndex.length;q++) {
+            _state =taskList[_index].tasks[_fileIndex[q]].state;
+            //根据目前文件状态，修改文件状态
+            if(_state== LibProject.FileState.Waiting) {
+                taskList[_index].tasks[_fileIndex[q]].state = LibProject.FileState.WaitingForVf;
+                emit changeFileStateEv(_index,_fileIndex[q],LibProject.FileState.WaitingForVf,msg.sender);
+            }else if(_state == LibProject.FileState.WaitingForTrans) {
+                taskList[_index].tasks[_fileIndex[q]].state= LibProject.FileState.Translating;
+                emit changeFileStateEv(_index,_fileIndex[q],LibProject.FileState.Translating,msg.sender);
+            }else{
+                revert FileException("Error file state",_state);
+            }
+            _taskerInfo.taskIndex.push(_fileIndex[q]);
+           
+        }
         //    //文件状态修改为翻译中
        taskList[_index].numberT++;
        if(isFull(_index,true)) {
           taskList[_index].isTransActive = false;
+          emit changeTransActive(_index,false,msg.sender);
        }
     }
      //校验者接收任务
@@ -170,26 +207,26 @@ contract TransService {
        if(_taskerInfo.taskIndex.length==0) {
            taskList[_index].verifiers.push(_taskerIndex);
         }
-        //若任务为自定义支付，则计算任务赏金并记录
-           if(isCustomizeState(_index)) {
-               uint256 _taskBountyInitial;
-               for(uint256 q=0;q<_fileIndex.length;q++) {
-               taskList[_index].tasks[_fileIndex[q]].state= LibProject.FileState.Translating;
-               _taskBountyInitial = taskList[_index].tasks[_fileIndex[q]].bounty;
-               _taskerInfo.info[_fileIndex[q]].bounty = CalculateUtils.getTaskTrans(_taskBountyInitial);
-               _taskerInfo.taskIndex.push(_fileIndex[q]);
-           }
-           }else {
-               for(uint256 i=0;i<_fileIndex.length;i++) {
-               _taskerInfo.taskIndex.push(_fileIndex[i]);
-               taskList[_index].tasks[_fileIndex[i]].state= LibProject.FileState.Translating;
-
-           }
-           }
-        //    //文件状态修改为翻译中
+        LibProject.FileState _state;
+        for(uint256 i=0;i<_fileIndex.length;i++) {
+            _state =taskList[_index].tasks[_fileIndex[1]].state;
+            //根据目前文件状态，修改文件状态
+            if(_state== LibProject.FileState.Waiting) {
+                taskList[_index].tasks[_fileIndex[i]].state = LibProject.FileState.WaitingForTrans;
+                emit changeFileStateEv(_index,_fileIndex[i],LibProject.FileState.WaitingForTrans,msg.sender);
+            }else if(_state == LibProject.FileState.WaitingForVf) {
+                taskList[_index].tasks[_fileIndex[i]].state= LibProject.FileState.Translating;
+                emit changeFileStateEv(_index,_fileIndex[i],LibProject.FileState.Translating,msg.sender);
+            }else{
+                revert FileException("Error file state",_state);
+            }
+             _taskerInfo.taskIndex.push(_fileIndex[i]);
+        }
+       //文件状态修改为翻译中
        taskList[_index].numberV++;
        if(isFull(_index,false)) {
           taskList[_index].isVerActive = false;
+          emit changeVerActive(_index,false,msg.sender);
        }
     }
     function accept(uint256 _index,uint256  _fileIndex, address _taskerIndex, bool _isTrans) public  {
@@ -202,20 +239,16 @@ contract TransService {
              taskList[_index].numberV++;
         }
                taskList[_index].transInfo[_taskerIndex].taskIndex.push(_fileIndex);
-        if(isCustomizeState(_index)) {
-            uint256 _taskBountyInitial = taskList[_index].tasks[_fileIndex].bounty;
-            _taskerInfo.bounty = CalculateUtils.getTaskTrans(_taskBountyInitial);
-        }
     }
     //扣除罚金
-    function deductBounty(uint256 _index,address _taskerIndex,uint256 _fileIndex,uint256 _money,bool _isTrans) public  {
-        if(_isTrans){
-            taskList[_index].transInfo[_taskerIndex].info[_fileIndex].bounty-= _money;
-        }else{
-            taskList[_index].vfInfo[_taskerIndex].info[_fileIndex].bounty-= _money;
-        }
-        // emit deductBountyEv(_index,_taskerIndex,_money,msg.sender);
-    }
+    // function deductBounty(uint256 _index,address _taskerIndex,uint256 _fileIndex,uint256 _money,bool _isTrans) public  {
+    //     if(_isTrans){
+    //         taskList[_index].transInfo[_taskerIndex].info[_fileIndex].bounty-= _money;
+    //     }else{
+    //         taskList[_index].vfInfo[_taskerIndex].info[_fileIndex].bounty-= _money;
+    //     }
+    //     // emit deductBountyEv(_index,_taskerIndex,_money,msg.sender);
+    // }
     //判断任务是否已满
     function isFull(uint256 _index, bool _isTrans) public view returns(bool) {
        if(_isTrans){
@@ -223,6 +256,15 @@ contract TransService {
        }else{
           return taskList[_index].maxV <= taskList[_index].numberV;
        }
+    }
+    //关闭项目
+    function closeTask(uint256 _index) public {
+        taskList[_index].state = LibProject.ProjectState.Closed;
+        emit changeProjectStateEv(_index,LibProject.ProjectState.Closed,msg.sender);
+    }
+    function completedTask(uint256 _index) public {
+        taskList[_index].state = LibProject.ProjectState.Completed;
+         emit changeProjectStateEv(_index,LibProject.ProjectState.Completed,msg.sender);
     }
     function getProjectOne(uint256 _index) public view returns(LibProject.ReturnTask memory) {
         LibProject.ReturnTask memory _returnTask;
@@ -256,7 +298,7 @@ contract TransService {
                 _fileInfo.taskIndex =  taskList[_index].transInfo[_taskerAddress].taskIndex[q];
                 _fileInfo.state = taskList[_index].transInfo[_taskerAddress].info[_fileInfo.taskIndex].state;
                 _fileInfo.file = taskList[_index].transInfo[_taskerAddress].info[_fileInfo.taskIndex].file;
-                _fileInfo.bounty = taskList[_index].transInfo[_taskerAddress].info[_fileInfo.taskIndex].bounty;
+                // _fileInfo.bounty = taskList[_index].transInfo[_taskerAddress].info[_fileInfo.taskIndex].bounty;
                 _taskerInfo.taskerinfo[q] = _fileInfo;
             }
             _returnTask.translators[i] = _taskerInfo;
@@ -270,7 +312,7 @@ contract TransService {
                 _fileInfo.taskIndex =  taskList[_index].vfInfo[_taskerAddress].taskIndex[q];
                 _fileInfo.state = taskList[_index].vfInfo[_taskerAddress].info[_fileInfo.taskIndex].state;
                 _fileInfo.file = taskList[_index].vfInfo[_taskerAddress].info[_fileInfo.taskIndex].file;
-                _fileInfo.bounty = taskList[_index].vfInfo[_taskerAddress].info[_fileInfo.taskIndex].bounty;
+                // _fileInfo.bounty = taskList[_index].vfInfo[_taskerAddress].info[_fileInfo.taskIndex].bounty;
                 _taskerInfo.taskerinfo[q] = _fileInfo;
             }
             _returnTask.verifiers[i] = _taskerInfo;
@@ -332,20 +374,25 @@ contract TransService {
     }
     function receivePass(uint256 _index, address _taskerIndex,uint256 _fileIndex) public {
         taskList[_index].vfInfo[_taskerIndex].info[_fileIndex].state=LibProject.TaskerState.Completed;
+        emit changeTaskerStateEv(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Completed,false,msg.sender);
         taskList[_index].tasks[_fileIndex].state= LibProject.FileState.Accepted;
+        emit changeFileStateEv(_index,_fileIndex, LibProject.FileState.Accepted,msg.sender);
     }
-    function getSubTaskBounty(uint256 _index,address _tasker,uint256 _fileIndex,bool _isTrans) public view returns(uint256){
-        if(_isTrans) {
-           return taskList[_index].transInfo[_tasker].info[_fileIndex].bounty;
-        }else {
-            return taskList[_index].vfInfo[_tasker].info[_fileIndex].bounty;
-        }
-    }
+    // function getSubTaskBounty(uint256 _index,address _tasker,uint256 _fileIndex,bool _isTrans) public view returns(uint256){
+    //     if(_isTrans) {
+    //        return taskList[_index].transInfo[_tasker].info[_fileIndex].bounty;
+    //     }else {
+    //         return taskList[_index].vfInfo[_tasker].info[_fileIndex].bounty;
+    //     }
+    // }
     function getBuyer(uint256 _index) public view returns(address) {
         return taskList[_index].buyer;
     }
     function getTaskState(uint256 _index) public view returns(LibProject.ProjectState) {
         return taskList[_index].state;
+    }
+    function getFileState(uint256 _index,uint256 _fileIndex) public view returns(LibProject.FileState){
+        return taskList[_index].tasks[_fileIndex].state;
     }
     function getTaskStateVf(uint256 _index) public view returns(bool) {
         return taskList[_index].isVerActive;

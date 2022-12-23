@@ -5,29 +5,25 @@ import "./TransService.sol";
 import "./utils/calculateUtils.sol";
 import "./contracts/access/Ownable.sol";
 import "./TransferService.sol";
-error OperationException(string,uint256);
+error OperationException(string);
 error ParameterException(string);
+error ErrorValue(string);
+error Permissions(string);
 contract TransImpl is Ownable,TransferService{
     event postProjectEv(address,uint256,LibProject.ProParm);
-//    event updateProjectEv(uint256,LibProject.ProParm);
-    // event updateProSateEv(uint256,LibProject.ProjectState);
     event uploadAcceptStateEv(address,uint256,string,bool);
     event acceptTaskEv(uint256,uint256[],uint256,address,string);
     event acceptTaskEv(uint256,uint256,address,bool);
-    // event updateFileStateAndTimeEv(uint256,uint256,address,LibProject.FileState);
-    // event updateTaskerStateEv(uint256,uint256,uint256,address,LibProject.TaskerState,bool);
-    // event updateFileInfoEv(uint256,uint256,uint256,address,string,bool);
-    // event deductBountyEv(uint256,uint256,uint256,address);
 
     modifier isCanAcceptTrans(uint256 _index) {
         if(!service.getTaskStateTrans(_index)){
-            revert OperationException("OperationException: Can't receive task",_index);
+            revert OperationException("OperationException: Can't receive task");
         }
         _;
     }
     modifier isCanAcceptVf(uint256 _index) {
         if(!service.getTaskStateVf(_index)){
-            revert OperationException("OperationException: Can't receive task",_index);
+            revert OperationException("OperationException: Can't receive task");
         }
         _;
     }
@@ -35,9 +31,16 @@ contract TransImpl is Ownable,TransferService{
         require(service.getProjectOne(_index).buyer == msg.sender,"Only buyer can call this.");
         _;
     }
-     modifier isExist(uint256 _index){
+    modifier isExist(uint256 _index){
         if(_index>service.getCount()){
             revert ParameterException("Wrong index value!");
+        }
+        _;
+    }
+    modifier hasFine(address _address) {
+        uint256 _money =service.getPay(_address);
+        if(_money>0) {
+            revert Permissions("There is an unpaid penalty!");
         }
         _;
     }
@@ -45,24 +48,26 @@ contract TransImpl is Ownable,TransferService{
     constructor(address _serAddress) {
        service = TransService(_serAddress);
     }
-    
-    function postProject(LibProject.ProParm memory _t) public payable  returns(uint256 _index) {
-       _index =  _postProject(_t);
-         if (_t.isCustomize){
-             if(msg.value != _t.bounty *1e18) {
-                  revert ParameterException("error : Incorrect value");
-             }
-          transderToContract();
-       }
+    //质押30%，校验通过，30%给翻译者，需求方验收通过，支付其余的赏金。
+    //文件状态修改：翻译等待，校验等待
+    function postTask(LibProject.ProParm memory _t) public payable hasFine(msg.sender)  returns(uint256 _index) {
+       _index =  _postTask(_t);
+       //质押30%赏金
+      uint256 _bounty = CalculateUtils.getPercentage(_t.bounty,30);
+      if(msg.value != _bounty *1e18) {
+          revert ErrorValue("error : Incorrect value");
+        }
+        transderToContract();
     }
-    function updateProject(uint256 _index,LibProject.ProParm memory _t) public payable isExist(_index){
-        _updateProject(_index, _t);
-        if (_t.isCustomize){
-            if(msg.value != _t.bounty *1e18) {
-                  revert ParameterException("error : Incorrect value");
-             }
-          transderToContract();
-       }
+  
+    function updateTask(uint256 _index,LibProject.ProParm memory _t) public payable hasFine(msg.sender) isExist(_index){
+        _updateTask(_index, _t);
+        uint256 _bounty = CalculateUtils.getPercentage(_t.bounty,30);
+        if(msg.value != _bounty *1e18) {
+          revert ErrorValue("error : Incorrect value");
+        }
+        transderToContract();
+       
     }
     function endTransAccept(uint256 _index) public isExist(_index) {
         _endTransAccept( _index);
@@ -70,44 +75,79 @@ contract TransImpl is Ownable,TransferService{
      function endTransVf(uint256 _index) public isExist(_index) {
         _endTransVf( _index);
     }
-    function acceptForTranslator(uint256 _index,uint256[] memory _fileIndex) public isExist(_index) isCanAcceptTrans(_index){
+    function acceptForTranslator(uint256 _index,uint256[] memory _fileIndex) public isExist(_index) isCanAcceptTrans(_index) hasFine(msg.sender){
         service.acceptTrans(_index,_fileIndex,msg.sender);
     }
-    function acceptForVerifer(uint256 _index,uint256[] memory _fileIndex) public isExist(_index) isCanAcceptVf(_index){
+    function acceptForVerifer(uint256 _index,uint256[] memory _fileIndex) public isExist(_index) isCanAcceptVf(_index) hasFine(msg.sender){
         service.acceptVf(_index,_fileIndex,msg.sender);
     }
-    function validate(uint256 _index,address _transIndex,uint256 _fileIndex, bool _isPass,string memory _file) public isExist(_index){
-      uint256 bounty =  _validate(_index,_transIndex,_fileIndex,_isPass,_file);
+    function validate(uint256 _index,address _traner,uint256 _fileIndex, bool _isPass,string memory _file) public isExist(_index){
+      LibProject.FileState _fileState;
+        _fileState=service.getFileState(_index,_fileIndex);
+        if(_fileState>LibProject.FileState.WaitVfModify){
+          revert OperationException("unable to submit");
+        }
+      uint256 _bounty =  _validate(_index,_traner,_fileIndex,_isPass,_file);
        //发赏金
-      if(bounty>0) {
-         bounty = CalculateUtils.getTaskTrans(bounty);
-          toTaskerBounty(_transIndex,bounty);
+      if(_bounty>0) {
+        //   service.deductBounty(_index,_traner,_fileIndex,_bounty,true);
+          toTaskerBounty(_traner,_bounty);
       }
     }
     function sumbitTaskTrans(uint256 _index, uint256 _fileIndex,string memory _file) public isExist(_index){
+      LibProject.FileState _fileState;
+      _fileState=service.getFileState(_index,_fileIndex);
+      if(_fileState>LibProject.FileState.BuyerReview){
+          revert OperationException("unable to submit");
+      }
         _sumbitTaskTrans(_index,_fileIndex,_file);
     }
-    function overTimeTrans(uint256 _index, address _taskerIndex)public isExist(_index) returns(uint256) {
-      return  _overTimeTrans(_index,_taskerIndex);
+    function overTimeTrans(uint256 _index, address _tasker)public isExist(_index) returns(uint256) {
+         uint256 _money =  _overTimeTrans(_index,_tasker);
+         service.addPay(_tasker, _money);
+         return _money;
     }
-     function overTimeVf(uint256 _index, address _taskerIndex)public isExist(_index) returns(uint256) {
-        return _overTimeVf(_index,_taskerIndex);
+     function overTimeVf(uint256 _index, address _tasker)public isExist(_index) returns(uint256) {
+        uint256 _money = _overTimeVf(_index,_tasker);
+        service.addPay(_tasker, _money);
+        return _money;
      }
-     function deductBounty(uint256 _index, address _taskerIndex,uint256 _fileIndex,uint256 _deductNumer, bool _isTrans) public isExist(_index) {
-        _deduct( _index,_taskerIndex,_fileIndex,_deductNumer,_isTrans);
-        
+     //支付罚金
+     function payFine(address _to) public  payable{
+         if(msg.value > service.getPay(_to)){
+             revert ErrorValue("value is too high");
+         }
+         service.deductPay(_to,msg.value);
+         pay(_to);
      }
-     function receiveProject(uint256 _index,address _taskerIndex,uint256 _fileIndex, bool _isPass) public isExist(_index) {
-         _receiveProject(_index,_taskerIndex,_fileIndex,_isPass);
-         uint256 _payBounty;
-         //若用户为自定义支付，则完成后支付校验者赏金，若为非自定义支付，则支付翻译者与校验者赏金
-          if(service.isCustomizeState(_index)) {
-                _payBounty= service.getSubTaskBounty(_index,_taskerIndex,_fileIndex,false);
-                toTaskerBounty(_taskerIndex,_payBounty);
+     function receiveTask(uint256 _index,address _taskerIndex,uint256 _fileIndex, bool _isPass,address _transAddress) public isExist(_index) {
+         _receiveTask(_index,_taskerIndex,_fileIndex,_isPass);
+         uint256 _bounty;
+         if(service.isCustomizeState(_index)){
+                 _bounty = service.getTaskBounty(_index,_fileIndex);
+         }else{
+                 _bounty = service.getTaskBounty(_index);
           }
+         if(_isPass) {
+             uint256 _vfBounty = CalculateUtils.getTaskVf(_bounty);
+             uint256 _transBounty = CalculateUtils.getTaskTransEnd(_bounty);
+             toTaskerBounty(_taskerIndex,_vfBounty);
+             toTaskerBounty(_transAddress,_transBounty);
+         }
+         //若用户为自定义支付，则完成后支付校验者赏金，若为非自定义支付，则支付翻译者与校验者赏金
+        //   if(service.isCustomizeState(_index)) {
+        //         _payBounty= service.getSubTaskBounty(_index,_taskerIndex,_fileIndex,false);
+        //         toTaskerBounty(_taskerIndex,_payBounty);
+        //   }
+     }
+     function closeTask(uint256 _index) public {
+         service.closeTask(_index);
+     }
+     function closeFileState(uint256 _index,uint256 _fileIndex) public {
+         service.closeFileState(_index,_fileIndex);
      }
     //发布任务
-     function _postProject(LibProject.ProParm memory _t) internal returns(uint256) {
+     function _postTask(LibProject.ProParm memory _t) internal returns(uint256) {
      uint256 _index = service.addProject( _t);
      emit postProjectEv(msg.sender,_index,_t);
        return _index;
@@ -118,7 +158,7 @@ contract TransImpl is Ownable,TransferService{
     //支付赏金-发布
     //function postPay(uint256 _index) 
     //修改任务
-    function _updateProject(uint256 _index,LibProject.ProParm memory _t) internal {
+    function _updateTask(uint256 _index,LibProject.ProParm memory _t) internal {
          service.updateProject(_index,_t);
        emit postProjectEv(msg.sender,_index,_t);
     }  //到截至日期后，调用该方法，若到截至日期已经完成接单，则返回true,//若无人接收任务，则修改任务状态为无人接收状态，关闭翻译接收
@@ -174,7 +214,7 @@ contract TransImpl is Ownable,TransferService{
            //若无人接收任务，则修改任务状态为无人接收状态，关闭翻译接收
           service.onNoOnePink(_index);
           address _buyer =service.getBuyer(_index);
-          uint256 _bounty = service.getTaskBounty(_index);
+          uint256 _bounty = CalculateUtils.getPercentage(service.getTaskBounty(_index),30);
           //退还金额给需求方
           toTaskerBounty(_buyer,_bounty);
           return false;
@@ -267,9 +307,13 @@ contract TransImpl is Ownable,TransferService{
              //若用户为自定义支付，则完成后支付任务者赏金
              service.sumbitVfTask(_index,_transIndex,msg.sender,_fileIndex,_file);
              bool _Customize=service.isCustomizeState(_index);
-             if(_Customize) {
-                _payBounty = service.getSubTaskBounty(_index,_transIndex,_fileIndex,true);
+             if(_Customize){
+                 _payBounty = service.getTaskBounty(_index,_fileIndex);
+             }else{
+                 _payBounty = service.getTaskBounty(_index);
              }
+             //校验者验收，支付翻译者30%赏金
+            _payBounty = CalculateUtils.getPercentage(_payBounty,30);
          }else{
              //任务不通过，将任务者的状态修改为被打回状态 
              service.returnTasker(_index,_transIndex,_fileIndex,true);   
@@ -278,18 +322,18 @@ contract TransImpl is Ownable,TransferService{
          
      }
     //  扣除赏金
-     function _deduct(uint256 _index, address _taskerIndex,uint256 _fileIndex,uint256 _deductNumeber, bool _isTrans) internal  {
-         uint256 _bounty = service.getTaskBounty(_index,_fileIndex);
-         uint256 _deductMoney ;
-         if(_isTrans) {
-           _deductMoney =  CalculateUtils.getDeductMoney( _bounty,_deductNumeber);
-         }else {
-           _deductMoney =  CalculateUtils.getDeductMoney( _bounty,_deductNumeber); 
-         }
-         service.deductBounty(_index,_taskerIndex,_fileIndex,_deductMoney,_isTrans);
-     }
+    //  function _deduct(uint256 _index, address _taskerIndex,uint256 _fileIndex,uint256 _deductNumeber, bool _isTrans) internal  {
+    //      uint256 _bounty = service.getTaskBounty(_index,_fileIndex);
+    //      uint256 _deductMoney ;
+    //      if(_isTrans) {
+    //        _deductMoney =  CalculateUtils.getDeductMoney( _bounty,_deductNumeber);
+    //      }else {
+    //        _deductMoney =  CalculateUtils.getDeductMoney( _bounty,_deductNumeber); 
+    //      }
+    //      service.deductBounty(_index,_taskerIndex,_fileIndex,_deductMoney,_isTrans);
+    //  }
     //发布者验收
-    function _receiveProject(uint256 _index,address _taskerIndex,uint256 _fileIndex, bool _isPass) internal{
+    function _receiveTask(uint256 _index,address _taskerIndex,uint256 _fileIndex, bool _isPass) internal{
          //若校验通过，将任务者的状态修改为已完成
          if(_isPass) {
              service.receivePass(_index,_taskerIndex,_fileIndex);
@@ -298,7 +342,8 @@ contract TransImpl is Ownable,TransferService{
              service.returnTasker(_index,_taskerIndex,_fileIndex,false);   
          }
      }
-     function withdraw() public onlyOwner {
-         _withdraw();
+     function withdraw(uint256 _money) public onlyOwner {
+         _withdraw(_money);
      }
+     
 }

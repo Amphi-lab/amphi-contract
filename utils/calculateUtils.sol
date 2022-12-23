@@ -44,17 +44,21 @@ library CalculateUtils {
         return _maxV;
     }
     //计算任务赏金-翻译者
-    function getTaskTrans(uint256 _bounty) internal pure returns(uint256 _money) {
-        uint256 _taskBounty = _getPercentage(_bounty,90);
-        _money = _getPercentage(_taskBounty,60);
+     function getTaskTrans(uint256 _bounty) internal pure returns(uint256 _money) {
+        _money = getPercentage(_bounty,54);
+    }
+    function getTaskTransEnd(uint256 _bounty) internal pure returns(uint256 _money) {
+        _money = getPercentage(_bounty,24);
+    }
+    function getTaskTransFirst(uint256 _bounty) internal pure returns(uint256 _money){
+        _money = getPercentage(_bounty,30);
     }
     //计算任务赏金-校验者
     function getTaskVf(uint256 _bounty) internal pure returns(uint256 _money) {
-        uint256 _taskBounty = _getPercentage(_bounty,90);
-        _money = _getPercentage(_taskBounty,40);
+        _money = getPercentage(_bounty,36);
     }
     //计算任务赏金
-    function _getPercentage(uint256 _number, uint256 _ratio) pure internal returns(uint256 returnNumber) {
+    function getPercentage(uint256 _number, uint256 _ratio) pure internal returns(uint256 returnNumber) {
         returnNumber = SafeMath.mul(_number,_ratio)/100;
     }
     //计算罚金
@@ -63,7 +67,7 @@ library CalculateUtils {
     }
     //计算扣除的赏金
     function getDeductMoney(uint256 _bounty,uint256 _deduct) public pure returns(uint256) {
-        return _getPercentage(_bounty,_deduct);
+        return getPercentage(_bounty,_deduct);
     }
     
 }

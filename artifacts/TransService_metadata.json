@@ -82,6 +82,24 @@
 			{
 				"inputs": [
 					{
+						"internalType": "address",
+						"name": "_tasker",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_money",
+						"type": "uint256"
+					}
+				],
+				"name": "addPay",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"components": [
 							{
 								"internalType": "uint256",
@@ -291,6 +309,24 @@
 			{
 				"inputs": [
 					{
+						"internalType": "address",
+						"name": "_tasker",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_money",
+						"type": "uint256"
+					}
+				],
+				"name": "deductPay",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "uint256",
 						"name": "_index",
 						"type": "uint256"
@@ -358,6 +394,25 @@
 			{
 				"inputs": [],
 				"name": "getCount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_tasker",
+						"type": "address"
+					}
+				],
+				"name": "getPay",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -1380,26 +1435,26 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": true,
-			"runs": 400
+			"enabled": false,
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"LibProject.sol": {
-			"keccak256": "0xcb96a8c11bc9e1eec084db01c27b7f9592d4efb51d90bd1fa657f88becc05a36",
+			"keccak256": "0xe285a888f8e6975b0544ac6c7d99b997cb5f71922c7b76ecf989b2fbbccfea28",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://18807e2a30aef294d24578a7c0dbaa5c227f33a1686fbee9ea15720f56d69795",
-				"dweb:/ipfs/QmPnMJcQ1N15sjxBZtsE8cGrrUqBUdgghUscpi3ZQMwzCy"
+				"bzz-raw://7394483d7a2bd2ff688d0c058c2e946f63c29c197400b591967252b5c0af87e9",
+				"dweb:/ipfs/QmYouwa6kfgZrJLeVteZpx7RHbeHonNhu8GLx5kLbYL7TU"
 			]
 		},
 		"TransService.sol": {
-			"keccak256": "0xbeb1a0b051785fb7d287141af05ad07df0aeb7f11ed2146314448866c7c6e6ae",
+			"keccak256": "0x260c2a037b5610e290374aacca2304b827914eed4cc3f3bafe87652a54a74235",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://76f22e66806819bfbb95e41792e69db6587b8debdb14cb2cd0044941b9ddb0a4",
-				"dweb:/ipfs/QmWTc4r9pAgSaQAayQDnNmJp3adcdbzv37ZrTVSfamkhaL"
+				"bzz-raw://55ce4bfc54182e690c3c5be0501bf5913be045ad8b5887e258d53b879fc5b70f",
+				"dweb:/ipfs/QmVB4dkNLpJNrwwpyATs7AX1immfomY9hLLFSeJA84ADos"
 			]
 		},
 		"contracts/utils/math/SafeMath.sol": {
@@ -1411,11 +1466,11 @@
 			]
 		},
 		"utils/calculateUtils.sol": {
-			"keccak256": "0x35870f8e4d7f5548a5eeaa5886d755cc8bc932f24c53882229dc4dd61e24878d",
+			"keccak256": "0xd917b905c76633eb4d0e62d0513f74673f4200e677c91a6123997da4a85dda2d",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://f7a6dec634760980a9b1b05cd726ba4b560684d6900be5060bb7c6de014c0446",
-				"dweb:/ipfs/QmSjijqrSnEEayeUtastc67Ho4WBzDQJCLVb3rryjig5sM"
+				"bzz-raw://e1e91d02793cdf8ac12dee061e12344196de13d2f37b38a7a6a68a47224859fc",
+				"dweb:/ipfs/QmNU2GQqpVyN6Z6KPcm61zuaZvY5VRYt7MhPy3VWptmf5L"
 			]
 		}
 	},

@@ -93,18 +93,18 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": true,
-			"runs": 400
+			"enabled": false,
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"TransferService.sol": {
-			"keccak256": "0xae1ef7267a650228e71410889403624fbb13b5552735c9a1947c6dcd58ddd9e5",
+			"keccak256": "0x0a73bfe6a67ced9d16cf87adafda4a733af7457b8dfe427cbd5d89641d947caf",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://b88ebc3cce170151821affc73c11db8a2b477585fee9e28c6804e3e66c6f0958",
-				"dweb:/ipfs/QmRwCiZyG3UkKAYoxH3G1Ad5rpntkqAt3MoUNNN2pn9EdF"
+				"bzz-raw://0bb912a31cbb7efd434c9f6f9c57fbb131255b8d08bcd37bb59c20a205e9b741",
+				"dweb:/ipfs/QmYLchhjG11FMuW5ZgwG8MyBhhhCpULeB2362MWKL9B7tV"
 			]
 		},
 		"contracts/access/Ownable.sol": {

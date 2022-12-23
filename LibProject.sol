@@ -5,8 +5,8 @@ library LibProject {
  enum ProjectState {Waiting ,Published,Processing,Overtime, NoOnePick, Closed,Completed }
  // 校验者||翻译者状态 
  enum TaskerState {  Processing, Submitted,Return,Completed,Overtime }
- //文件状态
- enum FileState { Waiting, Translating, Validating, WaitTransModify, BuyerReview, WaitVfModify,Accepted,NoOnePick}
+ //文件状态 Waiting-等待翻译者、校验者接单 WaitingForTrans-等待翻译者接单，校验者已接单 , WaitingForVf-等待校验者接单，翻译者已接单
+ enum FileState { Waiting,WaitingForTrans,WaitingForVf, Translating, Validating, WaitTransModify, BuyerReview, WaitVfModify,Accepted,NoOnePick,Overtime,Closed}
  //文件
  struct FileInfo {
      string  name; 
@@ -28,24 +28,28 @@ library LibProject {
  struct FileIndexInfo {
      TaskerState state;
      string file;
-     uint256 bounty;
+    //  uint256 bounty;
  }
  //任务者
   struct Tasker {
      uint256[] taskIndex;   //任务（文件）索引
      mapping(uint256 => FileIndexInfo) info;
  }
-//返回的
-struct ReturnFileInfo {
-    uint256 taskIndex;
-    TaskerState state;
-    string file;
-    uint256 bounty;
-}
-struct ReturnTasker {
-    address taskerAddress; 
+ struct ReturnTasker {
+    address taskerAddress; //任务者地址
     ReturnFileInfo[] taskerinfo;
 }
+struct ReturnFileInfo {
+    uint256 taskIndex; //文件索引值
+    TaskerState state;//文件状态
+    string file;     //文件链接
+    // uint256 bounty;  //赏金
+}
+
+// struct PayInfo {
+//     uint256 id;
+//     uint256 
+// }
  //项目
  struct TranslationPro {
         address buyer;        //发布者
