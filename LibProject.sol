@@ -18,6 +18,11 @@ library LibProject {
      uint256 fileType; //文件类型
      string  path;     //文件链接
  }
+  //任务者
+  struct Tasker {
+     uint256[] taskIndex;   //任务（文件）索引
+     mapping(uint256 => FileIndexInfo) info;
+ }
  //子任务详情
  struct TaskInfo {
      FileInfo file;    //文件信息
@@ -27,19 +32,14 @@ library LibProject {
      uint256 lastUpload; //最后更新时间
  }
  struct FileIndexInfo {
-     TaskerState state;
-     string file;
+     TaskerState state; //任务者状态
+     string file;       //提交的文件
     //  uint256 bounty;
- }
- //任务者
-  struct Tasker {
-     uint256[] taskIndex;   //任务（文件）索引
-     mapping(uint256 => FileIndexInfo) info;
  }
  struct ReturnTasker {
     address taskerAddress; //任务者地址
-    uint256[] taskIndex;
-    FileIndexInfo[] taskerinfo;
+    uint256[] taskIndex;   //接的任务的索引值
+    FileIndexInfo[] taskerinfo; //接收的任务信息
 }
 // struct ReturnFileInfo {
 //     uint256 taskIndex; //文件索引值
@@ -115,10 +115,10 @@ library LibProject {
         bool isCustomize;     //是否为自定义支付
         uint256 bounty;        //赏金
         TaskInfo[] tasks;     //子任务
-        address[] translators;
-        address[] verifiers;
-        ReturnTasker[] transInfo;
-        ReturnTasker[] vfInfo;
+        address[] translators; //翻译者名单
+        address[] verifiers;   //校验者名单
+        ReturnTasker[] transInfo; //翻译者详细信息
+        ReturnTasker[] vfInfo;    //校验者详细信息
         uint256 maxT;        //任务总量-翻译
         uint256 maxV;        //任务总量-校验
         uint256 numberT;     //已接任务数-翻译

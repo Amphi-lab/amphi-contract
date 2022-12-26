@@ -33,11 +33,11 @@
 	},
 	"sources": {
 		"LibProject.sol": {
-			"keccak256": "0xc708430ea8d93ead5fb28d60dea25eb92b59a07abf210ff2e60c1075037f150a",
+			"keccak256": "0x091068ee09d585b5aa25a4707b4f7630e7035c718858a85d984316c621467094",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://58370937cb139611d765562c93fa0a91be5d6f929492b53b44b2423d7664f7f6",
-				"dweb:/ipfs/QmV1CKQKnTnkuicwwoZMnx8NcYrZ2otUdeBjQV3TbckMM9"
+				"bzz-raw://77799884f15f27cf9f91419aa2dc64db6b625cf7714e1cbab9c49ce1c7cf3093",
+				"dweb:/ipfs/QmRz7SsKHmmc36WpkmgoDjYzukaUaxispErxycUr436rwB"
 			]
 		}
 	},
