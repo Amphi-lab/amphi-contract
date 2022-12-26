@@ -332,17 +332,6 @@ contract TransImpl is Ownable,TransferService,TransService{
          }
          
      }
-    //  扣除赏金
-    //  function _deduct(uint256 _index, address _taskerIndex,uint256 _fileIndex,uint256 _deductNumeber, bool _isTrans) internal  {
-    //      uint256 _bounty = service.getTaskBounty(_index,_fileIndex);
-    //      uint256 _deductMoney ;
-    //      if(_isTrans) {
-    //        _deductMoney =  CalculateUtils.getDeductMoney( _bounty,_deductNumeber);
-    //      }else {
-    //        _deductMoney =  CalculateUtils.getDeductMoney( _bounty,_deductNumeber); 
-    //      }
-    //      service.deductBounty(_index,_taskerIndex,_fileIndex,_deductMoney,_isTrans);
-    //  }
     //发布者验收
     function _receiveTask(uint256 _index,address _taskerIndex,uint256 _fileIndex, bool _isPass) internal{
          //若校验通过，将任务者的状态修改为已完成

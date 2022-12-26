@@ -306,34 +306,19 @@ contract TransService {
         _returnTask.isVerActive = taskList[_index].isVerActive;
         _returnTask.state = taskList[_index].state;
         _returnTask.tasks = taskList[_index].tasks;
-        for(uint256 i=0;i<taskList[_index].translators.length;i++) {
-            LibProject.ReturnTasker memory  _taskerInfo;
-            address _taskerAddress =taskList[_index].translators[i];
-            _taskerInfo.taskerAddress = _taskerAddress;
-            for(uint256 q=0;i<taskList[_index].transInfo[_taskerAddress].taskIndex.length;q++) {
-                LibProject.ReturnFileInfo memory _fileInfo;
-                _fileInfo.taskIndex =  taskList[_index].transInfo[_taskerAddress].taskIndex[q];
-                _fileInfo.state = taskList[_index].transInfo[_taskerAddress].info[_fileInfo.taskIndex].state;
-                _fileInfo.file = taskList[_index].transInfo[_taskerAddress].info[_fileInfo.taskIndex].file;
-                // _fileInfo.bounty = taskList[_index].transInfo[_taskerAddress].info[_fileInfo.taskIndex].bounty;
-                _taskerInfo.taskerinfo[q] = _fileInfo;
-            }
-            _returnTask.translators[i] = _taskerInfo;
+        uint256 transLen =taskList[_index].translators.length;
+        uint256 vfLen =taskList[_index].verifiers.length;
+        LibProject.ReturnTasker[] memory _transInfo = new LibProject.ReturnTasker[](transLen);
+        LibProject.ReturnTasker[] memory _vfInfo = new LibProject.ReturnTasker[](vfLen);
+        for(uint256 i=0;i<transLen;i++) {
+            _transInfo[i] = getTransTaskInfo(_index,taskList[_index].translators[i]);
         }
-        for(uint256 i=0;i<taskList[_index].verifiers.length;i++) {
-            LibProject.ReturnTasker memory  _taskerInfo;
-            address _taskerAddress =taskList[_index].verifiers[i];
-            _taskerInfo.taskerAddress = _taskerAddress;
-            for(uint256 q=0;i<taskList[_index].vfInfo[_taskerAddress].taskIndex.length;q++) {
-                LibProject.ReturnFileInfo memory _fileInfo;
-                _fileInfo.taskIndex =  taskList[_index].vfInfo[_taskerAddress].taskIndex[q];
-                _fileInfo.state = taskList[_index].vfInfo[_taskerAddress].info[_fileInfo.taskIndex].state;
-                _fileInfo.file = taskList[_index].vfInfo[_taskerAddress].info[_fileInfo.taskIndex].file;
-                // _fileInfo.bounty = taskList[_index].vfInfo[_taskerAddress].info[_fileInfo.taskIndex].bounty;
-                _taskerInfo.taskerinfo[q] = _fileInfo;
-            }
-            _returnTask.verifiers[i] = _taskerInfo;
+        for(uint256 i=0;i<vfLen;i++) {
+            _vfInfo[i] = getVfTaskInfo(_index,taskList[_index].verifiers[i]);
         }
+        _returnTask.transInfo = _transInfo;
+        _returnTask.vfInfo = _vfInfo;
+        
        return _returnTask;
     }
     function getTasks(uint256 _index) public view returns(LibProject.TaskInfo[] memory) {
@@ -416,5 +401,35 @@ contract TransService {
     }
     function getTaskStateTrans(uint256 _index) public view returns(bool) {
         return taskList[_index].isTransActive;
+    }
+    //获得翻译者任务详细信息
+    function getTransTaskInfo(uint256 _index,address _address) public view returns(LibProject.ReturnTasker memory) {
+        LibProject.ReturnTasker memory _taskerInfo;
+        _taskerInfo.taskerAddress = _address;
+        _taskerInfo.taskIndex = taskList[_index].transInfo[_address].taskIndex;
+         LibProject.FileIndexInfo[] memory _fileIndexInfo = new LibProject.FileIndexInfo[](_taskerInfo.taskIndex.length);
+        for(uint256 q=0;q<_taskerInfo.taskIndex.length;q++) {
+            _fileIndexInfo[q] = getFileIndexInfo(_index,_address,_taskerInfo.taskIndex[q],true);
+        }
+        return _taskerInfo;
+    }
+    //获得校验者任务详细信息
+    function getVfTaskInfo(uint256 _index,address _address)  public view returns(LibProject.ReturnTasker memory) {
+        LibProject.ReturnTasker memory _taskerInfo;
+        _taskerInfo.taskerAddress = _address;
+        _taskerInfo.taskIndex = taskList[_index].vfInfo[_address].taskIndex;
+         LibProject.FileIndexInfo[] memory _fileIndexInfo = new LibProject.FileIndexInfo[](_taskerInfo.taskIndex.length);
+        for(uint256 q=0;q<_taskerInfo.taskIndex.length;q++) {
+            _fileIndexInfo[q] = getFileIndexInfo(_index,_address,_taskerInfo.taskIndex[q],false);
+        }
+        return _taskerInfo;
+    }
+    function getFileIndexInfo(uint256 _index,address _address,uint256 _fileIndex,bool _isTrans) public view returns(LibProject.FileIndexInfo memory) {
+        if(_isTrans){
+            return taskList[_index].transInfo[_address].info[_fileIndex];
+        }else {
+            return taskList[_index].vfInfo[_address].info[_fileIndex];
+        }
+        
     }
 }

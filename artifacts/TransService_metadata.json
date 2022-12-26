@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.7+commit.e28d00a7"
+		"version": "0.8.17+commit.8df45f5f"
 	},
 	"language": "Solidity",
 	"output": {
@@ -229,6 +229,47 @@
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_index",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_address",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_fileIndex",
+						"type": "uint256"
+					}
+				],
+				"name": "getFileIndexInfo",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "enum LibProject.TaskerState",
+								"name": "state",
+								"type": "uint8"
+							},
+							{
+								"internalType": "string",
+								"name": "file",
+								"type": "string"
+							}
+						],
+						"internalType": "struct LibProject.FileIndexInfo",
+						"name": "",
+						"type": "tuple"
 					}
 				],
 				"stateMutability": "view",
@@ -485,6 +526,59 @@
 						"internalType": "uint256",
 						"name": "_index",
 						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_address",
+						"type": "address"
+					}
+				],
+				"name": "getTransTaskInfo",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "taskerAddress",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256[]",
+								"name": "taskIndex",
+								"type": "uint256[]"
+							},
+							{
+								"components": [
+									{
+										"internalType": "enum LibProject.TaskerState",
+										"name": "state",
+										"type": "uint8"
+									},
+									{
+										"internalType": "string",
+										"name": "file",
+										"type": "string"
+									}
+								],
+								"internalType": "struct LibProject.FileIndexInfo[]",
+								"name": "taskerinfo",
+								"type": "tuple[]"
+							}
+						],
+						"internalType": "struct LibProject.ReturnTasker",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_index",
+						"type": "uint256"
 					}
 				],
 				"name": "getTranslatorsList",
@@ -531,6 +625,59 @@
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_index",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_address",
+						"type": "address"
+					}
+				],
+				"name": "getVfTaskInfo",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "taskerAddress",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256[]",
+								"name": "taskIndex",
+								"type": "uint256[]"
+							},
+							{
+								"components": [
+									{
+										"internalType": "enum LibProject.TaskerState",
+										"name": "state",
+										"type": "uint8"
+									},
+									{
+										"internalType": "string",
+										"name": "file",
+										"type": "string"
+									}
+								],
+								"internalType": "struct LibProject.FileIndexInfo[]",
+								"name": "taskerinfo",
+								"type": "tuple[]"
+							}
+						],
+						"internalType": "struct LibProject.ReturnTasker",
+						"name": "",
+						"type": "tuple"
 					}
 				],
 				"stateMutability": "view",
@@ -642,19 +789,19 @@
 	},
 	"sources": {
 		"LibProject.sol": {
-			"keccak256": "0x8af5a622717c944c4af3e8e2abadbd324331d743be54199f8e8807ab12a71494",
+			"keccak256": "0xc708430ea8d93ead5fb28d60dea25eb92b59a07abf210ff2e60c1075037f150a",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://ece1d3048f4bb3bf1f7f09a1126ff8787fe1ebde42f5d43bf0ff3df712f53814",
-				"dweb:/ipfs/QmfUseBcr98hqJQb86XLoz6wbgMketEX9iURVoNNDgMoxh"
+				"bzz-raw://58370937cb139611d765562c93fa0a91be5d6f929492b53b44b2423d7664f7f6",
+				"dweb:/ipfs/QmV1CKQKnTnkuicwwoZMnx8NcYrZ2otUdeBjQV3TbckMM9"
 			]
 		},
 		"TransService.sol": {
-			"keccak256": "0xdfb9b8aeefbe9dcbf60028b486c466d799a9e90e4168f7203d1282cca521646c",
+			"keccak256": "0x132ed7eb90a0ae2415325f88e5e15524bf3c176135c93f3f9fd6664b29b5e5ce",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://5e0319904f75c24746b297b44d2c209cfcdaf8b7c9973e363abcb720a989411d",
-				"dweb:/ipfs/Qmd851aWhBFHCczmoJJ43duCppxqJpXy23wRyiUsHjxnSu"
+				"bzz-raw://360d5177c6f7f1f5ad6b9420ff91198a467674930bc64acb8eb2f16588bd25d4",
+				"dweb:/ipfs/QmTjH4Zq5RjeTGgxVS3Q31U6KH4z1hdb5rE6SMXtmva8M7"
 			]
 		},
 		"contracts/utils/math/SafeMath.sol": {

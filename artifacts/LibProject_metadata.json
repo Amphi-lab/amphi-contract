@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.7+commit.e28d00a7"
+		"version": "0.8.17+commit.8df45f5f"
 	},
 	"language": "Solidity",
 	"output": {
@@ -27,17 +27,17 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 300
+			"runs": 600
 		},
 		"remappings": []
 	},
 	"sources": {
 		"LibProject.sol": {
-			"keccak256": "0x8af5a622717c944c4af3e8e2abadbd324331d743be54199f8e8807ab12a71494",
+			"keccak256": "0xc708430ea8d93ead5fb28d60dea25eb92b59a07abf210ff2e60c1075037f150a",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://ece1d3048f4bb3bf1f7f09a1126ff8787fe1ebde42f5d43bf0ff3df712f53814",
-				"dweb:/ipfs/QmfUseBcr98hqJQb86XLoz6wbgMketEX9iURVoNNDgMoxh"
+				"bzz-raw://58370937cb139611d765562c93fa0a91be5d6f929492b53b44b2423d7664f7f6",
+				"dweb:/ipfs/QmV1CKQKnTnkuicwwoZMnx8NcYrZ2otUdeBjQV3TbckMM9"
 			]
 		}
 	},

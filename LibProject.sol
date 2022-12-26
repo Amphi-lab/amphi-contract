@@ -38,14 +38,16 @@ library LibProject {
  }
  struct ReturnTasker {
     address taskerAddress; //任务者地址
-    ReturnFileInfo[] taskerinfo;
+    uint256[] taskIndex;
+    FileIndexInfo[] taskerinfo;
 }
-struct ReturnFileInfo {
-    uint256 taskIndex; //文件索引值
-    TaskerState state;//文件状态
-    string file;     //文件链接
-    // uint256 bounty;  //赏金
-}
+// struct ReturnFileInfo {
+//     uint256 taskIndex; //文件索引值
+//     FileIndexInfo info;
+//     // TaskerState state;//文件状态
+//     // string file;     //文件链接
+//     // uint256 bounty;  //赏金
+// }
 
 // struct PayInfo {
 //     uint256 id;
@@ -69,7 +71,7 @@ struct ReturnFileInfo {
         TaskInfo[] tasks;     //子任务
         address[] translators;
         address[] verifiers;
-        mapping(address => Tasker)transInfo;
+        mapping(address => Tasker)  transInfo;
         mapping(address => Tasker ) vfInfo;
         // Tasker[] translators; //翻译者
         // Tasker[] verifiers;   //校验者
@@ -112,10 +114,11 @@ struct ReturnFileInfo {
         bool isNonDisclosure; //是否保密
         bool isCustomize;     //是否为自定义支付
         uint256 bounty;        //赏金
-        ReturnFileInfo[] fileInfo;
         TaskInfo[] tasks;     //子任务
-        ReturnTasker[] translators; //翻译者
-        ReturnTasker[] verifiers;   //校验者
+        address[] translators;
+        address[] verifiers;
+        ReturnTasker[] transInfo;
+        ReturnTasker[] vfInfo;
         uint256 maxT;        //任务总量-翻译
         uint256 maxV;        //任务总量-校验
         uint256 numberT;     //已接任务数-翻译
@@ -124,4 +127,5 @@ struct ReturnFileInfo {
         bool isVerActive;    //校验者状态: true:开启 false:关闭
         ProjectState state;        //项目状态
  }
+ 
 }
