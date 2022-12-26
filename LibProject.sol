@@ -2,7 +2,8 @@
 pragma solidity ^0.8.0;
 library LibProject {
 //项目状态：已发布、进行中、超时、无人选择、已关闭,已完成
- enum ProjectState {Waiting ,Published,Processing,Overtime, NoOnePick, Closed,Completed }
+//  enum ProjectState {Waiting ,Published,Processing,Overtime, NoOnePick, Closed,Completed }
+ enum ProjectState {Waiting,WaitingForTrans,WaitingForVf,Processing,Overtime, NoOnePick, Closed,Completed }
  // 校验者||翻译者状态 
  enum TaskerState {  Processing, Submitted,Return,Completed,Overtime }
  //文件状态 Waiting-等待翻译者、校验者接单 WaitingForTrans-等待翻译者接单，校验者已接单 , WaitingForVf-等待校验者接单，翻译者已接单

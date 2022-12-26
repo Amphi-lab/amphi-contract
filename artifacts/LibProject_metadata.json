@@ -18,7 +18,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"TransImpl_flat.sol": "LibProject"
+			"LibProject.sol": "LibProject"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -27,16 +27,17 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 299
+			"runs": 300
 		},
 		"remappings": []
 	},
 	"sources": {
-		"TransImpl_flat.sol": {
-			"keccak256": "0x0425c2ddaec22fbb198448c0f66872eb79ef13d8fb35f6530a96900545fb70f4",
+		"LibProject.sol": {
+			"keccak256": "0x8af5a622717c944c4af3e8e2abadbd324331d743be54199f8e8807ab12a71494",
+			"license": "MIT",
 			"urls": [
-				"bzz-raw://d1db6eb088b3138e8d8d30fd3df2344791cb8aa65844dcb67286a37a9ad901bc",
-				"dweb:/ipfs/QmaaR5MNQsQbSeUqYy1BfEqfRHYVsp9DGbbDVsQSVAeqwq"
+				"bzz-raw://ece1d3048f4bb3bf1f7f09a1126ff8787fe1ebde42f5d43bf0ff3df712f53814",
+				"dweb:/ipfs/QmfUseBcr98hqJQb86XLoz6wbgMketEX9iURVoNNDgMoxh"
 			]
 		}
 	},

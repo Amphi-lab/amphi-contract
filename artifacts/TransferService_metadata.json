@@ -72,7 +72,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"TransImpl_flat.sol": "TransferService"
+			"TransferService.sol": "TransferService"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -81,16 +81,33 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 299
+			"runs": 300
 		},
 		"remappings": []
 	},
 	"sources": {
-		"TransImpl_flat.sol": {
-			"keccak256": "0x0425c2ddaec22fbb198448c0f66872eb79ef13d8fb35f6530a96900545fb70f4",
+		"TransferService.sol": {
+			"keccak256": "0xccb971c127df966d618d02469ce8df50879271d3f011d6f81addb2f06af63761",
+			"license": "MIT",
 			"urls": [
-				"bzz-raw://d1db6eb088b3138e8d8d30fd3df2344791cb8aa65844dcb67286a37a9ad901bc",
-				"dweb:/ipfs/QmaaR5MNQsQbSeUqYy1BfEqfRHYVsp9DGbbDVsQSVAeqwq"
+				"bzz-raw://03b084a6901537768ba53afdc4cbb74df0583183ac727916e649e7adca2cf60c",
+				"dweb:/ipfs/QmTL3T8GXhE5qNo1K3SnrtHdyDgTmGFmoo7MQsY8Rg9kLv"
+			]
+		},
+		"contracts/access/Ownable.sol": {
+			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2",
+				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
+			]
+		},
+		"contracts/utils/Context.sol": {
+			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92",
+				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
 			]
 		}
 	},

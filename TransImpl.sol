@@ -197,6 +197,11 @@ contract TransImpl is Ownable,TransferService,TransService{
             }      
           }
           TransService.closeTransAccept(_index);
+          if(isFull(_index,false)) {
+              TransService.updateState(_index,LibProject.ProjectState.Processing);
+          }else{
+               TransService.updateState(_index,LibProject.ProjectState.WaitingForVf);
+          }
           return false;
       }
     }
@@ -242,9 +247,14 @@ contract TransImpl is Ownable,TransferService,TransService{
             }      
           }
           TransService.closeVfAccept(_index);
+          if(isFull(_index,true)) {
+               TransService.updateState(_index,LibProject.ProjectState.Processing);
+          } else {
+              TransService.updateState(_index,LibProject.ProjectState.WaitingForTrans);
+          }
+       }
           return false;
       }
-    }
     //提交任务-翻译者
     function _sumbitTaskTrans(uint256 _index, uint256 _fileIndex,string memory _file) internal {
        TransService.sumbitTransTask(_index,msg.sender,_fileIndex,_file);

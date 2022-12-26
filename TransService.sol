@@ -51,7 +51,7 @@ contract TransService {
             _pro.maxT =1;
             _pro.maxV =1;
          }
-        _pro.state = LibProject.ProjectState.Published;
+        // _pro.state = LibProject.ProjectState.Published;
         _pro.isTransActive = true;
         _pro.isVerActive = true;
         for(uint256 i=0;i< _t.tasks.length;i++) {
@@ -74,7 +74,7 @@ contract TransService {
         _pro.bounty=_t.bounty;
         _pro.isNonDisclosure = _t.isNonDisclosure;
         _pro.isCustomize = _t.isCustomize;
-        _pro.state = LibProject.ProjectState.Published;
+        // _pro.state = LibProject.ProjectState.Published;
        if(_t.isCustomize) {
             _pro.maxT = _t.tasks.length; 
              _pro.maxT = _t.tasks.length;
@@ -84,7 +84,7 @@ contract TransService {
             _pro.maxT =1;
          }
         _pro.isTransActive = true;
-        _pro.state = LibProject.ProjectState.Published;
+        // _pro.state = LibProject.ProjectState.Published;
         for(uint256 i=0;i< _t.tasks.length;i++) {
             _pro.tasks.push(_t.tasks[i]);
         }
@@ -199,6 +199,14 @@ contract TransService {
        if(isFull(_index,true)) {
           taskList[_index].isTransActive = false;
           emit changeTransActive(_index,false,msg.sender);
+          if(isFull(_index,false)) {
+             taskList[_index].state = LibProject.ProjectState.Processing;
+             emit changeProjectStateEv(_index,LibProject.ProjectState.Processing,msg.sender);
+          }else{
+              taskList[_index].state = LibProject.ProjectState.WaitingForVf;
+           emit changeProjectStateEv(_index,LibProject.ProjectState.WaitingForVf,msg.sender);
+          }
+           
        }
     }
      //校验者接收任务
@@ -229,6 +237,13 @@ contract TransService {
        if(isFull(_index,false)) {
           taskList[_index].isVerActive = false;
           emit changeVerActive(_index,false,msg.sender);
+          if(isFull(_index,true)) {
+             taskList[_index].state = LibProject.ProjectState.Processing;
+             emit changeProjectStateEv(_index,LibProject.ProjectState.Processing,msg.sender);
+          }else{
+              taskList[_index].state = LibProject.ProjectState.WaitingForTrans;
+           emit changeProjectStateEv(_index,LibProject.ProjectState.WaitingForTrans,msg.sender);
+          }
        }
     }
     function accept(uint256 _index,uint256  _fileIndex, address _taskerIndex, bool _isTrans) internal  {
