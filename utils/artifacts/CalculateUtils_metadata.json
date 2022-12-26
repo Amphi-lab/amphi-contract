@@ -8,6 +8,17 @@
 			{
 				"inputs": [
 					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"name": "ParameterException",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
 						"internalType": "uint256",
 						"name": "_bounty",
 						"type": "uint256"
@@ -113,8 +124,8 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": false,
-			"runs": 200
+			"enabled": true,
+			"runs": 299
 		},
 		"remappings": []
 	},
@@ -128,11 +139,11 @@
 			]
 		},
 		"utils/calculateUtils.sol": {
-			"keccak256": "0x33dd6bd8b94f994e4bf2ac65e84a226fa16a239a7cbca63195b14e252e0cbd34",
+			"keccak256": "0x32a25473918c012d54a48c96692b4839a265c7c3f9b16a66401142492aa92c8b",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://8c198d03c0a4a9a1c2706285385fc2c8ffd6a5cd434eead49162510558ccd411",
-				"dweb:/ipfs/QmakVCBUChdvEEcej5BZXQ33wvbNS8XG1TnJ9mWB5R1X46"
+				"bzz-raw://dee54239a622c551ff615f2e1772143bd072943a9323f29f161d4d020dd5b741",
+				"dweb:/ipfs/QmTshKbC1qKELPV2LkuLRU8h88RMewGiWthuWKeyRkHSfH"
 			]
 		}
 	},

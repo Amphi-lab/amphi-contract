@@ -32,18 +32,29 @@ contract TransferService {
         require(callSuccess, "Call failed");
         emit payEv(address(this),msg.sender,address(this).balance);
     }
+    function _withdrawAll() internal  {
+         (bool callSuccess, ) = payable(AMPHI_ADDRESS).call{value: address(this).balance}("");
+        require(callSuccess, "Call failed");
+        emit payEv(address(this),msg.sender,address(this).balance);
+    }
     //合约给指定用户转账
+    // function toTaskerBounty(address _to,uint256 _bounty) internal{
+    //   require(getBalanceOfContract()>= _bounty *1e18, "The balance is not sufficient.");
+    //   (bool callSuccess, ) =  payable(_to).call{value: _bounty *1e18}("");
+    //     require(callSuccess, "Call failed");
+    //     emit payEv(address(this),_to,_bounty);
+    // }
     function toTaskerBounty(address _to,uint256 _bounty) internal{
-      require(getBalanceOfContract()>= _bounty *1e18, "The balance is not sufficient.");
-      (bool callSuccess, ) =  payable(_to).call{value: _bounty *1e18}("");
+      require(getBalanceOfContract()>= _bounty, "The balance is not sufficient.");
+      (bool callSuccess, ) =  payable(_to).call{value: _bounty}("");
         require(callSuccess, "Call failed");
         emit payEv(address(this),_to,_bounty);
     }
     //转账
-    function pay(address _to) public payable noLock{
-       (bool callSuccess, )= payable(_to).call{value: msg.value}("");
+    function pay(address _to,uint256 _money) internal  noLock{
+       (bool callSuccess, )= payable(_to).call{value: _money}("");
        require(callSuccess, "Call failed");
-       emit payEv(msg.sender,_to,msg.value);
+       emit payEv(msg.sender,_to,_money);
     }
    
     fallback() external payable {}

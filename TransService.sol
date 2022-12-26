@@ -16,17 +16,17 @@ contract TransService {
     mapping (uint256 => LibProject.TranslationPro) private taskList;
     mapping (address => uint256) private payList;
     uint256 private count;
-    function addPay(address _tasker,uint256 _money) public {
+    function addPay(address _tasker,uint256 _money) internal {
         payList[_tasker] += _money;
     }
-    function deductPay(address _tasker, uint256 _money) public {
+    function deductPay(address _tasker, uint256 _money) internal {
         payList[_tasker]-= _money;
     }
     function getPay(address _tasker) public view returns(uint256) {
         return payList[_tasker];
     }
     //增加项目
-    function addProject(LibProject.ProParm memory _t)  public returns(uint256) {
+    function addProject(LibProject.ProParm memory _t)  internal returns(uint256) {
        count++;
        //  taskIndex[_buyer].push(count);
         LibProject.TranslationPro storage _pro= taskList[count];
@@ -55,11 +55,12 @@ contract TransService {
         _pro.isTransActive = true;
         _pro.isVerActive = true;
         for(uint256 i=0;i< _t.tasks.length;i++) {
+            _t.tasks[i].state= LibProject.FileState.Waiting;
             _pro.tasks.push(_t.tasks[i]);
         }
         return count;
     }
-    function updateProject(uint256 _index,LibProject.ProParm memory _t)  public{
+    function updateProject(uint256 _index,LibProject.ProParm memory _t)  internal{
         LibProject.TranslationPro storage _pro= taskList[_index];
         _pro.releaseTime = _t.releaseTime;
         _pro.introduce = _t.introduce;
@@ -89,12 +90,12 @@ contract TransService {
         }
     }
     //修改项目状态
-    function updateState(uint256 _index, LibProject.ProjectState _state) public {
+    function updateState(uint256 _index, LibProject.ProjectState _state) internal {
         taskList[_index].state = _state;
         emit changeProjectStateEv(_index,_state,msg.sender);
     }
     //批量修改任务状态
-    function updateTaskerState(uint256 _index,address  _taskerAddress,uint256[] memory _fileIndex,LibProject.TaskerState _state, bool _isTrans) public {
+    function updateTaskerState(uint256 _index,address  _taskerAddress,uint256[] memory _fileIndex,LibProject.TaskerState _state, bool _isTrans) internal {
         if(_isTrans){
             //  _tasker=taskList[_index].transInfo[_taskerAddress];
         for(uint256 i=0;i<_fileIndex.length;i++) {
@@ -108,7 +109,7 @@ contract TransService {
         }
         }
     }
-    function returnTasker(uint256 _index,address _taskerIndex,uint256 _fileIndex,bool _isTrans)public {
+    function returnTasker(uint256 _index,address _taskerIndex,uint256 _fileIndex,bool _isTrans)internal {
         //修改任务者状态&修改文件状态
         if(_isTrans) {
             taskList[_index].transInfo[_taskerIndex].info[_fileIndex].state=LibProject.TaskerState.Return;
@@ -122,17 +123,17 @@ contract TransService {
             emit changeFileStateEv(_index,_fileIndex,LibProject.FileState.WaitVfModify,msg.sender);
         }
     }
-    function onNoOnePink(uint256 _index) public {
+    function onNoOnePink(uint256 _index) internal {
         taskList[_index].state = LibProject.ProjectState.NoOnePick;
         emit changeProjectStateEv(_index,LibProject.ProjectState.NoOnePick,msg.sender);
         taskList[_index].isVerActive = false;
         emit changeTransActive(_index,false,msg.sender);
     }
-    function closeTransAccept(uint256 _index) public {
+    function closeTransAccept(uint256 _index) internal {
         taskList[_index].isTransActive = false;
         emit changeTransActive(_index,false,msg.sender);
     }
-    function closeFileState(uint256 _index,uint256 _fileIndex) public {
+    function _closeFileState(uint256 _index,uint256 _fileIndex) internal {
         taskList[_index].tasks[_fileIndex].state = LibProject.FileState.Closed;
         emit changeFileStateEv(_index,_fileIndex,LibProject.FileState.Closed,msg.sender);
     }
@@ -142,12 +143,12 @@ contract TransService {
     function getTaskBounty(uint256 _index) public view returns(uint256) {
         return taskList[_index].bounty;
     }
-    function closeVfAccept( uint256 _index) public {
+    function closeVfAccept( uint256 _index) internal {
         taskList[_index].isVerActive = false;
         emit changeVerActive(_index,false,msg.sender);
     }
     //翻译者提交任务
-    function sumbitTransTask(uint256 _index,address _taskerIndex, uint256 _fileIndex,string memory _file) public {
+    function sumbitTransTask(uint256 _index,address _taskerIndex, uint256 _fileIndex,string memory _file) internal {
          LibProject.TranslationPro storage _pro= taskList[_index];
         _pro.tasks[_fileIndex].state = LibProject.FileState.Validating;
         emit changeFileStateEv(_index,_fileIndex,LibProject.FileState.Validating,msg.sender);
@@ -157,7 +158,7 @@ contract TransService {
         emit changeTaskerStateEv(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Submitted,true,msg.sender);
     }
     //校验者验收&提交任务
-    function sumbitVfTask(uint256 _index,address _transIndex,address _vfIndex, uint256 _fileIndex,string memory _file) public {
+    function sumbitVfTask(uint256 _index,address _transIndex,address _vfIndex, uint256 _fileIndex,string memory _file) internal {
         
          LibProject.TranslationPro storage _pro= taskList[_index];
          _pro.transInfo[_transIndex].info[_fileIndex].state =LibProject.TaskerState.Completed;
@@ -171,7 +172,7 @@ contract TransService {
          emit changeTaskerStateEv(_index,_vfIndex,_fileIndex,LibProject.TaskerState.Submitted,false,msg.sender);
     }
     //翻译者接收任务
-    function acceptTrans(uint256 _index,uint256[] memory _fileIndex, address _taskerIndex) public{
+    function acceptTrans(uint256 _index,uint256[] memory _fileIndex, address _taskerIndex) internal{
        //若长度为0，说明该任务者是首次接收该任务,将翻译者存入到翻译者名单中
        LibProject.Tasker storage _taskerInfo = taskList[_index].transInfo[_taskerIndex];
        if(_taskerInfo.taskIndex.length==0) {
@@ -201,26 +202,27 @@ contract TransService {
        }
     }
      //校验者接收任务
-    function acceptVf(uint256 _index,uint256[] memory _fileIndex, address _taskerIndex) public {
+    function acceptVf(uint256 _index,uint256[] memory _fileIndex, address _taskerIndex) internal {
        //若长度为0，说明该任务者是首次接收该任务,将翻译者存入到翻译者名单中
        LibProject.Tasker storage _taskerInfo = taskList[_index].vfInfo[_taskerIndex];
        if(_taskerInfo.taskIndex.length==0) {
            taskList[_index].verifiers.push(_taskerIndex);
         }
         LibProject.FileState _state;
-        for(uint256 i=0;i<_fileIndex.length;i++) {
-            _state =taskList[_index].tasks[_fileIndex[1]].state;
+        for(uint256 q=0;q<_fileIndex.length;q++) {
+            _state =taskList[_index].tasks[_fileIndex[q]].state;
             //根据目前文件状态，修改文件状态
-            if(_state== LibProject.FileState.Waiting) {
-                taskList[_index].tasks[_fileIndex[i]].state = LibProject.FileState.WaitingForTrans;
-                emit changeFileStateEv(_index,_fileIndex[i],LibProject.FileState.WaitingForTrans,msg.sender);
+            if(_state == LibProject.FileState.Waiting) {
+                taskList[_index].tasks[_fileIndex[q]].state = LibProject.FileState.WaitingForTrans;
+                emit changeFileStateEv(_index,_fileIndex[q],LibProject.FileState.WaitingForTrans,msg.sender);
             }else if(_state == LibProject.FileState.WaitingForVf) {
-                taskList[_index].tasks[_fileIndex[i]].state= LibProject.FileState.Translating;
-                emit changeFileStateEv(_index,_fileIndex[i],LibProject.FileState.Translating,msg.sender);
+                taskList[_index].tasks[_fileIndex[q]].state= LibProject.FileState.Translating;
+                emit changeFileStateEv(_index,_fileIndex[q],LibProject.FileState.Translating,msg.sender);
             }else{
                 revert FileException("Error file state",_state);
             }
-             _taskerInfo.taskIndex.push(_fileIndex[i]);
+            _taskerInfo.taskIndex.push(_fileIndex[q]);
+           
         }
        //文件状态修改为翻译中
        taskList[_index].numberV++;
@@ -229,7 +231,7 @@ contract TransService {
           emit changeVerActive(_index,false,msg.sender);
        }
     }
-    function accept(uint256 _index,uint256  _fileIndex, address _taskerIndex, bool _isTrans) public  {
+    function accept(uint256 _index,uint256  _fileIndex, address _taskerIndex, bool _isTrans) internal  {
          LibProject.FileIndexInfo storage _taskerInfo;
         if(_isTrans) {
             _taskerInfo = taskList[_index].transInfo[_taskerIndex].info[_fileIndex];
@@ -258,15 +260,15 @@ contract TransService {
        }
     }
     //关闭项目
-    function closeTask(uint256 _index) public {
+    function _closeTask(uint256 _index) internal {
         taskList[_index].state = LibProject.ProjectState.Closed;
         emit changeProjectStateEv(_index,LibProject.ProjectState.Closed,msg.sender);
     }
-    function completedTask(uint256 _index) public {
+    function completedTask(uint256 _index) internal {
         taskList[_index].state = LibProject.ProjectState.Completed;
          emit changeProjectStateEv(_index,LibProject.ProjectState.Completed,msg.sender);
     }
-    function getProjectOne(uint256 _index) public view returns(LibProject.ReturnTask memory) {
+    function getProjectOne(uint256 _index) internal view returns(LibProject.ReturnTask memory) {
         LibProject.ReturnTask memory _returnTask;
         _returnTask.buyer =taskList[_index].buyer;
         _returnTask.releaseTime = taskList[_index].releaseTime;
@@ -364,7 +366,7 @@ contract TransService {
         LibProject.FileIndexInfo memory  _info;
         for(uint256 i=0;i<_filesIndex.length;i++) {
            _info = taskList[_index].transInfo[_taskerIndex].info[_filesIndex[i]];
-            if(_info.state < LibProject.TaskerState.Submitted){
+            if(_info.state == LibProject.TaskerState.Processing){
                 _list[q] = _filesIndex[i];
                 q++;
                 money+= taskList[_index].tasks[_filesIndex[i]].bounty;
@@ -372,7 +374,7 @@ contract TransService {
         }   
         return (_list,money);
     }
-    function receivePass(uint256 _index, address _taskerIndex,uint256 _fileIndex) public {
+    function receivePass(uint256 _index, address _taskerIndex,uint256 _fileIndex) internal {
         taskList[_index].vfInfo[_taskerIndex].info[_fileIndex].state=LibProject.TaskerState.Completed;
         emit changeTaskerStateEv(_index,_taskerIndex,_fileIndex,LibProject.TaskerState.Completed,false,msg.sender);
         taskList[_index].tasks[_fileIndex].state= LibProject.FileState.Accepted;

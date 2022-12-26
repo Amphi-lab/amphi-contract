@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./../contracts/utils/math/SafeMath.sol";
-
+error ParameterException(string);
 library CalculateUtils {
     uint256 constant RATE = 273;
     uint256 constant VF_N = 3;
@@ -22,7 +22,7 @@ library CalculateUtils {
         }else if(_bounts>=RATE*1e4 && _bounts <=RATE*1e5) {
             ratio = 1e5;
         }else{
-            //revert ParameterException("Unable to calculate,Please submit a request");
+            revert ParameterException("Unable to calculate,Please submit a request");
         }
         return ratio;
     }

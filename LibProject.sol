@@ -19,7 +19,7 @@ library LibProject {
  }
  //子任务详情
  struct TaskInfo {
-     FileInfo file;    //文件
+     FileInfo file;    //文件信息
      uint256 bounty;  //赏金
      string info;     //任务说明
      FileState state; //任务状态
