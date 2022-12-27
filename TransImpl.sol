@@ -5,7 +5,6 @@ import "./TransService.sol";
 import "./contracts/access/Ownable.sol";
 import "./TransferService.sol";
 error OperationException(string);
-// error ParameterException(string);
 error ErrorValue(string,uint256);
 error Permissions(string);
 contract TransImpl is Ownable,TransferService,TransService{
@@ -15,18 +14,18 @@ contract TransImpl is Ownable,TransferService,TransService{
 
     modifier isCanAcceptTrans(uint256 _index) {
         if(!TransService.getTaskStateTrans(_index)){
-            revert OperationException("OperationException: Can't receive task");
+            revert OperationException("Can't receive task");
         }
         _;
     }
     modifier isCanAcceptVf(uint256 _index) {
         if(!TransService.getTaskStateVf(_index)){
-            revert OperationException("OperationException: Can't receive task");
+            revert OperationException("Can't receive task");
         }
         _;
     }
     modifier onlyBuyer(uint256 _index) {
-        require(TransService.getProjectOne(_index).buyer == msg.sender,"Only buyer can call this.");
+        require(TransService.getProjectOne(_index).buyer == msg.sender,"Only buyer");
         _;
     }
     modifier isExist(uint256 _index){
@@ -38,7 +37,7 @@ contract TransImpl is Ownable,TransferService,TransService{
     modifier hasFine(address _address) {
         uint256 _money =TransService.getPay(_address);
         if(_money>0) {
-            revert Permissions("There is an unpaid penalty!");
+            revert Permissions("unpaid penalty!");
         }
         _;
     }
@@ -53,7 +52,7 @@ contract TransImpl is Ownable,TransferService,TransService{
        //质押30%赏金
       uint256 _bounty = CalculateUtils.getPercentage(_t.bounty*1e18,30);
       if(msg.value <_bounty ) {
-          revert ErrorValue("error : Incorrect value",msg.value);
+          revert ErrorValue("Incorrect value",msg.value);
         }
         transderToContract();
     }
@@ -62,10 +61,13 @@ contract TransImpl is Ownable,TransferService,TransService{
         _updateTask(_index, _t);
         uint256 _bounty = CalculateUtils.getPercentage(_t.bounty,30);
         if(msg.value != _bounty *1e18) {
-          revert ErrorValue("error : Incorrect value",msg.value);
+          revert ErrorValue("Incorrect value",msg.value);
         }
         transderToContract();
        
+    }
+    function newAmphiAddess(address _newAddress) public onlyOwner {
+        amphi_address = _newAddress;
     }
     function endTransAccept(uint256 _index) public isExist(_index) {
         _endTransAccept( _index);

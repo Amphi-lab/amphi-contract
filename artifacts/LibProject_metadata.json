@@ -27,17 +27,17 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 600
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"LibProject.sol": {
-			"keccak256": "0x091068ee09d585b5aa25a4707b4f7630e7035c718858a85d984316c621467094",
+			"keccak256": "0xa2b370265318e05099d2b4ee5eaa483fc370b680efaacdd656e9d082ae821aff",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://77799884f15f27cf9f91419aa2dc64db6b625cf7714e1cbab9c49ce1c7cf3093",
-				"dweb:/ipfs/QmRz7SsKHmmc36WpkmgoDjYzukaUaxispErxycUr436rwB"
+				"bzz-raw://2d361b151967ed5af4e7d4233d78e7a07abbb3b498abbc37f26f4ae307f57d2d",
+				"dweb:/ipfs/QmWbzTDqTGyaqjH8KKRmVZyApHmdnnVM5wPB3rz5j6D5HH"
 			]
 		}
 	},

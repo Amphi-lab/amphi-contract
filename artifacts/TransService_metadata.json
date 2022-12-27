@@ -242,47 +242,6 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "address",
-						"name": "_address",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "_fileIndex",
-						"type": "uint256"
-					}
-				],
-				"name": "getFileIndexInfo",
-				"outputs": [
-					{
-						"components": [
-							{
-								"internalType": "enum LibProject.TaskerState",
-								"name": "state",
-								"type": "uint8"
-							},
-							{
-								"internalType": "string",
-								"name": "file",
-								"type": "string"
-							}
-						],
-						"internalType": "struct LibProject.FileIndexInfo",
-						"name": "",
-						"type": "tuple"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "_index",
-						"type": "uint256"
-					},
-					{
 						"internalType": "uint256",
 						"name": "_fileIndex",
 						"type": "uint256"
@@ -774,7 +733,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"TransService.sol": "TransService"
+			"TransImpl_flat.sol": "TransService"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -783,41 +742,16 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 300
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
-		"LibProject.sol": {
-			"keccak256": "0xc708430ea8d93ead5fb28d60dea25eb92b59a07abf210ff2e60c1075037f150a",
-			"license": "MIT",
+		"TransImpl_flat.sol": {
+			"keccak256": "0x8fc1dcbefdf1c70e5660109c5fa2fb3965880a856aa16190217a321c5c172a8d",
 			"urls": [
-				"bzz-raw://58370937cb139611d765562c93fa0a91be5d6f929492b53b44b2423d7664f7f6",
-				"dweb:/ipfs/QmV1CKQKnTnkuicwwoZMnx8NcYrZ2otUdeBjQV3TbckMM9"
-			]
-		},
-		"TransService.sol": {
-			"keccak256": "0x132ed7eb90a0ae2415325f88e5e15524bf3c176135c93f3f9fd6664b29b5e5ce",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://360d5177c6f7f1f5ad6b9420ff91198a467674930bc64acb8eb2f16588bd25d4",
-				"dweb:/ipfs/QmTjH4Zq5RjeTGgxVS3Q31U6KH4z1hdb5rE6SMXtmva8M7"
-			]
-		},
-		"contracts/utils/math/SafeMath.sol": {
-			"keccak256": "0x0f633a0223d9a1dcccfcf38a64c9de0874dfcbfac0c6941ccf074d63a2ce0e1e",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://864a40efcffdf408044c332a5aa38ec5618ed7b4eecb8f65faf45671bd6cdc65",
-				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
-			]
-		},
-		"utils/calculateUtils.sol": {
-			"keccak256": "0x32a25473918c012d54a48c96692b4839a265c7c3f9b16a66401142492aa92c8b",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://dee54239a622c551ff615f2e1772143bd072943a9323f29f161d4d020dd5b741",
-				"dweb:/ipfs/QmTshKbC1qKELPV2LkuLRU8h88RMewGiWthuWKeyRkHSfH"
+				"bzz-raw://7cca3f97934eed7220ea3baf0b594d4626887a3d081433e85ff2640b774fd79d",
+				"dweb:/ipfs/QmcFUYjGfcmaoToVysPgcKne4gKJMgMWMsQauoX8D9CSeb"
 			]
 		}
 	},

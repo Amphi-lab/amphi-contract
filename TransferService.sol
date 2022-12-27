@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 import "./contracts/access/Ownable.sol";
 contract TransferService {
-    address constant AMPHI_ADDRESS = 0x6CA0189baF54f88684ED158193021e45745F810e;
+    address internal amphi_address = 0x25cB30acD1786e49177429318F26959681F9AaBD;
     event payEv(address,address,uint256);
     //锁
     bool locked;
@@ -28,12 +28,12 @@ contract TransferService {
     //提取合约金额
     function _withdraw(uint256 _money) internal  {
         //  (bool callSuccess, ) = payable(AMPHI_ADDRESS).call{value: address(this).balance}("");
-        (bool callSuccess, ) = payable(AMPHI_ADDRESS).call{value: _money *1e18}("");
+        (bool callSuccess, ) = payable(amphi_address).call{value: _money *1e18}("");
         require(callSuccess, "Call failed");
         emit payEv(address(this),msg.sender,address(this).balance);
     }
     function _withdrawAll() internal  {
-         (bool callSuccess, ) = payable(AMPHI_ADDRESS).call{value: address(this).balance}("");
+         (bool callSuccess, ) = payable(amphi_address).call{value: address(this).balance}("");
         require(callSuccess, "Call failed");
         emit payEv(address(this),msg.sender,address(this).balance);
     }

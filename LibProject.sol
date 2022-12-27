@@ -115,8 +115,8 @@ library LibProject {
         bool isCustomize;     //是否为自定义支付
         uint256 bounty;        //赏金
         TaskInfo[] tasks;     //子任务
-        address[] translators; //翻译者名单
-        address[] verifiers;   //校验者名单
+        // address[] translators; //翻译者名单
+        // address[] verifiers;   //校验者名单
         ReturnTasker[] transInfo; //翻译者详细信息
         ReturnTasker[] vfInfo;    //校验者详细信息
         uint256 maxT;        //任务总量-翻译

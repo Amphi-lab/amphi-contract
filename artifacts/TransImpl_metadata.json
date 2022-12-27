@@ -679,47 +679,6 @@
 						"type": "uint256"
 					},
 					{
-						"internalType": "address",
-						"name": "_address",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "_fileIndex",
-						"type": "uint256"
-					}
-				],
-				"name": "getFileIndexInfo",
-				"outputs": [
-					{
-						"components": [
-							{
-								"internalType": "enum LibProject.TaskerState",
-								"name": "state",
-								"type": "uint8"
-							},
-							{
-								"internalType": "string",
-								"name": "file",
-								"type": "string"
-							}
-						],
-						"internalType": "struct LibProject.FileIndexInfo",
-						"name": "",
-						"type": "tuple"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "_index",
-						"type": "uint256"
-					},
-					{
 						"internalType": "uint256",
 						"name": "_fileIndex",
 						"type": "uint256"
@@ -943,16 +902,6 @@
 								"internalType": "struct LibProject.TaskInfo[]",
 								"name": "tasks",
 								"type": "tuple[]"
-							},
-							{
-								"internalType": "address[]",
-								"name": "translators",
-								"type": "address[]"
-							},
-							{
-								"internalType": "address[]",
-								"name": "verifiers",
-								"type": "address[]"
 							},
 							{
 								"components": [
@@ -1341,6 +1290,59 @@
 						"internalType": "uint256",
 						"name": "_index",
 						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "_address",
+						"type": "address"
+					}
+				],
+				"name": "getVfTaskInfo",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "taskerAddress",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256[]",
+								"name": "taskIndex",
+								"type": "uint256[]"
+							},
+							{
+								"components": [
+									{
+										"internalType": "enum LibProject.TaskerState",
+										"name": "state",
+										"type": "uint8"
+									},
+									{
+										"internalType": "string",
+										"name": "file",
+										"type": "string"
+									}
+								],
+								"internalType": "struct LibProject.FileIndexInfo[]",
+								"name": "taskerinfo",
+								"type": "tuple[]"
+							}
+						],
+						"internalType": "struct LibProject.ReturnTasker",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_index",
+						"type": "uint256"
 					}
 				],
 				"name": "isCustomizeState",
@@ -1376,6 +1378,19 @@
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_newAddress",
+						"type": "address"
+					}
+				],
+				"name": "newAmphiAddess",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -1949,7 +1964,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"TransImpl.sol": "TransImpl"
+			"TransImpl_flat.sol": "TransImpl"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -1958,73 +1973,16 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 300
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
-		"LibProject.sol": {
-			"keccak256": "0xc708430ea8d93ead5fb28d60dea25eb92b59a07abf210ff2e60c1075037f150a",
-			"license": "MIT",
+		"TransImpl_flat.sol": {
+			"keccak256": "0x8fc1dcbefdf1c70e5660109c5fa2fb3965880a856aa16190217a321c5c172a8d",
 			"urls": [
-				"bzz-raw://58370937cb139611d765562c93fa0a91be5d6f929492b53b44b2423d7664f7f6",
-				"dweb:/ipfs/QmV1CKQKnTnkuicwwoZMnx8NcYrZ2otUdeBjQV3TbckMM9"
-			]
-		},
-		"TransImpl.sol": {
-			"keccak256": "0x3bd0c8fd99884953fda6502e1f94304127f3863c770b3bd5385aa62a5fa46e7f",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://60cc8f8c9598447c41e7aec34a40d2058ba52b49c3d0afed3ecf47772a62b3fa",
-				"dweb:/ipfs/QmTiip9G2bgs3t8p6AmrubNjTPQtvQnn8KjvzGpBsVD9oL"
-			]
-		},
-		"TransService.sol": {
-			"keccak256": "0x56c157df2ba6623ec95d4f9b0392e8e5a7e94a816a6eaefb72e181b429d1064e",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://49cb9ed447d775efe92a506bd8d4b8596c85ea95645cf22eb3519a66b9ce09ae",
-				"dweb:/ipfs/QmZZKu2s8zEncQmrQoywD3HHZVw8DfqYREWC68WsmJmuPP"
-			]
-		},
-		"TransferService.sol": {
-			"keccak256": "0xccb971c127df966d618d02469ce8df50879271d3f011d6f81addb2f06af63761",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://03b084a6901537768ba53afdc4cbb74df0583183ac727916e649e7adca2cf60c",
-				"dweb:/ipfs/QmTL3T8GXhE5qNo1K3SnrtHdyDgTmGFmoo7MQsY8Rg9kLv"
-			]
-		},
-		"contracts/access/Ownable.sol": {
-			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2",
-				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
-			]
-		},
-		"contracts/utils/Context.sol": {
-			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92",
-				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
-			]
-		},
-		"contracts/utils/math/SafeMath.sol": {
-			"keccak256": "0x0f633a0223d9a1dcccfcf38a64c9de0874dfcbfac0c6941ccf074d63a2ce0e1e",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://864a40efcffdf408044c332a5aa38ec5618ed7b4eecb8f65faf45671bd6cdc65",
-				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
-			]
-		},
-		"utils/calculateUtils.sol": {
-			"keccak256": "0x32a25473918c012d54a48c96692b4839a265c7c3f9b16a66401142492aa92c8b",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://dee54239a622c551ff615f2e1772143bd072943a9323f29f161d4d020dd5b741",
-				"dweb:/ipfs/QmTshKbC1qKELPV2LkuLRU8h88RMewGiWthuWKeyRkHSfH"
+				"bzz-raw://7cca3f97934eed7220ea3baf0b594d4626887a3d081433e85ff2640b774fd79d",
+				"dweb:/ipfs/QmcFUYjGfcmaoToVysPgcKne4gKJMgMWMsQauoX8D9CSeb"
 			]
 		}
 	},
