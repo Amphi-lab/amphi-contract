@@ -1,10 +1,21 @@
 {
 	"compiler": {
-		"version": "0.8.17+commit.8df45f5f"
+		"version": "0.8.7+commit.e28d00a7"
 	},
 	"language": "Solidity",
 	"output": {
 		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_address",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
 			{
 				"inputs": [
 					{
@@ -95,25 +106,25 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "taskIndex",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
 						"internalType": "uint256[]",
-						"name": "",
+						"name": "fileIndex",
 						"type": "uint256[]"
 					},
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "taskerAddress",
 						"type": "address"
 					},
 					{
 						"indexed": false,
 						"internalType": "bool",
-						"name": "",
+						"name": "isTrans",
 						"type": "bool"
 					}
 				],
@@ -126,25 +137,25 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "taskIndex",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "fileIndex",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "taskerAddress",
 						"type": "address"
 					},
 					{
 						"indexed": false,
 						"internalType": "bool",
-						"name": "",
+						"name": "isTrans",
 						"type": "bool"
 					}
 				],
@@ -157,25 +168,25 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "taskIndex",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "fileInfo",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
 						"internalType": "enum LibProject.FileState",
-						"name": "",
+						"name": "fileSate",
 						"type": "uint8"
 					},
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "opSender",
 						"type": "address"
 					}
 				],
@@ -188,19 +199,19 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "taskIndex",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
 						"internalType": "enum LibProject.ProjectState",
-						"name": "",
+						"name": "taskState",
 						"type": "uint8"
 					},
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "opSender",
 						"type": "address"
 					}
 				],
@@ -213,37 +224,37 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "taskIndex",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "tasker",
 						"type": "address"
 					},
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "fileIndex",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
 						"internalType": "enum LibProject.TaskerState",
-						"name": "",
+						"name": "taskerState",
 						"type": "uint8"
 					},
 					{
 						"indexed": false,
 						"internalType": "bool",
-						"name": "",
+						"name": "isTrans",
 						"type": "bool"
 					},
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "opSender",
 						"type": "address"
 					}
 				],
@@ -256,19 +267,19 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "taskIndex",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
 						"internalType": "bool",
-						"name": "",
+						"name": "transActive",
 						"type": "bool"
 					},
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "opSender",
 						"type": "address"
 					}
 				],
@@ -281,19 +292,19 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "taskIndex",
 						"type": "uint256"
 					},
 					{
 						"indexed": false,
 						"internalType": "bool",
-						"name": "",
+						"name": "verActive",
 						"type": "bool"
 					},
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "opSender",
 						"type": "address"
 					}
 				],
@@ -306,19 +317,19 @@
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "from",
 						"type": "address"
 					},
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "to",
 						"type": "address"
 					},
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "money",
 						"type": "uint256"
 					}
 				],
@@ -331,13 +342,13 @@
 					{
 						"indexed": false,
 						"internalType": "address",
-						"name": "",
+						"name": "buyer",
 						"type": "address"
 					},
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "",
+						"name": "taskIndex",
 						"type": "uint256"
 					},
 					{
@@ -474,7 +485,7 @@
 						],
 						"indexed": false,
 						"internalType": "struct LibProject.ProParm",
-						"name": "",
+						"name": "taskInfo",
 						"type": "tuple"
 					}
 				],
@@ -484,6 +495,25 @@
 			{
 				"stateMutability": "payable",
 				"type": "fallback"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_address",
+						"type": "address"
+					}
+				],
+				"name": "_isHasNftPass",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
 			},
 			{
 				"inputs": [
@@ -902,6 +932,16 @@
 								"internalType": "struct LibProject.TaskInfo[]",
 								"name": "tasks",
 								"type": "tuple[]"
+							},
+							{
+								"internalType": "address[]",
+								"name": "translators",
+								"type": "address[]"
+							},
+							{
+								"internalType": "address[]",
+								"name": "verifiers",
+								"type": "address[]"
 							},
 							{
 								"components": [
@@ -1964,7 +2004,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"TransImpl_flat.sol": "TransImpl"
+			"TransImpl.sol": "TransImpl"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -1973,16 +2013,73 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 200
+			"runs": 2000
 		},
 		"remappings": []
 	},
 	"sources": {
-		"TransImpl_flat.sol": {
-			"keccak256": "0x8fc1dcbefdf1c70e5660109c5fa2fb3965880a856aa16190217a321c5c172a8d",
+		"LibProject.sol": {
+			"keccak256": "0x1a15a6e2b9df7e2c2ccd1e1a087b3097f3fca09a3ad65aa973f304361f048fe1",
+			"license": "MIT",
 			"urls": [
-				"bzz-raw://7cca3f97934eed7220ea3baf0b594d4626887a3d081433e85ff2640b774fd79d",
-				"dweb:/ipfs/QmcFUYjGfcmaoToVysPgcKne4gKJMgMWMsQauoX8D9CSeb"
+				"bzz-raw://91add08312ea2fa0dfb5b45134b658506aa37976c391d5f1972158754ae85c8f",
+				"dweb:/ipfs/QmW3ZBu2kDyP8foKNvyfjCf62m2NrnUhxhgqZUXd4DxaBq"
+			]
+		},
+		"TransImpl.sol": {
+			"keccak256": "0xeb899911fcfd3fec171f50e541b6a9d2246d157cf410ed0196fb8a454c582585",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://b09e5477f639077e39a857877b9c3c25b4f1d547d2a8d2185ee9d42d0bb2d3dc",
+				"dweb:/ipfs/QmUJbeA1XAtoC1svT7QYMPWoVhftrU6hUPDx4XqBiMQ5Kv"
+			]
+		},
+		"TransService.sol": {
+			"keccak256": "0xa67f0d942938e9c9449a13348dba82708cc745fddf318eb9d4d6b4b791d8f219",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://5d2d21c8af7724c531000488a63cbe0d50e9523ae1ef09388f7d47fb759f95d6",
+				"dweb:/ipfs/QmekzHQBt4pSBNzNBzPMaGHBNfECPwamVceYcXcC7tn2kP"
+			]
+		},
+		"TransferService.sol": {
+			"keccak256": "0xc2901b73f0230b75301508bfae7060d656f6de01663dc28fb82eb8d1c0cb03be",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9710df5bc3cee2cf71f04d360870a4f95214940398ab8fbb044c0448fe34b7fe",
+				"dweb:/ipfs/QmaEbvKq7FNCEHsgTvcUctCyXc3Bftv9LCZ8vbXw1AofxU"
+			]
+		},
+		"contracts/access/Ownable.sol": {
+			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2",
+				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
+			]
+		},
+		"contracts/utils/Context.sol": {
+			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92",
+				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
+			]
+		},
+		"contracts/utils/math/SafeMath.sol": {
+			"keccak256": "0x0f633a0223d9a1dcccfcf38a64c9de0874dfcbfac0c6941ccf074d63a2ce0e1e",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://864a40efcffdf408044c332a5aa38ec5618ed7b4eecb8f65faf45671bd6cdc65",
+				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
+			]
+		},
+		"utils/calculateUtils.sol": {
+			"keccak256": "0x32a25473918c012d54a48c96692b4839a265c7c3f9b16a66401142492aa92c8b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://dee54239a622c551ff615f2e1772143bd072943a9323f29f161d4d020dd5b741",
+				"dweb:/ipfs/QmTshKbC1qKELPV2LkuLRU8h88RMewGiWthuWKeyRkHSfH"
 			]
 		}
 	},

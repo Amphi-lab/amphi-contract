@@ -17,6 +17,25 @@
 				"type": "error"
 			},
 			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "previousOwner",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "OwnershipTransferred",
+				"type": "event"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -56,6 +75,30 @@
 						"type": "uint256"
 					}
 				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_number",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_ratio",
+						"type": "uint256"
+					}
+				],
+				"name": "getPercentage",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "returnNumber",
+						"type": "uint256"
+					}
+				],
 				"stateMutability": "pure",
 				"type": "function"
 			},
@@ -87,6 +130,95 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
+					}
+				],
+				"name": "getTaskTrans",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "_money",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
+					}
+				],
+				"name": "getTaskTransEnd",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "_money",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
+					}
+				],
+				"name": "getTaskTransFirst",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "_money",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
+					}
+				],
+				"name": "getTaskVf",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "_money",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
 						"name": "_bounts",
 						"type": "uint256"
 					}
@@ -99,13 +231,69 @@
 						"type": "uint256"
 					}
 				],
-				"stateMutability": "pure",
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "renounceOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_rate",
+						"type": "uint256"
+					}
+				],
+				"name": "setRate",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_vfN",
+						"type": "uint256"
+					}
+				],
+				"name": "setvfN",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "newOwner",
+						"type": "address"
+					}
+				],
+				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			}
 		],
 		"devdoc": {
 			"kind": "dev",
-			"methods": {},
+			"methods": {
+				"owner()": {
+					"details": "Returns the address of the current owner."
+				},
+				"renounceOwnership()": {
+					"details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+				},
+				"transferOwnership(address)": {
+					"details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+				}
+			},
 			"version": 1
 		},
 		"userdoc": {
@@ -116,7 +304,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"calculateUtils_flat.sol": "CalculateUtils"
+			"CalculateUtils.sol": "CalculateUtils"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -125,16 +313,41 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 200
+			"runs": 9000
 		},
 		"remappings": []
 	},
 	"sources": {
-		"calculateUtils_flat.sol": {
-			"keccak256": "0x8c7c45c1ede3f60ad2e0c57cf75bc9d35a17538e0e5a7e4980813e2b1fe791a7",
+		"CalculateUtils.sol": {
+			"keccak256": "0xc4c196eda9f6265a2a5a277a4cfcad8d58481b671b1d8b6e427fd5b2c3bc19b9",
+			"license": "MIT",
 			"urls": [
-				"bzz-raw://66ebc5ca24a8af811b9f36a676bd592032c0f6abbd3ad8ab4dddc67f94b79718",
-				"dweb:/ipfs/QmdShgYZptjETuNrzkrw7saiQMEexEf6ges1VL28ZtDzRc"
+				"bzz-raw://8222cf1fb453a898d32dffe7df6c453c55185fcd34408470ede1bcbc3ad66471",
+				"dweb:/ipfs/QmNaQJZpWvGTfx8uATVDMDbtwiVPuqWxerqRvarqKHFvnj"
+			]
+		},
+		"contracts/access/Ownable.sol": {
+			"keccak256": "0xa94b34880e3c1b0b931662cb1c09e5dfa6662f31cba80e07c5ee71cd135c9673",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://40fb1b5102468f783961d0af743f91b9980cf66b50d1d12009f6bb1869cea4d2",
+				"dweb:/ipfs/QmYqEbJML4jB1GHbzD4cUZDtJg5wVwNm3vDJq1GbyDus8y"
+			]
+		},
+		"contracts/utils/Context.sol": {
+			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92",
+				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
+			]
+		},
+		"contracts/utils/math/SafeMath.sol": {
+			"keccak256": "0x0f633a0223d9a1dcccfcf38a64c9de0874dfcbfac0c6941ccf074d63a2ce0e1e",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://864a40efcffdf408044c332a5aa38ec5618ed7b4eecb8f65faf45671bd6cdc65",
+				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
 			]
 		}
 	},

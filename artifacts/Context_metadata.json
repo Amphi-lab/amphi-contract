@@ -19,7 +19,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"TransImpl_flat.sol": "Context"
+			"AmphiPass.sol": "Context"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -28,16 +28,17 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 200
+			"runs": 9000
 		},
 		"remappings": []
 	},
 	"sources": {
-		"TransImpl_flat.sol": {
-			"keccak256": "0x8fc1dcbefdf1c70e5660109c5fa2fb3965880a856aa16190217a321c5c172a8d",
+		"AmphiPass.sol": {
+			"keccak256": "0xef6cdc841a9875a270a610e99adae6636a5894b178708aa288684c52c54313e9",
+			"license": "MIT",
 			"urls": [
-				"bzz-raw://7cca3f97934eed7220ea3baf0b594d4626887a3d081433e85ff2640b774fd79d",
-				"dweb:/ipfs/QmcFUYjGfcmaoToVysPgcKne4gKJMgMWMsQauoX8D9CSeb"
+				"bzz-raw://db08f04d8a35c0b47801c14f01e36bc8e8df874cec120d624597ed06ebb29e6d",
+				"dweb:/ipfs/Qmduatk1EWu1vF39nQ3omJs9M7LDYHzq8D9VyHqrFSeSZg"
 			]
 		}
 	},
