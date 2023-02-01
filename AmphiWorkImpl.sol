@@ -39,7 +39,9 @@ contract AmphiWorkImpl is TransferService {
     AmphiTranImpl service;
     CalculateUtils utils;
     mapping(address => bool) private isNoTransferState;
-    uint256 constant  NUMBER =1e18;
+    uint256 constant  NUMBER = 1e18;
+    uint256 constant POST_PAY_RATE = 30;
+    uint256 constant END_PAY_RATE = 70;
     constructor(
         address _passAddress,
         address _serviceAddress,
@@ -98,7 +100,7 @@ contract AmphiWorkImpl is TransferService {
     {
         _index = _postTask(_t);
         //质押30%赏金
-        uint256 _bounty = utils.getPercentage(_t.bounty * NUMBER, 30);
+        uint256 _bounty = utils.getPercentage(_t.bounty * NUMBER, POST_PAY_RATE);
         if (msg.value < _bounty) {
             revert ErrorValue("Incorrect value", msg.value);
         }
@@ -112,7 +114,7 @@ contract AmphiWorkImpl is TransferService {
         onlyBuyer(_index)
     {
         _updateTask(_index, _t);
-        uint256 _bounty = utils.getPercentage(_t.bounty, 30);
+        uint256 _bounty = utils.getPercentage(_t.bounty, POST_PAY_RATE);
         if (msg.value != _bounty * NUMBER) {
             revert ErrorValue("Incorrect value", msg.value);
         }
@@ -228,7 +230,7 @@ contract AmphiWorkImpl is TransferService {
         _receiveTask(_index, _taskerIndex, _fileIndex, _isPass);
         //若验收通过，将合约剩余的70%的钱存入合约中
         if (_isPass) {
-            uint256 _payMoney = utils.getPercentage(_bounty * NUMBER, 70);
+            uint256 _payMoney = utils.getPercentage(_bounty * NUMBER, END_PAY_RATE);
             if (msg.value < _payMoney) {
                 revert ErrorValue("error : Incorrect value", msg.value);
             }
@@ -489,7 +491,7 @@ contract AmphiWorkImpl is TransferService {
             //退还金额给需求方
             toTaskerBounty(service.getBuyer(_index), utils.getPercentage(
                 service.getTaskBounty(_index),
-                30
+                POST_PAY_RATE
             ));
             return (false, "no one pink");
         } else {
@@ -519,7 +521,7 @@ contract AmphiWorkImpl is TransferService {
                 _payBounty = service.getTaskBounty(_index);
             }
             //校验者验收，支付翻译者30%赏金
-            _payBounty = utils.getPercentage(_payBounty * NUMBER, 30);
+            _payBounty = utils.getPercentage(_payBounty * NUMBER, POST_PAY_RATE);
             delete isNoTransferState[_transIndex];
         } else {
             //任务不通过，将任务者的状态修改为被打回状态
