@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "./AmphiTrans.sol";
+import "./AmphiTranImpl.sol";
 import "./LibProject.sol";
 import "./CalculateUtils.sol";
 import "./TransferService.sol";
 error OperationException(string);
 error ErrorValue(string, uint256);
 error Permissions(string);
-error FileException(string, LibProject.FileState);
+// error FileException(string, LibProject.FileState);
 
 interface AmphiPass {
     function walletOfOwner(address _owner)
@@ -36,17 +36,17 @@ contract AmphiWorkImpl is TransferService {
     );
 
     AmphiPass amphi;
-    AmphiTrans service;
+    AmphiTranImpl service;
     CalculateUtils utils;
     mapping(address => bool) private isNoTransferState;
-
+    uint256 constant  NUMBER =1e18;
     constructor(
         address _passAddress,
         address _serviceAddress,
         address _utilsAddress
     ) {
         amphi = AmphiPass(_passAddress);
-        service = AmphiTrans(_serviceAddress);
+        service = AmphiTranImpl(_serviceAddress);
         utils = CalculateUtils(_utilsAddress);
     }
 
@@ -68,7 +68,7 @@ contract AmphiWorkImpl is TransferService {
     }
     modifier isExist(uint256 _index) {
         if (_index > service.getCount()) {
-            revert ParameterException("Wrong index value!");
+            revert ParameterException("Wrong index!");
         }
         _;
     }
@@ -98,7 +98,7 @@ contract AmphiWorkImpl is TransferService {
     {
         _index = _postTask(_t);
         //质押30%赏金
-        uint256 _bounty = utils.getPercentage(_t.bounty * 1e18, 30);
+        uint256 _bounty = utils.getPercentage(_t.bounty * NUMBER, 30);
         if (msg.value < _bounty) {
             revert ErrorValue("Incorrect value", msg.value);
         }
@@ -109,12 +109,11 @@ contract AmphiWorkImpl is TransferService {
     function updateTask(uint256 _index, LibProject.ProParm memory _t)
         public
         payable
-        isExist(_index)
         onlyBuyer(_index)
     {
         _updateTask(_index, _t);
         uint256 _bounty = utils.getPercentage(_t.bounty, 30);
-        if (msg.value != _bounty * 1e18) {
+        if (msg.value != _bounty * NUMBER) {
             revert ErrorValue("Incorrect value", msg.value);
         }
         isNoTransferState[msg.sender] = true;
@@ -137,7 +136,7 @@ contract AmphiWorkImpl is TransferService {
         isCanAcceptTrans(_index)
         hasFine(msg.sender)
     {
-        _acceptTrans(_index, _fileIndex, msg.sender);
+        service.acceptTrans(_index, _fileIndex, msg.sender);
         emit acceptTaskEv(_index, _fileIndex, msg.sender, true);
         isNoTransferState[msg.sender] = true;
     }
@@ -149,8 +148,8 @@ contract AmphiWorkImpl is TransferService {
         isCanAcceptVf(_index)
         hasFine(msg.sender)
     {
-        _acceptVf(_index, _fileIndex, msg.sender);
-        emit acceptTaskEv(_index, _fileIndex, msg.sender, false);
+        service.acceptVf(_index, _fileIndex, msg.sender);
+       emit acceptTaskEv(_index, _fileIndex, msg.sender, false);
         isNoTransferState[msg.sender] = true;
     }
 
@@ -190,7 +189,7 @@ contract AmphiWorkImpl is TransferService {
         if (_fileState > LibProject.FileState.BuyerReview) {
             revert OperationException("unable to submit");
         }
-        _sumbitTaskTrans(_index, _fileIndex, _file, msg.sender);
+        service.sumbitTaskTrans(_index, _fileIndex, _file, msg.sender);
     }
 
     function overTimeTrans(uint256 _index, address _tasker)
@@ -229,13 +228,13 @@ contract AmphiWorkImpl is TransferService {
         _receiveTask(_index, _taskerIndex, _fileIndex, _isPass);
         //若验收通过，将合约剩余的70%的钱存入合约中
         if (_isPass) {
-            uint256 _payMoney = utils.getPercentage(_bounty * 1e18, 70);
+            uint256 _payMoney = utils.getPercentage(_bounty * NUMBER, 70);
             if (msg.value < _payMoney) {
                 revert ErrorValue("error : Incorrect value", msg.value);
             }
             transderToContract();
-            uint256 _vfBounty = utils.getTaskVf(_bounty * 1e18);
-            uint256 _transBounty = utils.getTaskTransEnd(_bounty * 1e18);
+            uint256 _vfBounty = utils.getTaskVf(_bounty * NUMBER);
+            uint256 _transBounty = utils.getTaskTransEnd(_bounty * NUMBER);
             toTaskerBounty(_taskerIndex, _vfBounty);
             toTaskerBounty(_transAddress, _transBounty);
         }
@@ -252,7 +251,7 @@ contract AmphiWorkImpl is TransferService {
 
     //支付罚金
     function payFine(address _to) public payable {
-        if (msg.value > service.getPay(_to) * 1e18) {
+        if (msg.value > service.getPay(_to) * NUMBER) {
             revert ErrorValue("value is too high", msg.value);
         }
         service.deductPay(_to, msg.value);
@@ -267,19 +266,18 @@ contract AmphiWorkImpl is TransferService {
         utils = CalculateUtils(_newAddress);
     }
 
-    function newAmphiTrans(address _newAddress) public onlyOwner {
-        service = AmphiTrans(_newAddress);
+    function newAmphiTransImpl(address _newAddress) public onlyOwner {
+        service = AmphiTranImpl(_newAddress);
     }
 
     function closeTask(uint256 _index) public {
-        service.changeProjectState(_index, LibProject.ProjectState.Closed);
+        service.closeTask(_index);
     }
 
     function closeFileState(uint256 _index, uint256 _fileIndex) public {
-        service.changeFileState(
+        service.closeFileState(
             _index,
-            _fileIndex,
-            LibProject.FileState.Closed
+            _fileIndex
         );
     }
 
@@ -287,37 +285,52 @@ contract AmphiWorkImpl is TransferService {
         public
         view
         isExist(_index)
-        returns (LibProject.ReturnTask memory)
+        returns (LibProject.TranslationPro memory)
     {
-        LibProject.ReturnTask memory _info;
-        _info.pro = service.getProjectOne(_index);
-        uint256 transLen = service.getTransNumber(_index);
-        uint256 vfLen = service.getVfNumber(_index);
-        address[] memory transList = service.getTranslatorsList(_index);
-        address[] memory vfList = service.getVfList(_index);
-        LibProject.ReturnTasker[]
-            memory _transInfo = new LibProject.ReturnTasker[](transLen);
-        LibProject.ReturnTasker[]
-            memory _vfInfo = new LibProject.ReturnTasker[](vfLen);
-        for (uint256 i = 0; i < transLen; i++) {
-            _transInfo[i] = service.getTransTaskInfo(_index, transList[i]);
-        }
-        for (uint256 i = 0; i < vfLen; i++) {
-            _vfInfo[i] = service.getVfTaskInfo(_index, vfList[i]);
-        }
-        _info.transInfo = _transInfo;
-        _info.vfInfo = _vfInfo;
-        return _info;
+      return  service.getProjectOne(_index);
+    //     LibProject.ReturnTask memory _info;
+    //     _info.pro = service.getProjectOne(_index);
+    //    // uint256 transLen = service.getTransNumber(_index);
+    //   //  uint256 vfLen = service.getVfNumber(_index);
+    //     address[] memory transList = service.getTranslatorsList(_index);
+    //     address[] memory vfList = service.getVfList(_index);
+    //     LibProject.ReturnTasker[]
+    //         memory _transInfo = new LibProject.ReturnTasker[](service.getTransNumber(_index));
+    //     LibProject.ReturnTasker[]
+    //         memory _vfInfo = new LibProject.ReturnTasker[](service.getVfNumber(_index));
+    //     for (uint256 i = 0; i < service.getTransNumber(_index); i++) {
+    //         _transInfo[i] = service.getTransTaskInfo(_index, transList[i]);
+    //     }
+    //     for (uint256 i = 0; i < service.getVfNumber(_index); i++) {
+    //         _vfInfo[i] = service.getVfTaskInfo(_index, vfList[i]);
+    //     }
+    //     _info.transInfo = _transInfo;
+    //     _info.vfInfo = _vfInfo;
+        //return _info;
         // return service.getProjectOne(_index);
     }
+    // function getTransInfo(uint256 _index) public view{
+        // address[] memory transList = service.getTranslatorsList(_index);
+        // address[] memory vfList = service.getVfList(_index);
+        // LibProject.ReturnTasker[]
+        //     memory _transInfo = new LibProject.ReturnTasker[](service.getTransNumber(_index));
+        // LibProject.ReturnTasker[]
+        //     memory _vfInfo = new LibProject.ReturnTasker[](service.getVfNumber(_index));
+        // for (uint256 i = 0; i < service.getTransNumber(_index); i++) {
+        //     _transInfo[i] = service.getTransTaskInfo(_index, transList[i]);
+        // }
+        // for (uint256 i = 0; i < service.getVfNumber(_index); i++) {
+        //     _vfInfo[i] = service.getVfTaskInfo(_index, vfList[i]);
+        // }
+    // }
 
-    function getFileState(uint256 _index, uint256 _fileIndex)
-        public
-        view
-        returns (LibProject.FileState)
-    {
-        return service.getFileState(_index, _fileIndex);
-    }
+    // function getFileState(uint256 _index, uint256 _fileIndex)
+    //     public
+    //     view
+    //     returns (LibProject.FileState)
+    // {
+    //     return service.getFileState(_index, _fileIndex);
+    // }
 
     function getPay(address _address) public view returns (uint256) {
         return service.getPay(_address);
@@ -348,31 +361,13 @@ contract AmphiWorkImpl is TransferService {
     ) internal {
         //若校验通过，将任务者的状态修改为已完成
         if (_isPass) {
-            _receivePass(_index, _taskerIndex, _fileIndex);
+            service.receivePass(_index, _taskerIndex, _fileIndex);
             delete isNoTransferState[_taskerIndex];
             // delete isNoTransferState[_taskerIndex];
         } else {
             //任务不通过，将任务者的状态修改为被打回状态
-            _returnTaskerByBuyer(_index, _taskerIndex, _fileIndex);
+            service.returnTaskerByBuyer(_index, _taskerIndex, _fileIndex);
         }
-    }
-
-    function _receivePass(
-        uint256 _index,
-        address _taskerIndex,
-        uint256 _fileIndex
-    ) internal {
-        service.changeTaskVfState(
-            _index,
-            _taskerIndex,
-            _fileIndex,
-            LibProject.TaskerState.Completed
-        );
-        service.changeFileState(
-            _index,
-            _fileIndex,
-            LibProject.FileState.Accepted
-        );
     }
 
     //超时未提交-翻译者
@@ -393,60 +388,12 @@ contract AmphiWorkImpl is TransferService {
         }
         // service.changeTaskTransState(_index,_taskerIndex,)
         //修改任务状态
-        _updateTaskerStateByTrans(
-            _index,
-            _taskerIndex,
-            _unCompleted,
-            LibProject.TaskerState.Overtime
-        );
-        uint256 _allBounty;
-        if (service.isCustomizeState(_index)) {
-            for (uint256 i = 0; i < _unCompleted.length; i++) {
-                _allBounty += service.getFileBounty(_index, _unCompleted[i]);
-            }
-        } else {
-            _allBounty = service.getTaskBounty(_index);
-        }
+         uint256 _allBounty = service.overTimeTrans(_index,_taskerIndex,_unCompleted);
         //计算罚金
         //   uint256 _rate=  CalculateUtils.punishRatio(service.getTranslators(_index,_taskerIndex).bounty);
-        uint256 _rate = utils.punishRatio(utils.getTaskTrans(_allBounty));
-        uint256 _punish = utils.getPunish(_money, _rate);
         delete isNoTransferState[_taskerIndex];
         //返回罚金
-        return _punish;
-    }
-
-    //批量修改
-    function _updateTaskerStateByTrans(
-        uint256 _index,
-        address _taskerAddress,
-        uint256[] memory _fileIndex,
-        LibProject.TaskerState _state
-    ) internal {
-        for (uint256 i = 0; i < _fileIndex.length; i++) {
-            service.changeTaskTransState(
-                _index,
-                _taskerAddress,
-                _fileIndex[i],
-                _state
-            );
-        }
-    }
-
-    function _updateTaskerStateByVf(
-        uint256 _index,
-        address _taskerAddress,
-        uint256[] memory _fileIndex,
-        LibProject.TaskerState _state
-    ) internal {
-        for (uint256 i = 0; i < _fileIndex.length; i++) {
-            service.changeTaskVfState(
-                _index,
-                _taskerAddress,
-                _fileIndex[i],
-                _state
-            );
-        }
+        return utils.getPunish(_money, utils.punishRatio(utils.getTaskTrans(_allBounty)));
     }
 
     //超时未提交-校验者
@@ -465,26 +412,13 @@ contract AmphiWorkImpl is TransferService {
         if (_unCompleted.length == 0) {
             return 0;
         }
-        _updateTaskerStateByVf(
-            _index,
-            _taskerIndex,
-            _unCompleted,
-            LibProject.TaskerState.Overtime
-        );
+       
         //计算罚金
-        uint256 _allBounty;
-        if (service.isCustomizeState(_index)) {
-            for (uint256 i = 0; i < _unCompleted.length; i++) {
-                _allBounty += service.getFileBounty(_index, _unCompleted[i]);
-            }
-        } else {
-            _allBounty = service.getTaskBounty(_index);
-        }
+        uint256 _allBounty= service.overTimeVf(_index,_taskerIndex,_unCompleted);
         //1.根据赏金获得处罚比率
-        uint256 _rate = utils.punishRatio(utils.getTaskVf(_allBounty));
-        uint256 _punish = utils.getPunish(_money, _rate);
+
         delete isNoTransferState[_taskerIndex];
-        return _punish;
+        return utils.getPunish(_money, utils.punishRatio(utils.getTaskVf(_allBounty)));
     }
 
     function _isHasNftPass(address _address) internal view returns (bool) {
@@ -514,8 +448,8 @@ contract AmphiWorkImpl is TransferService {
         emit postProjectEv(msg.sender, _index, _t);
     }
 
-    //到截至日期后，调用该方法,//若无人接收任务，则修改任务状态为无人接收状态，关闭翻译接收
-    //若有部分人接收，进入任务强分配
+    // //到截至日期后，调用该方法,//若无人接收任务，则修改任务状态为无人接收状态，关闭翻译接收
+    // //若有部分人接收，进入任务强分配
     function _endTransAccept(uint256 _index)
         internal
         returns (bool, string memory)
@@ -530,46 +464,7 @@ contract AmphiWorkImpl is TransferService {
             service.changeTransActive(_index, false);
             return (false, "translators number = 0");
         } else {
-            uint256 _count = _tasks.length;
-            uint256 _acceptedNum = _transNumber;
-            uint256 avgNum = _count / _acceptedNum;
-            address[] memory _list = service.getTranslatorsList(_index);
-            for (uint256 i = 0; i < _tasks.length; i++) {
-                //任务为待接收状态
-                if (
-                    _tasks[i].state == LibProject.FileState.Waiting ||
-                    _tasks[i].state == LibProject.FileState.WaitingForTrans
-                ) {
-                    //为未分配任务分配任务者
-                    for (uint256 q = 0; q < _transNumber; q++) {
-                        //超出分配线，不予分配
-                        if (
-                            service.getAcceptTransNumber(_index, _list[q]) >
-                            avgNum
-                        ) {
-                            continue;
-                        }
-                        //将当前任务分配给翻译者
-                        service.addTransNumber(_index);
-                        service.pushTaskTransIndex(_index, _list[q], i);
-                        _acceptTransToFileState(_index, i);
-                        emit acceptTaskEv(_index, i, _list[q], true);
-                        break;
-                    }
-                }
-            }
-            service.changeTransActive(_index, false);
-            if (service.isFull(_index, false)) {
-                service.changeProjectState(
-                    _index,
-                    LibProject.ProjectState.Processing
-                );
-            } else {
-                service.changeProjectState(
-                    _index,
-                    LibProject.ProjectState.WaitingForVf
-                );
-            }
+            service.distrToTrans(_index,_tasks,_transNumber);
             return (false, "Allocation completed");
         }
     }
@@ -586,169 +481,25 @@ contract AmphiWorkImpl is TransferService {
         if (service.isFull(_index, false)) {
             return (true, "");
         } else if (vfNumber == 0 && _transNumber != 0) {
-            service.changeVerActive(_index, false);
+           // service.changeVerActive(_index, false);
             return (false, "verifiers number =0");
         } else if (vfNumber == 0 && _transNumber == 0) {
             //若无人接收任务，则修改任务状态为无人接收状态，关闭翻译接收
-            _onNoOnePink(_index);
-            address _buyer = service.getBuyer(_index);
-            uint256 _bounty = utils.getPercentage(
+            service.onNoOnePink(_index);
+            //退还金额给需求方
+            toTaskerBounty(service.getBuyer(_index), utils.getPercentage(
                 service.getTaskBounty(_index),
                 30
-            );
-            //退还金额给需求方
-            toTaskerBounty(_buyer, _bounty);
+            ));
             return (false, "no one pink");
         } else {
-            //若有部分人接收
-            uint256 _count = _tasks.length;
-            uint256 _acceptedNum = vfNumber;
-            uint256 avgNum = _count / _acceptedNum;
-            address[] memory _list = service.getVfList(_index);
-            for (uint256 i = 0; i < _tasks.length; i++) {
-                //任务为待接收状态
-                if (_tasks[i].state == LibProject.FileState.Waiting) {
-                    //为未分配任务分配任务者
-                    for (uint256 q = 0; q < vfNumber; q++) {
-                        //超出分配线，不予分配
-                        if (
-                            service.getAcceptVfNumber(_index, _list[q]) > avgNum
-                        ) {
-                            continue;
-                        }
-                        //将当前任务分配给翻译者
-                        service.addVfNumber(_index);
-                        service.pushTaskVfIndex(_index, _list[q], i);
-                        _acceptVfToFileState(_index, i);
-                        emit acceptTaskEv(_index, i, _list[q], false);
-                        break;
-                    }
-                }
-            }
-            service.changeVerActive(_index, false);
-            if (service.isFull(_index, true)) {
-                service.changeProjectState(
-                    _index,
-                    LibProject.ProjectState.Processing
-                );
-            } else {
-                service.changeProjectState(
-                    _index,
-                    LibProject.ProjectState.WaitingForTrans
-                );
-            }
+           service.distrToVf(_index,_tasks,vfNumber);
+             return (false, "Allocation completed");
         }
-        return (false, "Allocation completed");
+       
     }
 
-    function _acceptTransToFileState(uint256 _index, uint256 _fileIndex)
-        internal
-    {
-        LibProject.FileState _state = service.getFileState(_index, _fileIndex);
-        //根据目前文件状态，修改文件状态
-        if (_state == LibProject.FileState.Waiting) {
-            service.changeFileState(
-                _index,
-                _fileIndex,
-                LibProject.FileState.WaitingForVf
-            );
-        } else if (_state == LibProject.FileState.WaitingForTrans) {
-            service.changeFileState(
-                _index,
-                _fileIndex,
-                LibProject.FileState.Translating
-            );
-        } else {
-            revert FileException("Error file state", _state);
-        }
-    }
-
-    function _acceptVfToFileState(uint256 _index, uint256 _fileIndex) internal {
-        LibProject.FileState _state = service.getFileState(_index, _fileIndex);
-        //根据目前文件状态，修改文件状态
-        if (_state == LibProject.FileState.Waiting) {
-            service.changeFileState(
-                _index,
-                _fileIndex,
-                LibProject.FileState.WaitingForTrans
-            );
-        } else if (_state == LibProject.FileState.WaitingForVf) {
-            service.changeFileState(
-                _index,
-                _fileIndex,
-                LibProject.FileState.Translating
-            );
-        } else {
-            revert FileException("Error file state", _state);
-        }
-    }
-
-    function _onNoOnePink(uint256 _index) internal {
-        service.changeProjectState(_index, LibProject.ProjectState.NoOnePick);
-        service.changeVerActive(_index, false);
-    }
-
-    function _acceptTrans(
-        uint256 _index,
-        uint256[] memory _fileIndex,
-        address _taskerIndex
-    ) internal {
-        //若长度为0，说明该任务者是首次接收该任务,将翻译者存入到翻译者名单中
-        if (service.getAcceptTransNumber(_index, _taskerIndex) == 0) {
-            service.addTranslators(_index, _taskerIndex);
-        }
-        for (uint256 q = 0; q < _fileIndex.length; q++) {
-            _acceptTransToFileState(_index, _fileIndex[q]);
-            service.pushTaskTransIndex(_index, _taskerIndex, _fileIndex[q]);
-        }
-        //
-        service.addTransNumber(_index);
-        if (service.isFull(_index, true)) {
-            service.changeTransActive(_index, false);
-            if (service.isFull(_index, false)) {
-                service.changeProjectState(
-                    _index,
-                    LibProject.ProjectState.Processing
-                );
-            } else {
-                service.changeProjectState(
-                    _index,
-                    LibProject.ProjectState.WaitingForVf
-                );
-            }
-        }
-    }
-
-    function _acceptVf(
-        uint256 _index,
-        uint256[] memory _fileIndex,
-        address _taskerIndex
-    ) internal {
-        //若长度为0，说明该任务者是首次接收该任务,将翻译者存入到翻译者名单中
-        if (service.getAcceptVfNumber(_index, _taskerIndex) == 0) {
-            service.addVf(_index, _taskerIndex);
-        }
-        for (uint256 q = 0; q < _fileIndex.length; q++) {
-            _acceptVfToFileState(_index, _fileIndex[q]);
-            service.pushTaskVfIndex(_index, _taskerIndex, _fileIndex[q]);
-        }
-        //文件状态修改为翻译中
-        service.addVfNumber(_index);
-        if (service.isFull(_index, false)) {
-            service.changeVerActive(_index, false);
-            if (service.isFull(_index, true)) {
-                service.changeProjectState(
-                    _index,
-                    LibProject.ProjectState.Processing
-                );
-            } else {
-                service.changeProjectState(
-                    _index,
-                    LibProject.ProjectState.WaitingForTrans
-                );
-            }
-        }
-    }
+   
 
     //校验者验收
     function _validate(
@@ -761,105 +512,19 @@ contract AmphiWorkImpl is TransferService {
         //若校验通过，将任务者的状态修改为已完成
         if (_isPass) {
             //若用户为自定义支付，则完成后支付任务者赏金
-            _sumbitVfTask(_index, _transIndex, msg.sender, _fileIndex, _file);
-            bool _Customize = service.isCustomizeState(_index);
-            if (_Customize) {
+            service.sumbitVfTask(_index, _transIndex, msg.sender, _fileIndex, _file);
+            if (service.isCustomizeState(_index)) {
                 _payBounty = service.getFileBounty(_index, _fileIndex);
             } else {
                 _payBounty = service.getTaskBounty(_index);
             }
             //校验者验收，支付翻译者30%赏金
-            _payBounty = utils.getPercentage(_payBounty * 1e18, 30);
+            _payBounty = utils.getPercentage(_payBounty * NUMBER, 30);
             delete isNoTransferState[_transIndex];
         } else {
             //任务不通过，将任务者的状态修改为被打回状态
-            _returnTaskerByVf(_index, _transIndex, _fileIndex);
+            service.returnTaskerByVf(_index, _transIndex, _fileIndex);
             _payBounty = 0;
         }
-    }
-
-    function _returnTaskerByVf(
-        uint256 _index,
-        address _taskerIndex,
-        uint256 _fileIndex
-    ) internal {
-        //修改任务者状态&修改文件状态
-        service.changeTaskTransState(
-            _index,
-            _taskerIndex,
-            _fileIndex,
-            LibProject.TaskerState.Return
-        );
-        service.changeFileState(
-            _index,
-            _fileIndex,
-            LibProject.FileState.WaitTransModify
-        );
-    }
-
-    function _returnTaskerByBuyer(
-        uint256 _index,
-        address _taskerIndex,
-        uint256 _fileIndex
-    ) internal {
-        service.changeTaskVfState(
-            _index,
-            _taskerIndex,
-            _fileIndex,
-            LibProject.TaskerState.Return
-        );
-        service.changeFileState(
-            _index,
-            _fileIndex,
-            LibProject.FileState.WaitVfModify
-        );
-    }
-
-    function _sumbitVfTask(
-        uint256 _index,
-        address _transIndex,
-        address _vfIndex,
-        uint256 _fileIndex,
-        string memory _file
-    ) internal {
-        service.changeTaskTransState(
-            _index,
-            _transIndex,
-            _fileIndex,
-            LibProject.TaskerState.Completed
-        );
-        service.changeFileState(
-            _index,
-            _fileIndex,
-            LibProject.FileState.BuyerReview
-        );
-        service.changeTaskVfState(
-            _index,
-            _vfIndex,
-            _fileIndex,
-            LibProject.TaskerState.Submitted
-        );
-        service.submitFileByVf(_index, _vfIndex, _fileIndex, _file);
-    }
-
-    //提交任务-翻译者
-    function _sumbitTaskTrans(
-        uint256 _index,
-        uint256 _fileIndex,
-        string memory _file,
-        address _tasker
-    ) internal {
-        service.changeFileState(
-            _index,
-            _fileIndex,
-            LibProject.FileState.Validating
-        );
-        service.submitFileByTrans(_index, _tasker, _fileIndex, _file);
-        service.changeTaskTransState(
-            _index,
-            _tasker,
-            _fileIndex,
-            LibProject.TaskerState.Submitted
-        );
     }
 }
