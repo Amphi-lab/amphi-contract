@@ -50,6 +50,7 @@ library LibProject {
     //任务者
     struct Tasker {
         uint256[] taskIndex; //任务（文件）索引
+        uint256 number;
         mapping(uint256 => FileIndexInfo) info;
     }
     //子任务详情
