@@ -6,11 +6,6 @@
 	"output": {
 		"abi": [
 			{
-				"inputs": [],
-				"stateMutability": "nonpayable",
-				"type": "constructor"
-			},
-			{
 				"anonymous": false,
 				"inputs": [
 					{
@@ -92,6 +87,37 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_address",
+						"type": "address"
+					}
+				],
+				"name": "setAccessAddress",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_to",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
+					}
+				],
+				"name": "toTaskerBounty",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "transderToContract",
 				"outputs": [],
@@ -107,6 +133,26 @@
 					}
 				],
 				"name": "transferOwnership",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_money",
+						"type": "uint256"
+					}
+				],
+				"name": "withdraw",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "withdrawAll",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -148,17 +194,17 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 1000
+			"runs": 2000
 		},
 		"remappings": []
 	},
 	"sources": {
 		"TransferService.sol": {
-			"keccak256": "0xaba156f2eadbe08ae64fbab3acc87ede59a303c07c2003401ec2c46f25590029",
+			"keccak256": "0xcba8a6074343195524d7b1407511db31322f7c31329149e39b3f4fbc7844d686",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://0bb65002fb0b3bca5a082d099a9cd72c401579e3afaf084f0b9d2df90a061a36",
-				"dweb:/ipfs/QmZdZ4xnv3qQ8upSpGN3g3D9hNAhPXeDGG4fzfkUq9kgKB"
+				"bzz-raw://2df37d64a6523795656d9408e4d7c63255bab5671381545793c18e47a76c6631",
+				"dweb:/ipfs/QmbMVnRA8EmA1EvuQcdKwkdrS5DEavyvevVBqmHo2c6VVg"
 			]
 		},
 		"contracts/access/Ownable.sol": {

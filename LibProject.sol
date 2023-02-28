@@ -64,6 +64,7 @@ library LibProject {
     struct FileIndexInfo {
         TaskerState state; //任务者状态
         string file; //提交的文件
+        bool isUsed;
         //  uint256 bounty;
     }
     struct ReturnTasker {

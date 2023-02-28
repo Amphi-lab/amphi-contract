@@ -11,57 +11,7 @@ contract AmphiTrans is Ownable{
     mapping(uint256 => mapping(address => LibProject.Tasker)) private vfInfo;
     uint256 private count;
     address private accessAddress;
-    //任务索引值，文件索引值，文件状态，操作者
-    event changeFileStateEv(
-        uint256 taskIndex,
-        uint256 fileInfo,
-        LibProject.FileState fileSate,
-        address opSender
-    );
-    //任务索引值，文件状态，操作者
-    event changeProjectStateEv(
-        uint256 taskIndex,
-        LibProject.ProjectState taskState,
-        address opSender
-    );
-    //任务索引值、任务者地址、文件索引值，任务者状态，是否为翻译者,操作者
-    event changeTaskerStateEv(
-        uint256 taskIndex,
-        address tasker,
-        uint256 fileIndex,
-        LibProject.TaskerState taskerState,
-        bool isTrans,
-        address opSender
-    );
-    //任务索引值，是否关闭，操作者
-
-    event changeTransActiveEv(
-        uint256 taskIndex,
-        bool transActive,
-        address opSender
-    );
-    event changeVerActiveEv(
-        uint256 taskIndex,
-        bool verActive,
-        address opSender
-    );
-    event submitFileEv(
-        uint256 index,
-        uint256 fileIndex,
-        uint256 uploadtime,
-        string file,
-        address sender,
-        bool isTrans
-    );
-    event addPayEv(
-        address tasker,
-        uint256 money
-    ) ;
-    event decutPayEv(
-        address tasker,
-        uint256 money
-    );
-
+    
     modifier isAccess() {
         if(msg.sender != accessAddress) {
             revert  AccessError("Error Access Address!");
@@ -83,12 +33,10 @@ contract AmphiTrans is Ownable{
     //payList
     function addPay(address _tasker, uint256 _money) external isAccess{
         payList[_tasker] += _money;
-        emit addPayEv(_tasker,_money);
     }
 
     function deductPay(address _tasker, uint256 _money) external isAccess{
         payList[_tasker] -= _money;
-        emit decutPayEv(_tasker,_money);
     }
 
     function getPay(address _tasker) external view returns (uint256) {
@@ -141,6 +89,12 @@ contract AmphiTrans is Ownable{
     }
     function getTransWaitNumber(uint256 _index,address _taskerIndex) public view returns(uint256) {
         return transInfo[_index][_taskerIndex].number;
+    }
+    function isAccept(address _address,uint256 _index,uint256 _fileIndex) public view returns(bool) {
+        if(transInfo[_index][_address].info[_fileIndex].isUsed|| vfInfo[_index][_address].info[_fileIndex].isUsed){
+            return true;
+        }
+        return false;
     }
     function getVfWaitNumber(uint256 _index,address _taskerIndex) public view returns(uint256) {
         return vfInfo[_index][_taskerIndex].number;
@@ -308,14 +262,6 @@ contract AmphiTrans is Ownable{
         LibProject.TaskerState _state
     ) public isAccess{
         vfInfo[_index][_taskerIndex].info[_fileIndex].state = _state;
-        emit changeTaskerStateEv(
-            _index,
-            _taskerIndex,
-            _fileIndex,
-            _state,
-            false,
-            msg.sender
-        );
     }
 
     function changeTaskTransState(
@@ -325,14 +271,14 @@ contract AmphiTrans is Ownable{
         LibProject.TaskerState _state
     ) public isAccess{
         transInfo[_index][_taskerIndex].info[_fileIndex].state = _state;
-        emit changeTaskerStateEv(
-            _index,
-            _taskerIndex,
-            _fileIndex,
-            _state,
-            true,
-            msg.sender
-        );
+        // emit changeTaskerStateEv(
+        //     _index,
+        //     _taskerIndex,
+        //     _fileIndex,
+        //     _state,
+        //     true,
+        //     msg.sender
+        // );
     }
 
     //修改文件状态
@@ -342,7 +288,7 @@ contract AmphiTrans is Ownable{
         LibProject.FileState _state
     ) public isAccess {
         taskList[_index].tasks[_fileIndex].state = _state;
-        emit changeFileStateEv(_index, _fileIndex, _state, msg.sender);
+        // emit changeFileStateEv(_index, _fileIndex, _state, msg.sender);
     }
 
     //修改任务状态
@@ -350,19 +296,19 @@ contract AmphiTrans is Ownable{
         public isAccess
     {
         taskList[_index].state = _state;
-        emit changeProjectStateEv(_index, _state, msg.sender);
+        // emit changeProjectStateEv(_index, _state, msg.sender);
     }
 
     //修改翻译者接单状态
     function changeTransActive(uint256 _index, bool _bool) public isAccess {
         taskList[_index].isTransActive = _bool;
-        emit changeTransActiveEv(_index, _bool, msg.sender);
+        // emit changeTransActiveEv(_index, _bool, msg.sender);
     }
 
     //修改校验者接单状态
     function changeVerActive(uint256 _index, bool _bool) public isAccess {
         taskList[_index].isVerActive = _bool;
-        emit changeVerActiveEv(_index, _bool, msg.sender);
+        // emit changeVerActiveEv(_index, _bool, msg.sender);
     }
 
     //增加翻译者人数
@@ -400,15 +346,21 @@ contract AmphiTrans is Ownable{
     function addVf(uint256 _index, address _address) public isAccess {
         taskList[_index].verifiers.push(_address);
     }
+    function isUsedToTrans(uint256 _index, uint256 _fileIndex,address _address) public isAccess{
+        transInfo[_index][_address].info[_fileIndex].isUsed = true;
+    }
+    function isUsedToVf(uint256 _index, uint256 _fileIndex,address _address) public isAccess{
+        vfInfo[_index][_address].info[_fileIndex].isUsed = true;
+    }
 
-    function addProject(LibProject.ProParm memory _t)
+    function addProject(LibProject.ProParm memory _t, address _buyer)
         public isAccess
         returns (uint256)
     {
         count++;
         //  taskIndex[_buyer].push(count);
         LibProject.TranslationPro storage _pro = taskList[count];
-        _pro.buyer = msg.sender;
+        _pro.buyer = _buyer;
         _pro.releaseTime = _t.releaseTime;
         _pro.introduce = _t.introduce;
         _pro.need = _t.need;
@@ -435,6 +387,7 @@ contract AmphiTrans is Ownable{
             _t.tasks[i].state = LibProject.FileState.Waiting;
             _pro.tasks.push(_t.tasks[i]);
         }
+       
         return count;
     }
 
@@ -467,6 +420,7 @@ contract AmphiTrans is Ownable{
         for (uint256 i = 0; i < _t.tasks.length; i++) {
             _pro.tasks.push(_t.tasks[i]);
         }
+       
     }
 
     function submitFileByTrans(
@@ -474,11 +428,12 @@ contract AmphiTrans is Ownable{
         address _taskerIndex,
         uint256 _fileIndex,
         string memory _file
-    ) public isAccess {
+    ) public isAccess returns(uint256){
         uint256 _time = block.timestamp;
         taskList[_index].tasks[_fileIndex].lastUpload = _time;
         transInfo[_index][_taskerIndex].info[_fileIndex].file = _file;
-        emit submitFileEv(_index, _fileIndex, _time, _file, _taskerIndex, true);
+        return _time;
+        // emit submitFileEv(_index, _fileIndex, _time, _file, _taskerIndex, true);
     }
 
     function submitFileByVf(
@@ -486,17 +441,10 @@ contract AmphiTrans is Ownable{
         address _taskerIndex,
         uint256 _fileIndex,
         string memory _file
-    ) public isAccess {
+    ) public isAccess returns(uint256){
         uint256 _time = block.timestamp;
         taskList[_index].tasks[_fileIndex].lastUpload = block.timestamp;
         vfInfo[_index][_taskerIndex].info[_fileIndex].file = _file;
-        emit submitFileEv(
-            _index,
-            _fileIndex,
-            _time,
-            _file,
-            _taskerIndex,
-            false
-        );
+        return _time;
     }
 }

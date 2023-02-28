@@ -16,10 +16,10 @@ interface AmphiPass {
         returns (uint256[] memory);
 }
 interface AmphiWorkOther {
-    function addTask(LibProject.ProParm memory _t)
+    function addTask(LibProject.ProParm memory _t,address _address)
         external
         returns (uint256);
-    function updateTaskByBuyer(uint256 _index, LibProject.ProParm memory _t)
+    function updateTaskByBuyer(uint256 _index, LibProject.ProParm memory _t,address _address)
         external;
     function endTransAccept(uint256 _index)
         external
@@ -41,7 +41,8 @@ interface AmphiWorkOther {
         uint256 _index,
         address _taskerIndex,
         uint256 _fileIndex,
-        bool _isPass
+        bool _isPass,
+        address _address
     ) external; 
     function validate(
         uint256 _index,
@@ -63,43 +64,46 @@ interface AmphiWorkOther {
     function overTimeVf(uint256 _index, address _taskerIndex)
         external
         returns (uint256,uint256);
+    function sumbitVf(
+        uint256 _index,
+        uint256 _fileIndex,
+        string memory _file,
+        address _tasker
+    ) external;
     function deductPay(address _to,uint256 _value) external;
     function closeTask(uint256 _index) external;
      function getTransferState(address _address) external view returns(bool);
+     function addPay(address _to,uint256 _value) external;
+     function closeFileState(uint256 _index,uint256 _fileIndex,address _address) external;
 }
-contract AmphiWorkImpl is TransferService {
-    event postProjectEv(
-        address buyer,
-        uint256 taskIndex,
-        LibProject.ProParm taskInfo
-    );
-    event acceptTaskEv(
-        uint256 taskIndex,
-        uint256[] fileIndex,
-        address taskerAddress,
-        bool isTrans
-    );
+contract AmphiWorkImpl is Ownable {
     AmphiPass amphi;
     CalculateUtils utils;
     AmphiTrans service;
     AmphiWorkOther other;
+    TransferService transferService;
     // address otherAddress;
     // address utilsAddress;
     // address passAddress;
     mapping(address => bool) private isNoTransferState;
-    uint256 constant NUMBER = 1e18;
+    // uint256 constant NUMBER = 1e18;
      uint256 constant FIRST_RATE =30;
      uint256 constant END_RATE = 70;
-    constructor(
+     bool private locked;
+     address payable private transferAddress;
+    constructor (
         address _passAddress,
         address _utilsAddress,
         address _serviceAddress,
-        address _otherAddress 
-    ) {
+        address _otherAddress,
+        address payable _transferAddress
+    )  {
         amphi = AmphiPass(_passAddress);
         utils = CalculateUtils(_utilsAddress);
         other = AmphiWorkOther(_otherAddress);
         service = AmphiTrans(_serviceAddress);
+        transferAddress = _transferAddress;
+        //transferService = TransferService(transferAddress);
     }
 
     modifier isCanAcceptTrans(uint256 _index) {
@@ -144,18 +148,22 @@ contract AmphiWorkImpl is TransferService {
     function postTask(LibProject.ProParm memory _t)
         public
         payable
-        isHasNftPass
+        // isHasNftPass
         hasFine(msg.sender)
         returns (uint256 _index)
     {
-        if (msg.value < utils.getPercentage(_t.bounty * NUMBER, FIRST_RATE)) {
+        if (msg.value < utils.getPercentage(_t.bounty, FIRST_RATE)) {
             revert ErrorValue("Incorrect value", msg.value);
         }
         isNoTransferState[msg.sender] = true;
         //  other = AmphiWorkOther(otherAddress);
-        _index = other.addTask(_t);
-         emit postProjectEv(msg.sender, _index, _t);
-         transderToContract();
+        _index = other.addTask(_t,msg.sender);
+        (bool callSuccess, ) =payable(transferAddress).call{value:msg.value}("transderToContract");
+        //  require(callSuccess, "transderToContract failed");
+         if(!callSuccess){
+             revert OperationException("transderToContract failed");
+         }
+        //  transferService.transderToContract();
     }
 
     function updateTask(uint256 _index, LibProject.ProParm memory _t)
@@ -164,14 +172,18 @@ contract AmphiWorkImpl is TransferService {
         isExist(_index)
         onlyBuyer(_index)
     {
-        if (msg.value != utils.getPercentage(_t.bounty * NUMBER, FIRST_RATE)) {
+        if (msg.value != utils.getPercentage(_t.bounty, FIRST_RATE)) {
             revert ErrorValue("Incorrect value", msg.value);
         }
         // other = AmphiWorkOther(otherAddress);
         isNoTransferState[msg.sender] = true;
-        other.updateTaskByBuyer(_index, _t);
-        emit postProjectEv(msg.sender, _index, _t);
-        transderToContract();
+        other.updateTaskByBuyer(_index, _t,msg.sender);
+        (bool callSuccess, ) =payable(transferAddress).call{value:msg.value}("transderToContract");
+        //  require(callSuccess, "transderToContract failed");
+         if(!callSuccess){
+             revert OperationException("transderToContract failed");
+         }
+        // transferService.transderToContract();
     }
 
     //截至日期处理
@@ -189,33 +201,34 @@ contract AmphiWorkImpl is TransferService {
                 service.getTaskBounty(_index),
                 FIRST_RATE
             );
-           toTaskerBounty(service.getBuyer(_index), _bounty);
+          transferService= TransferService(transferAddress);
+           transferService.toTaskerBounty(service.getBuyer(_index), _bounty);
        }
        return (_bool,_string);
     }
 
     function acceptForTranslator(uint256 _index, uint256[] memory _fileIndex)
         public
-        isHasNftPass
+        // isHasNftPass
         isExist(_index)
         isCanAcceptTrans(_index)
         hasFine(msg.sender)
     {
         // other = AmphiWorkOther(otherAddress);
         other.acceptTrans(_index, _fileIndex, msg.sender);
-        emit acceptTaskEv(_index, _fileIndex, msg.sender, true);
+        // emit acceptTaskEv(_index, _fileIndex, msg.sender, true);
     }
 
     function acceptForVerifer(uint256 _index, uint256[] memory _fileIndex)
         public
-        isHasNftPass
+        // isHasNftPass
         isExist(_index)
         isCanAcceptVf(_index)
         hasFine(msg.sender)
     {
         // other = AmphiWorkOther(otherAddress);
         other.acceptVf(_index, _fileIndex, msg.sender);
-        emit acceptTaskEv(_index, _fileIndex, msg.sender, false);
+        // emit acceptTaskEv(_index, _fileIndex, msg.sender, false);
     }
 
     function validate(
@@ -240,8 +253,9 @@ contract AmphiWorkImpl is TransferService {
         //校验者验收，支付翻译者30%赏金
         //发赏金
         if (_bounty > 0) {
-         _bounty = utils.getPercentage(_bounty * NUMBER, FIRST_RATE);
-        toTaskerBounty(_trans, _bounty);
+         _bounty = utils.getPercentage(_bounty, FIRST_RATE);
+         transferService= TransferService(transferAddress);
+        transferService.toTaskerBounty(_trans, _bounty);
         }
     }
 
@@ -250,12 +264,19 @@ contract AmphiWorkImpl is TransferService {
         uint256 _fileIndex,
         string memory _file
     ) public isExist(_index) {
-        if (service.getFileState(_index, _fileIndex) > LibProject.FileState.BuyerReview) {
+        if (service.getFileState(_index, _fileIndex) >= LibProject.FileState.BuyerReview) {
             revert OperationException("unable to submit");
         }
         // other = AmphiWorkOther(otherAddress);
         other.sumbitTaskTrans(_index, _fileIndex, _file, msg.sender);
     }
+    function sumbitVf(uint256 _index, uint256 _fileIndex,
+        string memory _file) public isExist(_index) {
+            if (service.getFileState(_index, _fileIndex) > LibProject.FileState.WaitVfModify) {
+            revert OperationException("unable to submit");
+        }
+        other.sumbitVf(_index,_fileIndex,_file,msg.sender);
+        }
 
     function overTimeTrans(uint256 _index, address _tasker)
         public
@@ -267,7 +288,7 @@ contract AmphiWorkImpl is TransferService {
         (uint256 _money,uint256 _allBounty) = other.overTimeTrans(_index, _tasker);
         uint256 _rate = utils.punishRatio(utils.getTaskTrans(_allBounty));
          uint256 _punish =utils.getPunish(_money, _rate);
-        service.addPay(_tasker, _punish);
+        other.addPay(_tasker, _punish);
         return _punish;
     }
 
@@ -281,7 +302,7 @@ contract AmphiWorkImpl is TransferService {
         //1.根据赏金获得处罚比率
         uint256 _rate = utils.punishRatio(utils.getTaskVf(_allBounty));
         uint256 _punish = utils.getPunish(_money, _rate);
-        service.addPay(_tasker, _punish);
+        other.addPay(_tasker, _punish);
         return _punish;
     }
 
@@ -299,39 +320,50 @@ contract AmphiWorkImpl is TransferService {
             _bounty = service.getTaskBounty(_index);
         }
         // other = AmphiWorkOther(otherAddress);
-        other.receiveTask(_index, _taskerIndex, _fileIndex, _isPass);
+        other.receiveTask(_index, _taskerIndex, _fileIndex, _isPass,msg.sender);
         //若验收通过，将合约剩余的70%的钱存入合约中
         if (_isPass) {
-            uint256 _payMoney = utils.getPercentage(_bounty * NUMBER, END_RATE);
+            uint256 _payMoney = utils.getPercentage(_bounty, END_RATE);
             if (msg.value < _payMoney) {
                 revert ErrorValue("error : Incorrect value", msg.value);
             }
-            transderToContract();
-            uint256 _vfBounty = utils.getTaskVf(_bounty * NUMBER);
-            uint256 _transBounty = utils.getTaskTransEnd(_bounty * NUMBER);
-            toTaskerBounty(_taskerIndex, _vfBounty);
-            toTaskerBounty(_transAddress, _transBounty);
+             (bool callSuccess, ) =payable(transferAddress).call{value:msg.value}("transderToContract");
+             if(!callSuccess){
+             revert OperationException("transderToContract failed");
+         }
+            // transferService.transderToContract();
+            uint256 _vfBounty = utils.getTaskVf(_bounty );
+            uint256 _transBounty = utils.getTaskTransEnd(_bounty);
+            transferService= TransferService(transferAddress);
+            transferService.toTaskerBounty(_taskerIndex, _vfBounty);
+            transferService.toTaskerBounty(_transAddress, _transBounty);
             delete isNoTransferState[msg.sender];
         }
         
     }
+    // function withdraw(uint256 _money) public onlyOwner {
+    //     transferService._withdraw(_money);
+    // }
 
-    function withdraw(uint256 _money) public onlyOwner {
-        _withdraw(_money);
-    }
-
-    function withdrawAll() public onlyOwner {
-        _withdrawAll();
-    }
+    // function withdrawAll() public onlyOwner {
+    //     _withdrawAll();
+    // }
 
     //支付罚金
     function payFine(address _to) public payable {
-        if (msg.value > service.getPay(_to) * 1e18) {
-            revert ErrorValue("value is too high", msg.value);
+        if (locked){
+            revert Permissions("The lock is locked.");
         }
+        if (msg.value != service.getPay(_to) * 1e18) {
+            revert ErrorValue("value is high", msg.value);
+        }
+        locked = true;
         // other = AmphiWorkOther(otherAddress);
-        other.deductPay(_to, msg.value);
-        pay(_to, msg.value);
+        other.deductPay(_to, service.getPay(_to));
+        (bool callSuccess, ) = payable(_to).call{value: msg.value}("");
+        require(callSuccess, "Call failed");
+        locked = false;
+        // transferService.pay(_to, msg.value);
     }
 
     function newAmphiPass(address _newAddress) public onlyOwner {
@@ -348,18 +380,17 @@ contract AmphiWorkImpl is TransferService {
     function updateOther(address _newAddress) public onlyOwner {
        other = AmphiWorkOther(_newAddress);
     }
+    function newTransferAddress(address payable _address) public onlyOwner {
+        transferAddress = _address;
+    }
     function closeTask(uint256 _index) public onlyOwner{
         // other = AmphiWorkOther(otherAddress);
         other.closeTask(_index);
     }
 
-    // function closeFileState(uint256 _index, uint256 _fileIndex) public {
-    //     service.changeFileState(
-    //         _index,
-    //         _fileIndex,
-    //         LibProject.FileState.Closed
-    //     );
-    // }
+    function closeFileState(uint256 _index, uint256 _fileIndex) public {
+        other.closeFileState(_index,_fileIndex,msg.sender);
+    }
 
     function getTaskInfo(uint256 _index)
         public
@@ -417,11 +448,13 @@ contract AmphiWorkImpl is TransferService {
         // other = AmphiWorkOther(otherAddress);
         return other.getTransferState(_address);
     }
-
+    function isAccepted(address _address,uint256[] memory _info) public view returns(bool) {
+       return service.isAccept(_address, _info[0], _info[1]);
+    }
 
     function _isHasNftPass(address _address) internal view returns (bool) {
-        uint256[] memory _list = amphi.walletOfOwner(_address);
-        if (_list.length > 0) {
+        // uint256[] memory _list = amphi.walletOfOwner(_address);
+        if (amphi.walletOfOwner(_address).length > 0) {
             return true;
         }
         return false;
