@@ -12,9 +12,22 @@ contract AmphiWorkOther is Ownable{
      address private accessAddress;
      AmphiTrans private service;
      mapping(address => bool) private isNoTransferState;
+     mapping(uint256 => mapping(address => ReturnRecord)) returnRecordList;
+     struct ReturnRecord {
+         address toAddress;
+         string returnFile;
+         string illustrate;
+     }
      constructor(address _serviceAddress) {
          serviceAddess = _serviceAddress;
      }
+     event returnFileEv(
+         uint256 index, 
+         address from,
+         address to,
+         string returnFile,
+         string illustrate
+         );
      event acceptTaskEv(
         uint256 taskIndex,
         uint256 fileIndex,
@@ -55,7 +68,6 @@ contract AmphiWorkOther is Ownable{
         address opSender
     );
     //任务索引值，是否关闭，操作者
-
     event changeTransActiveEv(
         uint256 taskIndex,
         bool transActive,
@@ -82,7 +94,7 @@ contract AmphiWorkOther is Ownable{
         address tasker,
         uint256 money
     );
-    event newSubmitFile(uint256 _index,uint256 _fileIndex,bool);
+    event newSubmitFile(uint256 _index,uint256 _fileIndex,bool _isTrans);
     modifier isAccess() {
         if(msg.sender != accessAddress) {
             revert  AccessError("Error Access Address!");
@@ -357,7 +369,9 @@ contract AmphiWorkOther is Ownable{
         address _taskerIndex,
         uint256 _fileIndex,
         bool _isPass,
-        address _address
+        address _address,
+        string memory _file,
+        string memory _illustrate
     ) public isAccess{
         service = AmphiTrans(serviceAddess);
         //若校验通过，将任务者的状态修改为已完成
@@ -408,6 +422,8 @@ contract AmphiWorkOther is Ownable{
             LibProject.FileState.WaitVfModify
         );
         emit changeFileStateEv(_index, _fileIndex, LibProject.FileState.WaitVfModify,_address);
+        returnRecordList[_index][_address]=ReturnRecord(_taskerIndex,_file,_illustrate);
+        emit returnFileEv(_index,_address,_taskerIndex,_file,_illustrate);
         }
     }
 
@@ -456,7 +472,8 @@ contract AmphiWorkOther is Ownable{
         address _vfAddress,
         uint256 _fileIndex,
         bool _isPass,
-        string memory _file
+        string memory _file, //如校验通过，_file为校验者提交的文件，不通过为校验者的打回报告
+        string memory _illustrate
     ) public isAccess returns (uint256 _payBounty) {
         service = AmphiTrans(serviceAddess);
         //若校验通过，将任务者的状态修改为已完成
@@ -514,6 +531,9 @@ contract AmphiWorkOther is Ownable{
         emit changeFileStateEv(_index, _fileIndex,  LibProject.FileState.WaitTransModify, msg.sender);
             _payBounty = 0;
         }
+        //记录打回记录
+        returnRecordList[_index][_vfAddress]=ReturnRecord(_transAddress,_file,_illustrate);
+        emit returnFileEv(_index,_vfAddress,_transAddress,_file,_illustrate);
     }
     function sumbitTaskTrans(
         uint256 _index,

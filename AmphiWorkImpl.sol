@@ -42,7 +42,9 @@ interface AmphiWorkOther {
         address _taskerIndex,
         uint256 _fileIndex,
         bool _isPass,
-        address _address
+        address _address,
+        string memory _file,
+        string memory _illustrate
     ) external; 
     function validate(
         uint256 _index,
@@ -50,7 +52,8 @@ interface AmphiWorkOther {
         address _vfAddress,
         uint256 _fileIndex,
         bool _isPass,
-        string memory _file
+        string memory _file, 
+        string memory _illustrate
     ) external returns (uint256 _payBounty);
      function sumbitTaskTrans(
         uint256 _index,
@@ -236,7 +239,8 @@ contract AmphiWorkImpl is Ownable {
         address _trans,
         uint256 _fileIndex,
         bool _isPass,
-        string memory _file
+        string memory _file,
+        string memory _illustrate
     ) public isExist(_index) {
         // other = AmphiWorkOther(otherAddress);
         if (service.getFileState(_index, _fileIndex) > LibProject.FileState.WaitVfModify) {
@@ -248,7 +252,8 @@ contract AmphiWorkImpl is Ownable {
             msg.sender,
             _fileIndex,
             _isPass,
-            _file
+            _file,
+            _illustrate
         );
         //校验者验收，支付翻译者30%赏金
         //发赏金
@@ -311,7 +316,9 @@ contract AmphiWorkImpl is Ownable {
         address _taskerIndex,
         uint256 _fileIndex,
         bool _isPass,
-        address _transAddress
+        address _transAddress,
+        string memory _file,
+        string memory _illustrate
     ) public payable isExist(_index) onlyBuyer(_index) {
         uint256 _bounty;
         if (service.isCustomizeState(_index)) {
@@ -320,7 +327,7 @@ contract AmphiWorkImpl is Ownable {
             _bounty = service.getTaskBounty(_index);
         }
         // other = AmphiWorkOther(otherAddress);
-        other.receiveTask(_index, _taskerIndex, _fileIndex, _isPass,msg.sender);
+        other.receiveTask(_index, _taskerIndex, _fileIndex, _isPass,msg.sender,_file,_illustrate);
         //若验收通过，将合约剩余的70%的钱存入合约中
         if (_isPass) {
             uint256 _payMoney = utils.getPercentage(_bounty, END_RATE);
