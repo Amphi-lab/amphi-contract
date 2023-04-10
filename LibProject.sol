@@ -72,6 +72,11 @@ library LibProject {
         uint256[] taskIndex; //接的任务的索引值
         FileIndexInfo[] taskerinfo; //接收的任务信息
     }
+    struct ReturnRecord {
+         address toAddress; //打回者地址
+         string returnFile; //打回文件
+         string illustrate; //打回说明
+     }
     //项目
     struct TranslationPro {
         address buyer; //发布者

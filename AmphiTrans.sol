@@ -9,6 +9,7 @@ contract AmphiTrans is Ownable{
     mapping(address => uint256) private payList;
     mapping(uint256 => mapping(address => LibProject.Tasker)) private transInfo; //翻译者接单信息
     mapping(uint256 => mapping(address => LibProject.Tasker)) private vfInfo;
+    // mapping(uint256 => mapping(address => LibProject.ReturnRecord)) returnRecordList;
     uint256 private count;
     address private accessAddress;
     
@@ -38,7 +39,13 @@ contract AmphiTrans is Ownable{
     function deductPay(address _tasker, uint256 _money) external isAccess{
         payList[_tasker] -= _money;
     }
-
+    //被打回者，打回者
+    // function addReturnRecord(uint256 _index,address _returned,address _address,string memory _file,string memory _ill) external isAccess{
+    //     returnRecordList[_index][_returned]=LibProject.ReturnRecord(_address,_file,_ill);
+    // }
+    // function getReturnRecord(uint256 _index, address _address) public view returns(LibProject.ReturnRecord memory) {
+    //     return returnRecordList[_index][_address];
+    // }
     function getPay(address _tasker) external view returns (uint256) {
         return payList[_tasker];
     }
@@ -243,14 +250,14 @@ contract AmphiTrans is Ownable{
     function getTaskBounty(uint256 _index) public view returns (uint256) {
         return taskList[_index].bounty;
     }
-    function addTransWaitNumber(uint256 _index,address _address) public isAccess{
-        transInfo[_index][_address].number++;
+    function addTransWaitNumber(uint256 _index,address _address,uint256 _number) public isAccess{
+        transInfo[_index][_address].number+=_number;
     }
     function decutTransWaitNumber(uint256 _index,address _address) public isAccess{
         transInfo[_index][_address].number--;
     }
-    function addVfWaitNumber(uint256 _index,address _address) public isAccess{
-        vfInfo[_index][_address].number++;
+    function addVfWaitNumber(uint256 _index,address _address,uint256 _number) public isAccess{
+        vfInfo[_index][_address].number+=_number;
     }
     function decutVfWaitNumber(uint256 _index,address _address) public isAccess{
         vfInfo[_index][_address].number--;
@@ -312,13 +319,13 @@ contract AmphiTrans is Ownable{
     }
 
     //增加翻译者人数
-    function addTransNumber(uint256 _index) public isAccess {
-        taskList[_index].numberT++;
+    function addTransNumber(uint256 _index,uint256 _number) public isAccess {
+        taskList[_index].numberT+=_number;
     }
 
     //增加校验则人数
-    function addVfNumber(uint256 _index) public isAccess {
-        taskList[_index].numberV++;
+    function addVfNumber(uint256 _index,uint256 _number) public isAccess {
+        taskList[_index].numberV+=_number;
     }
 
     //添加翻译者接单任务-文件索引

@@ -85,7 +85,7 @@ library CalculateUtils {
 
     //计算任务赏金
     function getPercentage(uint256 _number, uint256 _ratio)
-        internal
+        public
         pure
         returns (uint256 returnNumber)
     {

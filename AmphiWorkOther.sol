@@ -5,25 +5,20 @@ import "./AmphiTrans.sol";
 import "./contracts/access/Ownable.sol";
 error OperationException(string);
 error ErrorValue(string, uint256);
-error Permissions(string);
+// error Permissions(string);
 error FileException(string, LibProject.FileState);
 contract AmphiWorkOther is Ownable{
      address private serviceAddess;
      address private accessAddress;
      AmphiTrans private service;
      mapping(address => bool) private isNoTransferState;
-     mapping(uint256 => mapping(address => ReturnRecord)) returnRecordList;
-     struct ReturnRecord {
-         address toAddress;
-         string returnFile;
-         string illustrate;
-     }
+     mapping(uint256 => mapping(uint256 => LibProject.ReturnRecord)) returnRecordList;
      constructor(address _serviceAddress) {
          serviceAddess = _serviceAddress;
      }
      event returnFileEv(
          uint256 index, 
-         address from,
+         uint256 fileIndex,
          address to,
          string returnFile,
          string illustrate
@@ -169,7 +164,7 @@ contract AmphiWorkOther is Ownable{
                             continue;
                         }
                         //将当前任务分配给翻译者
-                        service.addTransNumber(_index);
+                        service.addTransNumber(_index,1);
                         service.pushTaskTransIndex(_index, _list[q], i);
                         _acceptTransToFileState(_index, i,msg.sender);
                         service.isUsedToTrans(_index,i,_list[q]);
@@ -257,7 +252,7 @@ contract AmphiWorkOther is Ownable{
                             continue;
                         }
                         //将当前任务分配给翻译者
-                        service.addVfNumber(_index);
+                        service.addVfNumber(_index,1);
                         service.pushTaskVfIndex(_index, _list[q], i);
                         _acceptVfToFileState(_index, i,msg.sender);
                         service.isUsedToVf(_index,i,_list[q]);
@@ -302,8 +297,8 @@ contract AmphiWorkOther is Ownable{
             service.isUsedToVf(_index,_fileIndex[q],_taskerIndex);
         }
         //文件状态修改为翻译中
-        service.addVfNumber(_index);
-        service.addVfWaitNumber(_index,_taskerIndex);
+        service.addVfNumber(_index,_fileIndex.length);
+        service.addVfWaitNumber(_index,_taskerIndex,_fileIndex.length);
         if (service.isFull(_index, false)) {
             service.changeVerActive(_index, false);
             emit changeVerActiveEv(_index, false, _taskerIndex);
@@ -341,8 +336,8 @@ contract AmphiWorkOther is Ownable{
             service.isUsedToTrans(_index,_fileIndex[q],_taskerIndex);
         }
         //
-        service.addTransNumber(_index);
-        service.addTransWaitNumber(_index,_taskerIndex);
+        service.addTransNumber(_index,_fileIndex.length);
+        service.addTransWaitNumber(_index,_taskerIndex,_fileIndex.length);
         if (service.isFull(_index, true)) {
             service.changeTransActive(_index, false);
             emit changeTransActiveEv(_index, false, _taskerIndex);
@@ -366,7 +361,6 @@ contract AmphiWorkOther is Ownable{
      //发布者验收
     function receiveTask(
         uint256 _index,
-        address _taskerIndex,
         uint256 _fileIndex,
         bool _isPass,
         address _address,
@@ -374,47 +368,48 @@ contract AmphiWorkOther is Ownable{
         string memory _illustrate
     ) public isAccess{
         service = AmphiTrans(serviceAddess);
+        address  buyer = service.getBuyer(_index);
         //若校验通过，将任务者的状态修改为已完成
         if (_isPass) {
              service.changeTaskVfState(
             _index,
-            _taskerIndex,
+            _address,
             _fileIndex,
             LibProject.TaskerState.Completed
         );
          emit changeTaskerStateEv(
             _index,
-            _taskerIndex,
+            _address,
             _fileIndex,
             LibProject.TaskerState.Completed,
             false,
-            _address
+            buyer
         );
         service.changeFileState(
             _index,
             _fileIndex,
             LibProject.FileState.Accepted
         );
-         emit changeFileStateEv(_index, _fileIndex,  LibProject.FileState.Accepted, _address);
-        service.decutVfWaitNumber(_index,_taskerIndex);
-        if(service.getVfWaitNumber(_index,_taskerIndex)<=0) {
-            delete isNoTransferState[_taskerIndex];
+        emit changeFileStateEv(_index, _fileIndex,  LibProject.FileState.Accepted, _address);
+        service.decutVfWaitNumber(_index,_address);
+        if(service.getVfWaitNumber(_index,_address)<=0) {
+            delete isNoTransferState[_address];
         }
         } else {
             //任务不通过，将任务者的状态修改为被打回状态
             service.changeTaskVfState(
             _index,
-            _taskerIndex,
+            _address,
             _fileIndex,
             LibProject.TaskerState.Return
         );
         emit changeTaskerStateEv(
             _index,
-            _taskerIndex,
+            _address,
             _fileIndex,
-            LibProject.TaskerState.Completed,
+            LibProject.TaskerState.Return,
             false,
-            _address
+            buyer
         );
         service.changeFileState(
             _index,
@@ -422,10 +417,12 @@ contract AmphiWorkOther is Ownable{
             LibProject.FileState.WaitVfModify
         );
         emit changeFileStateEv(_index, _fileIndex, LibProject.FileState.WaitVfModify,_address);
-        returnRecordList[_index][_address]=ReturnRecord(_taskerIndex,_file,_illustrate);
-        emit returnFileEv(_index,_address,_taskerIndex,_file,_illustrate);
+        //service.addReturnRecord(_index,_address,buyer,_file,_illustrate);
+        returnRecordList[_index][_fileIndex]=LibProject.ReturnRecord(_address,_file,_illustrate);
+        emit returnFileEv(_index,_fileIndex,_address,_file,_illustrate);
         }
     }
+   
 
      function _onNoOnePink(uint256 _index) internal {
         service = AmphiTrans(serviceAddess);
@@ -531,9 +528,13 @@ contract AmphiWorkOther is Ownable{
         emit changeFileStateEv(_index, _fileIndex,  LibProject.FileState.WaitTransModify, msg.sender);
             _payBounty = 0;
         }
-        //记录打回记录
-        returnRecordList[_index][_vfAddress]=ReturnRecord(_transAddress,_file,_illustrate);
-        emit returnFileEv(_index,_vfAddress,_transAddress,_file,_illustrate);
+        //记录打回记录_transAddress
+        // service.addReturnRecord(_index,_transAddress,_vfAddress,_file,_illustrate);
+        returnRecordList[_index][_fileIndex]=LibProject.ReturnRecord(_transAddress,_file,_illustrate);
+        emit returnFileEv(_index,_fileIndex,_transAddress,_file,_illustrate);
+    }
+    function getReturnRecord(uint256 _index, uint256 _fileIndex) public view returns(LibProject.ReturnRecord memory) {
+        return returnRecordList[_index][_fileIndex];
     }
     function sumbitTaskTrans(
         uint256 _index,
