@@ -221,6 +221,11 @@
 						"internalType": "uint256",
 						"name": "_index",
 						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_number",
+						"type": "uint256"
 					}
 				],
 				"name": "addTransNumber",
@@ -239,6 +244,11 @@
 						"internalType": "address",
 						"name": "_address",
 						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_number",
+						"type": "uint256"
 					}
 				],
 				"name": "addTransWaitNumber",
@@ -288,6 +298,11 @@
 						"internalType": "uint256",
 						"name": "_index",
 						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_number",
+						"type": "uint256"
 					}
 				],
 				"name": "addVfNumber",
@@ -306,6 +321,11 @@
 						"internalType": "address",
 						"name": "_address",
 						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_number",
+						"type": "uint256"
 					}
 				],
 				"name": "addVfWaitNumber",
@@ -1115,6 +1135,25 @@
 						"type": "uint256"
 					}
 				],
+				"name": "getTranslationType",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_index",
+						"type": "uint256"
+					}
+				],
 				"name": "getTranslatorsList",
 				"outputs": [
 					{
@@ -1740,25 +1779,25 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 2000
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
 		"AmphiTrans.sol": {
-			"keccak256": "0x49238210d059816cfea473bc71f01e98618d7a120673da5d210bf63d6e170c80",
+			"keccak256": "0xe1051095c0e194055d83e4b15dc39a74bfe7282f75a7f8d872d303e94dd6ca7d",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://4825869719818bc31d3d330d897432abe6fc77fc6f08e9a5e69b981c0cb305f7",
-				"dweb:/ipfs/QmWCacvyMcCQz5qwgxZrXZeGVQ95cpiL8bEb1xCY5nM3nD"
+				"bzz-raw://84b6dfa48654273f97fc430712faa089f74eb34a4812f45eb203ad6d8db11404",
+				"dweb:/ipfs/QmVneUZsgoJ8FbnVtnR8HdsnSokugf6kPR1rkBC3a4GQjp"
 			]
 		},
 		"LibProject.sol": {
-			"keccak256": "0x284a50c31a8e80f5e1219efda91803aa49f6b3277448294bddcff1a4677cb466",
+			"keccak256": "0xaf5f7859b136be4f05d958f151c8d49eb4fc53946e0fd6fe29b3dd1b1481a1f6",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://19ac8e94299a72c0c7edfe8e3b830e55e480f0048b8985ede9b69180330f4b14",
-				"dweb:/ipfs/Qmekom5Mr2iArf5Le7AusnqJh1KSZ1CMPdLrLZf1qfUp1h"
+				"bzz-raw://a421048da5bcafc25fbd6af99b73165c7527c6d738e206bf59cabe166d3e36cc",
+				"dweb:/ipfs/QmXKKinmLhxKfGHGXcpxz3UJPntKwmq3LdSAAmTTXRgSpG"
 			]
 		},
 		"contracts/access/Ownable.sol": {

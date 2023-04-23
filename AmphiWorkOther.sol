@@ -286,7 +286,7 @@ contract AmphiWorkOther is Ownable{
         address _taskerIndex
     ) public isAccess{
          service = AmphiTrans(serviceAddess);
-        //若长度为0，说明该任务者是首次接收该任务,将翻译者存入到翻译者名单中
+        //若长度为0，说明该任务者是首次接收该任务,将校验者存入到校验者名单中
         if (service.getAcceptVfNumber(_index, _taskerIndex) == 0) {
             service.addVf(_index, _taskerIndex);
             isNoTransferState[_taskerIndex] = true;

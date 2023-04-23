@@ -4,7 +4,7 @@ import "./../contracts/utils/math/SafeMath.sol";
 error ParameterException(string);
 
 library CalculateUtils {
-    uint256 constant RATE = 273;
+    uint256 constant RATE = 100;
     uint256 constant VF_N = 3;
 
     // uint256 private TransRate ;
@@ -54,33 +54,28 @@ library CalculateUtils {
     }
 
     //计算任务赏金-翻译者
-    function getTaskTrans(uint256 _bounty)
-        internal
+    function getBountyForTrans(uint256 _bounty)
+        public  
         pure
         returns (uint256 _money)
     {
-        _money = getPercentage(_bounty, 54);
+        _money = getPercentage(_bounty, 60);
     }
 
-    function getTaskTransEnd(uint256 _bounty)
-        internal
+    function getBountyForVf(uint256 _bounty)
+        external 
         pure
         returns (uint256 _money)
     {
-        _money = getPercentage(_bounty, 24);
+        _money = getPercentage(_bounty, 40);
     }
 
-    function getTaskTransFirst(uint256 _bounty)
-        internal
+    function getBountyForAmphi(uint256 _bounty)
+        external 
         pure
         returns (uint256 _money)
     {
-        _money = getPercentage(_bounty, 30);
-    }
-
-    //计算任务赏金-校验者
-    function getTaskVf(uint256 _bounty) internal pure returns (uint256 _money) {
-        _money = getPercentage(_bounty, 36);
+        _money = getPercentage(_bounty, 10);
     }
 
     //计算任务赏金

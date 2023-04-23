@@ -4,7 +4,80 @@
 	},
 	"language": "Solidity",
 	"output": {
-		"abi": [],
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "ErrorValue",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_number",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_ratio",
+						"type": "uint256"
+					}
+				],
+				"name": "getPercentage",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "returnNumber",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address payable",
+						"name": "_address",
+						"type": "address"
+					}
+				],
+				"name": "setAddress",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
+					}
+				],
+				"name": "test",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "payable",
+				"type": "function"
+			}
+		],
 		"devdoc": {
 			"kind": "dev",
 			"methods": {},
@@ -18,7 +91,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"Test1.sol": "Test"
+			"Test.sol": "Test"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -27,17 +100,17 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 9000
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
-		"Test1.sol": {
-			"keccak256": "0x15a04036c552427f26eb9fc50300d4fc9a803f754b78e24f1a9d36b68867a89c",
+		"Test.sol": {
+			"keccak256": "0x69e2cea07c3c071e932a7863b6e0032a0c9c0770e2ea44361ae5a40fcb0798cf",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://5d807e405399a3d5e93cebc95d2935edafc038e170f0eb5b640717391101c83d",
-				"dweb:/ipfs/QmWWdwSiWuK1vQe6orS1ujyMCVGPRaK6bA4QJJ7eVCCEjx"
+				"bzz-raw://28e25bfd7c6bfd6ec922585da8d199f919a178c6538af8609a7bda43361b9c09",
+				"dweb:/ipfs/QmSSRU4GDd5H2SXKMrbb2QJ9fi9EyjspL5oQAwakdh3JYs"
 			]
 		}
 	},

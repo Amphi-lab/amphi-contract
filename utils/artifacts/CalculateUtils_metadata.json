@@ -22,6 +22,63 @@
 						"internalType": "uint256",
 						"name": "_bounty",
 						"type": "uint256"
+					}
+				],
+				"name": "getBountyForAmphi",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "_money",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
+					}
+				],
+				"name": "getBountyForTrans",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "_money",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
+					}
+				],
+				"name": "getBountyForVf",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "_money",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_bounty",
+						"type": "uint256"
 					},
 					{
 						"internalType": "uint256",
@@ -53,6 +110,30 @@
 					{
 						"internalType": "uint256",
 						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_number",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_ratio",
+						"type": "uint256"
+					}
+				],
+				"name": "getPercentage",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "returnNumber",
 						"type": "uint256"
 					}
 				],
@@ -124,8 +205,8 @@
 			"bytecodeHash": "ipfs"
 		},
 		"optimizer": {
-			"enabled": false,
-			"runs": 200
+			"enabled": true,
+			"runs": 800
 		},
 		"remappings": []
 	},
@@ -139,11 +220,11 @@
 			]
 		},
 		"utils/calculateUtils.sol": {
-			"keccak256": "0x4f1a545b765764252892d24aadd001b2ba68d8af9a096e18a7471d7dae66637b",
+			"keccak256": "0x37aa1fa548138f25183e8fe6ecf1ab684f8451e9f419badc4df8da876a0aac13",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://dd29b3f3525a913ea957029e679dffb6dc49d613fbd4a964ace75827fbbde278",
-				"dweb:/ipfs/QmegiVGp1WsKbxnUz68UVPnfW25SPm5iHaD451LJNtFatG"
+				"bzz-raw://5487cd76dc22e4a1f38226b611a35bd2fe12a8579c8d025f3fd79d9c6a8aba40",
+				"dweb:/ipfs/QmbdtnhYk77fytaWjxwAHKmCTyqm8EoZp8uWwZEJ9aka2e"
 			]
 		}
 	},

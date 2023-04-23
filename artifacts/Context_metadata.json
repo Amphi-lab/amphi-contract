@@ -19,7 +19,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"AmphiPass.sol": "Context"
+			"Erc20T_flattened.sol": "Context"
 		},
 		"evmVersion": "london",
 		"libraries": {},
@@ -28,17 +28,16 @@
 		},
 		"optimizer": {
 			"enabled": true,
-			"runs": 2000
+			"runs": 200
 		},
 		"remappings": []
 	},
 	"sources": {
-		"AmphiPass.sol": {
-			"keccak256": "0x56af0d0b2441bc224ebdf0a993eaf133a45fa3e015a849f094a72375ea8c4f82",
-			"license": "MIT",
+		"Erc20T_flattened.sol": {
+			"keccak256": "0x0cd5d784ab98ffa28971dc3d7a9926468446cee9e27caa0d84c665a3f3071601",
 			"urls": [
-				"bzz-raw://ed86eeffe5ea54bce32e9b47ac78becec0015d409088d3cb94c72354c916f86d",
-				"dweb:/ipfs/QmQa2pmshWfNLHW67NjRuKv73UGgzyZTsUuyu3VC5RNgEj"
+				"bzz-raw://2fe7b03eeea37594f5486fef380f6a7ba5c25ddbda13b660fe10c1e6224c266c",
+				"dweb:/ipfs/QmWsM19rxxD3VpWk81d3Jxdcm3TAhvXDiDZ4xJQMhGR99k"
 			]
 		}
 	},

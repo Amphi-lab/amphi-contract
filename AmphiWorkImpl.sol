@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 import "./AmphiTrans.sol";
 import "./LibProject.sol";
 import "./CalculateUtils.sol";
-import "./TransferService.sol";
 error OperationException(string);
 error ErrorValue(string, uint256);
 error Permissions(string);
@@ -14,7 +13,27 @@ interface IAmphiPass {
         address _owner
     ) external view returns (uint256[] memory);
 }
+interface IERC20 {
 
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    function totalSupply() external view returns (uint256);
+
+    function balanceOf(address account) external view returns (uint256);
+
+    function transfer(address to, uint256 amount) external returns (bool);
+
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
+}
 interface IAmphiWorkOther {
     function addTask(
         LibProject.ProParm memory _t,
@@ -108,37 +127,27 @@ contract AmphiWorkImpl is Ownable {
     CalculateUtils utils;
     AmphiTrans service;
     IAmphiWorkOther other;
-    TransferService transferService;
-    mapping(address => bool) private isNoTransferState;
-    uint256 constant FIRST_RATE = 30;
-    uint256 constant END_RATE = 70;
-    bool private locked;
-    address payable private transferAddress;
+    IERC20 erc;
+    mapping(address => bool) private isAmphi;
+    uint256 constant PO_RATE = 70;
+    uint256 constant PO_RATE_TWO = 110;
+    address private amphiFee;
 
     constructor(
         address _passAddress,
         address _utilsAddress,
         address _serviceAddress,
         address _otherAddress,
-        address payable _transferAddress
+        address  _ercAddress
     ) {
         amphi = IAmphiPass(_passAddress);
         utils = CalculateUtils(_utilsAddress);
         other = IAmphiWorkOther(_otherAddress);
         service = AmphiTrans(_serviceAddress);
-        transferAddress = _transferAddress;
+        erc = IERC20(_ercAddress);
     }
-
-    modifier isCanAcceptTrans(uint256 _index) {
-        if (!service.getTaskStateTrans(_index)) {
-            revert OperationException("Can't receive task");
-        }
-        _;
-    }
-    modifier isCanAcceptVf(uint256 _index) {
-        if (!service.getTaskStateVf(_index)) {
-            revert OperationException("Can't receive task");
-        }
+    modifier onlyAmphi(address _amphiAddress) {
+        require(isAmphi[_amphiAddress],"only amphi team can call the method");
         _;
     }
     modifier onlyBuyer(uint256 _index) {
@@ -171,63 +180,37 @@ contract AmphiWorkImpl is Ownable {
     //文件状态修改：翻译等待，校验等待
     function postTask(
         LibProject.ProParm memory _t
-    ) public payable isHasNftPass hasFine(msg.sender) returns (uint256 _index) {
-        if (msg.value < utils.getPercentage(_t.bounty, FIRST_RATE)) {
-            revert ErrorValue("Incorrect value", msg.value);
-        }
-        if(_t.releaseTime > _t.deadline) {
-            revert ErrorValue("The releaseTime is greater than the deadline",_t.deadline);
-        }
-        isNoTransferState[msg.sender] = true;
+    ) public  isHasNftPass hasFine(msg.sender) returns (uint256 _index) {
+        //判断用户是否有授权额度
+        require(erc.allowance(msg.sender, address(this))>= _t.bounty+utils.getPercentage(_t.bounty, PO_RATE),"not hava enought approve");
+        //截至时间不能低于发布时间
+        require(_t.releaseTime < _t.deadline,"The releaseTime is greater than the deadline");
+        // 新增
         _index = other.addTask(_t, msg.sender);
-        (bool callSuccess, ) = payable(transferAddress).call{value: msg.value}(
-            "transderToContract"
-        );
-        if (!callSuccess) {
-            revert OperationException("transderToContract failed");
-        }
+        return _index;
     }
 
     function updateTask(
         uint256 _index,
         LibProject.ProParm memory _t
-    ) public payable isExist(_index) onlyBuyer(_index) {
-        if (msg.value != utils.getPercentage(_t.bounty, FIRST_RATE)) {
-            revert ErrorValue("Incorrect value", msg.value);
-        }
-        // other = AmphiWorkOther(otherAddress);
-        isNoTransferState[msg.sender] = true;
+    ) public isExist(_index) onlyBuyer(_index) {
+        //判断用户是否有授权额度
+        require(erc.allowance(msg.sender, address(this))>= _t.bounty+utils.getPercentage(_t.bounty, PO_RATE),"not hava enought approve");
+        //截至时间不能低于发布时间
+        require(_t.releaseTime < _t.deadline,"The releaseTime is greater than the deadline");
+        //修改
         other.updateTaskByBuyer(_index, _t, msg.sender);
-        (bool callSuccess, ) = payable(transferAddress).call{value: msg.value}(
-            "transderToContract"
-        );
-        //  require(callSuccess, "transderToContract failed");
-        if (!callSuccess) {
-            revert OperationException("transderToContract failed");
-        }
-        // transferService.transderToContract();
     }
 
     //截至日期处理
-    function endTransAccept(uint256 _index) public isExist(_index) onlyOwner {
-        // other = AmphiWorkOther(otherAddress);
+    function endTransAccept(uint256 _index) public isExist(_index) onlyAmphi(msg.sender) {
         other.endTransAccept(_index);
     }
-
+    //流标判断
     function endTransVf(
         uint256 _index
-    ) public isExist(_index) onlyOwner returns (bool, string memory) {
-        // other = AmphiWorkOther(otherAddress);
-        // service = AmphiTrans(serviceAddress);
+    ) public isExist(_index) onlyAmphi(msg.sender) returns (bool, string memory) {
         (bool _bool, string memory _string) = other.endTransVf(_index);
-        if (_bool == false) {
-            uint256 _bounty = utils.getPercentage(
-                service.getTaskBounty(_index),
-                FIRST_RATE
-            );
-            transferService = TransferService(transferAddress);
-            transferService.toTaskerBounty(service.getBuyer(_index), _bounty);
-        }
         return (_bool, _string);
     }
 
@@ -238,12 +221,10 @@ contract AmphiWorkImpl is Ownable {
         public
         isHasNftPass
         isExist(_index)
-        isCanAcceptTrans(_index)
         hasFine(msg.sender)
     {
-        // other = AmphiWorkOther(otherAddress);
+        require(service.getTaskStateTrans(_index),"accept active is close");
         other.acceptTrans(_index, _fileIndex, msg.sender);
-        // emit acceptTaskEv(_index, _fileIndex, msg.sender, true);
     }
 
     function acceptForVerifer(
@@ -253,12 +234,10 @@ contract AmphiWorkImpl is Ownable {
         public
         isHasNftPass
         isExist(_index)
-        isCanAcceptVf(_index)
         hasFine(msg.sender)
     {
-        // other = AmphiWorkOther(otherAddress);
+        require(service.getTaskStateVf(_index),"accept active is close");
         other.acceptVf(_index, _fileIndex, msg.sender);
-        // emit acceptTaskEv(_index, _fileIndex, msg.sender, false);
     }
 
     function validate(
@@ -269,17 +248,20 @@ contract AmphiWorkImpl is Ownable {
         string memory _file,
         string memory _illustrate
     ) public isExist(_index) {
-        // other = AmphiWorkOther(otherAddress);
-        // -------error----------
-        if (
-            service.getFileState(_index, _fileIndex) >
-            LibProject.FileState.WaitVfModify
-        ) {
-            revert OperationException("unable to submit");
-        }
+        require(service.getFileState(_index, _fileIndex) <=
+            LibProject.FileState.WaitVfModify,"this file state cannot validate");
         if(keccak256(abi.encode(_file)) == keccak256(abi.encode(""))) {
             revert ErrorValue("file cannot null",0);
         }
+        address[] memory vfList= service.getVfList(_index);
+        bool isVf = false;
+        for (uint256 i = 0;i<vfList.length;i++) {
+            if (msg.sender == vfList[i]){
+                isVf = true;
+                break;
+            }
+        }
+        require(isVf,"not in verifiers list");
         uint256 _bounty = other.validate(
             _index,
             _trans,
@@ -289,12 +271,15 @@ contract AmphiWorkImpl is Ownable {
             _file,
             _illustrate
         );
-        //校验者验收，支付翻译者30%赏金
+        uint256 _passBounty = utils.getPercentage(_bounty,PO_RATE);
+        address _buyer = service.getBuyer(_index);
+        require(erc.allowance(_buyer, address(this))>=_passBounty 
+        && erc.balanceOf(_buyer)>=_passBounty,"buyer not hava enought approve or balance");
+        //校验者验收，支付翻译者60%赏金,平台10%的赏金
         //发赏金
         if (_bounty > 0) {
-            _bounty = utils.getPercentage(_bounty, FIRST_RATE);
-            transferService = TransferService(transferAddress);
-            transferService.toTaskerBounty(_trans, _bounty);
+            erc.transferFrom(_buyer,_trans,utils.getBountyForTrans(_bounty));
+            erc.transferFrom(_buyer,amphiFee,utils.getBountyForAmphi(_bounty));
         }
     }
 
@@ -303,18 +288,22 @@ contract AmphiWorkImpl is Ownable {
         uint256 _fileIndex,
         string memory _file
     ) public isExist(_index) {
-        if (
-            service.getFileState(_index, _fileIndex) !=
-            LibProject.FileState.WaitingForVf && service.getFileState(_index, _fileIndex) !=
-            LibProject.FileState.Translating && service.getFileState(_index, _fileIndex) !=
-            LibProject.FileState.WaitTransModify
-        ) {
-            revert OperationException("unable to submit");
-        }
-        // other = AmphiWorkOther(otherAddress);
+        LibProject.FileState _fileState = service.getFileState(_index, _fileIndex);
+        require(_fileState == LibProject.FileState.WaitingForVf || _fileState == LibProject.FileState.Translating 
+        || _fileState == LibProject.FileState.WaitTransModify,"this file state cannot submit");
+    
         if(keccak256(abi.encode(_file)) == keccak256(abi.encode(""))) {
             revert ErrorValue("file cannot null",0);
         }
+        address[] memory transList= service.getTranslatorsList(_index);
+        bool _isTrans = false;
+        for (uint256 i = 0;i<transList.length;i++) {
+            if (msg.sender == transList[i]){
+                _isTrans = true;
+                break;
+            }
+        }
+        require(_isTrans,"not in translators list");
         other.sumbitTaskTrans(_index, _fileIndex, _file, msg.sender);
     }
 
@@ -323,30 +312,34 @@ contract AmphiWorkImpl is Ownable {
         uint256 _fileIndex,
         string memory _file
     ) public isExist(_index) {
-        if (
-            service.getFileState(_index, _fileIndex) !=
-            LibProject.FileState.WaitVfModify && service.getFileState(_index, _fileIndex) !=
-            LibProject.FileState.BuyerReview && service.getFileState(_index, _fileIndex) !=
-            LibProject.FileState.Validating
-        ) {
-            revert OperationException("unable to submit");
-        }
+        LibProject.FileState _fileState = service.getFileState(_index, _fileIndex);
+        require(_fileState == LibProject.FileState.WaitVfModify|| _fileState ==LibProject.FileState.BuyerReview 
+        || _fileState ==LibProject.FileState.Validating ||  _fileState == LibProject.FileState.WaitingForTrans,
+        "this file state cannot submit");
         if(keccak256(abi.encode(_file)) == keccak256(abi.encode(""))) {
             revert ErrorValue("file cannot null",0);
         }
+        address[] memory vfList= service.getVfList(_index);
+        bool isVf = false;
+        for (uint256 i = 0;i<vfList.length;i++) {
+            if (msg.sender == vfList[i]){
+                isVf = true;
+                break;
+            }
+        }
+        require(isVf,"not in verifiers list");
         other.sumbitVf(_index, _fileIndex, _file, msg.sender);
     }
 
     function overTimeTrans(
         uint256 _index,
         address _tasker
-    ) public isExist(_index) onlyOwner returns (uint256) {
-        // other = AmphiWorkOther(otherAddress);
+    ) public isExist(_index)  onlyAmphi(msg.sender)  returns (uint256) {
         (uint256 _money, uint256 _allBounty) = other.overTimeTrans(
             _index,
             _tasker
         );
-        uint256 _rate = utils.punishRatio(utils.getTaskTrans(_allBounty));
+        uint256 _rate = utils.punishRatio(utils.getBountyForTrans(_allBounty));
         uint256 _punish = utils.getPunish(_money, _rate);
         other.addPay(_tasker, _punish);
         return _punish;
@@ -355,14 +348,13 @@ contract AmphiWorkImpl is Ownable {
     function overTimeVf(
         uint256 _index,
         address _tasker
-    ) public isExist(_index) onlyOwner returns (uint256) {
-        // other = AmphiWorkOther(otherAddress);
+    ) public isExist(_index)  onlyAmphi(msg.sender)  returns (uint256) {
         (uint256 _money, uint256 _allBounty) = other.overTimeVf(
             _index,
             _tasker
         );
         //1.根据赏金获得处罚比率
-        uint256 _rate = utils.punishRatio(utils.getTaskVf(_allBounty));
+        uint256 _rate = utils.punishRatio(utils.getBountyForVf(_allBounty));
         uint256 _punish = utils.getPunish(_money, _rate);
         other.addPay(_tasker, _punish);
         return _punish;
@@ -373,17 +365,17 @@ contract AmphiWorkImpl is Ownable {
         address _taskerIndex,
         uint256 _fileIndex,
         bool _isPass,
-        address _transAddress,
         string memory _file,
         string memory _illustrate
-    ) public payable isExist(_index) onlyBuyer(_index) {
+    ) public isExist(_index) onlyBuyer(_index) {
+        uint256 _taskType = service .getTranslationType(_index);
+        uint256 _passBounty;
         uint256 _bounty;
         if (service.isCustomizeState(_index)) {
             _bounty = service.getFileBounty(_index, _fileIndex);
         } else {
             _bounty = service.getTaskBounty(_index);
         }
-        // other = AmphiWorkOther(otherAddress);
         other.receiveTask(
             _index,
             _fileIndex,
@@ -392,43 +384,32 @@ contract AmphiWorkImpl is Ownable {
             _file,
             _illustrate
         );
-        //若验收通过，将合约剩余的70%的钱存入合约中
+        //验收通过
         if (_isPass) {
-            uint256 _payMoney = utils.getPercentage(_bounty, END_RATE);
-            if (msg.value < _payMoney) {
-                revert ErrorValue("error : Incorrect value", _payMoney);
-            }
-            (bool callSuccess, ) = payable(transferAddress).call{
-                value: msg.value
-            }("transderToContract");
-            if (!callSuccess) {
-                revert OperationException("transderToContract failed");
-            }
-            // transferService.transderToContract();
-            uint256 _vfBounty = utils.getTaskVf(_bounty);
-            uint256 _transBounty = utils.getTaskTransEnd(_bounty);
-            transferService = TransferService(transferAddress);
-            transferService.toTaskerBounty(_taskerIndex, _vfBounty);
-            transferService.toTaskerBounty(_transAddress, _transBounty);
-            delete isNoTransferState[msg.sender];
+            //任务的翻译类型为validation或interpreting
+        if (_taskType == 1 || _taskType == 5){
+            _passBounty = utils.getPercentage(_bounty,PO_RATE_TWO);
+        }else{
+            _passBounty = utils.getBountyForVf(_bounty);
+        }
+        require(erc.allowance(msg.sender, address(this))>=_passBounty 
+        && erc.balanceOf(msg.sender)>=_passBounty,"buyer not hava enought approve or balance");
+        if (_taskType == 1 || _taskType == 5){
+            erc.transferFrom(msg.sender, _taskerIndex, _bounty);
+            erc.transferFrom(msg.sender, amphiFee, utils.getBountyForAmphi(_bounty));
+        }else{
+            erc.transferFrom(msg.sender,_taskerIndex,utils.getBountyForVf(_bounty));
+        }
         }
     }
 
-    //支付罚金
-    function payFine(address _to) public payable {
-        if (locked) {
-            revert Permissions("The lock is locked.");
-        }
-        if (msg.value != service.getPay(_to) * 1e18) {
-            revert ErrorValue("value is high", msg.value);
-        }
-        locked = true;
-        // other = AmphiWorkOther(otherAddress);
-        other.deductPay(_to, service.getPay(_to));
-        (bool callSuccess, ) = payable(_to).call{value: msg.value}("");
-        require(callSuccess, "Call failed");
-        locked = false;
-        // transferService.pay(_to, msg.value);
+   // 支付罚金-----------待处理
+    function payFine(address _to) public  {
+        uint256 _pay =  service.getPay(_to);
+        require(erc.allowance(msg.sender, address(this))>=_pay 
+        && erc.balanceOf(msg.sender)>=_pay,"buyer not hava enought approve or balance");
+        other.deductPay(_to,_pay);
+        erc.transferFrom(msg.sender, _to, _pay);
     }
 
     function newAmphiPass(address _newAddress) public onlyOwner {
@@ -446,18 +427,20 @@ contract AmphiWorkImpl is Ownable {
     function updateOther(address _newAddress) public onlyOwner {
         other = IAmphiWorkOther(_newAddress);
     }
-
-    function newTransferAddress(address payable _address) public onlyOwner {
-        transferAddress = _address;
+    function newAmphiFee(address _newAddress) public  onlyOwner {
+        amphiFee = _newAddress;
     }
 
-    function closeTask(uint256 _index) public onlyOwner {
-        // other = AmphiWorkOther(otherAddress);
+    function closeTask(uint256 _index) public {
+        require(msg.sender == service.getBuyer(_index)||isAmphi[msg.sender],"only buyer or amphi close task");
         other.closeTask(_index);
     }
 
     function closeFileState(uint256 _index, uint256 _fileIndex) public {
         other.closeFileState(_index, _fileIndex, msg.sender);
+    }
+    function addAmphiAddress(address _amphiAddress) public onlyOwner {
+        isAmphi[_amphiAddress] = true;
     }
     //查询打回记录
     function getReturnRecord(uint256 _index, uint256 _fileIndex) public view returns(LibProject.ReturnRecord memory){

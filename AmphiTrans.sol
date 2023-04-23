@@ -114,6 +114,10 @@ contract AmphiTrans is Ownable{
     {
         return taskList[_index].translators;
     }
+    //获得任务的翻译类型
+    function getTranslationType(uint256 _index) public view returns(uint256) {
+        return  taskList[_index].translationType;
+    }
 
     //获得校验者名单
     function getVfList(uint256 _index) public view returns (address[] memory) {
@@ -381,14 +385,26 @@ contract AmphiTrans is Ownable{
         _pro.isNonDisclosure = _t.isNonDisclosure;
         _pro.isCustomize = _t.isCustomize;
         if (_t.isCustomize) {
+            if (_t.translationType  == 1 || _t.translationType  == 5) {
+            _pro.isTransActive = false;
+            _pro.maxT = 0;
+            _pro.maxV = _t.tasks.length;
+        }else {
             _pro.maxT = _t.tasks.length;
             _pro.maxV = _t.tasks.length;
-        } else {
+             _pro.isTransActive = true;
+        }
+        }else {
+             if (_t.translationType  == 1 || _t.translationType  == 5) {
+            _pro.maxT = 0;
+            _pro.maxV = 1;
+            _pro.isTransActive = false;
+        }else {
             _pro.maxT = 1;
             _pro.maxV = 1;
+             _pro.isTransActive = true;
         }
-        // _pro.state = LibProject.ProjectState.Published;
-        _pro.isTransActive = true;
+        }
         _pro.isVerActive = true;
         for (uint256 i = 0; i < _t.tasks.length; i++) {
             _t.tasks[i].state = LibProject.FileState.Waiting;
