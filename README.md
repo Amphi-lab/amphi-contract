@@ -3,11 +3,12 @@
 ## Project：amphi
 A Web 3.0 intelligent language service marketplace
 
-1. Native web3 dapp supports cryptocurrency payments
+1. Increase efficiency, One-station language service platform, Native web3 dapp supports cryptocurrency payments
 
-2. Code is law, Token-economic to govern the quality of translation for different roles
+2. Better quality with specific AI model, monitoring quality mechanism, and transparent dispute mechanism
 
-3. One-stop translation solution to improve efficiency
+3. Build translators’ influence in one platform and sync propagate to the world
+
 
 
 
