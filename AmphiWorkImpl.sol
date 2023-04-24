@@ -123,11 +123,11 @@ interface IAmphiWorkOther {
 }
 
 contract AmphiWorkImpl is Ownable {
-    IAmphiPass amphi;
-    CalculateUtils utils;
-    AmphiTrans service;
-    IAmphiWorkOther other;
-    IERC20 erc;
+    IAmphiPass private  amphi;
+    CalculateUtils private  utils;
+    AmphiTrans private  service;
+    IAmphiWorkOther private  other;
+    IERC20 private  erc;
     mapping(address => bool) private isAmphi;
     uint256 constant PO_RATE = 70;
     uint256 constant PO_RATE_TWO = 110;
@@ -448,6 +448,9 @@ contract AmphiWorkImpl is Ownable {
     }
     function newAmphiFee(address _newAddress) public  onlyOwner {
         amphiFee = _newAddress;
+    }
+    function newErc20Address(address _newAddress) public  onlyOwner {
+         erc = IERC20(_newAddress);
     }
 
     function closeTask(uint256 _index) public {
