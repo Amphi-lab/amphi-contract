@@ -145,6 +145,7 @@ contract AmphiWorkImpl is Ownable {
         other = IAmphiWorkOther(_otherAddress);
         service = AmphiTrans(_serviceAddress);
         erc = IERC20(_ercAddress);
+        amphiFee = owner();
     }
     modifier onlyAmphi(address _amphiAddress) {
         require(isAmphi[_amphiAddress],"only amphi team can call the method");
