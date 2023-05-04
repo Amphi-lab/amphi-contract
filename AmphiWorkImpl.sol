@@ -405,7 +405,7 @@ contract AmphiWorkImpl is Ownable {
             _illustrate
         );
         //验收通过
-        if (_isPass) {
+        if (_isPass&& _bounty>0) {
             //任务的翻译类型为validation或interpreting
         if (_taskType == 1 || _taskType == 5){
             _passBounty = utils.getPercentage(_bounty,PO_RATE_TWO);
@@ -453,7 +453,9 @@ contract AmphiWorkImpl is Ownable {
     function newErc20Address(address _newAddress) public  onlyOwner {
          erc = IERC20(_newAddress);
     }
-
+    function getAmphiFee() public view  returns (address) {
+        return  amphiFee;
+    }
     function closeTask(uint256 _index) public {
         require(msg.sender == service.getBuyer(_index)||isAmphi[msg.sender],"only buyer or amphi close task");
         other.closeTask(_index);
