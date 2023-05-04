@@ -183,7 +183,7 @@ contract AmphiWorkImpl is Ownable {
         LibProject.ProParm memory _t
     ) public  isHasNftPass hasFine(msg.sender) returns (uint256 _index) {
         //判断用户是否有授权额度
-        require(erc.allowance(msg.sender, address(this))>= _t.bounty+utils.getPercentage(_t.bounty, PO_RATE),"not hava enought approve");
+        require(erc.allowance(msg.sender, address(this))>= utils.getPercentage(_t.bounty, PO_RATE_TWO),"not hava enought approve");
         //截至时间不能低于发布时间
         require(_t.releaseTime < _t.deadline,"The releaseTime is greater than the deadline");
         // 新增
@@ -196,7 +196,7 @@ contract AmphiWorkImpl is Ownable {
         LibProject.ProParm memory _t
     ) public isExist(_index) onlyBuyer(_index) {
         //判断用户是否有授权额度
-        require(erc.allowance(msg.sender, address(this))>= _t.bounty+utils.getPercentage(_t.bounty, PO_RATE),"not hava enought approve");
+        require(erc.allowance(msg.sender, address(this))>= utils.getPercentage(_t.bounty, PO_RATE_TWO),"not hava enought approve");
         //截至时间不能低于发布时间
         require(_t.releaseTime < _t.deadline,"The releaseTime is greater than the deadline");
         //修改
@@ -388,7 +388,7 @@ contract AmphiWorkImpl is Ownable {
         string memory _file,
         string memory _illustrate
     ) public isExist(_index) onlyBuyer(_index) {
-        uint256 _taskType = service .getTranslationType(_index);
+        uint256 _taskType = service.getTranslationType(_index);
         uint256 _passBounty;
         uint256 _bounty;
         if (service.isCustomizeState(_index)) {
@@ -400,7 +400,7 @@ contract AmphiWorkImpl is Ownable {
             _index,
             _fileIndex,
             _isPass,
-            msg.sender,
+            _taskerIndex,
             _file,
             _illustrate
         );
@@ -414,11 +414,12 @@ contract AmphiWorkImpl is Ownable {
         }
         require(erc.allowance(msg.sender, address(this))>=_passBounty 
         && erc.balanceOf(msg.sender)>=_passBounty,"buyer not hava enought approve or balance");
+        // address _buyer = service.getBuyer(_index);
         if (_taskType == 1 || _taskType == 5){
             erc.transferFrom(msg.sender, _taskerIndex, _bounty);
             erc.transferFrom(msg.sender, amphiFee, utils.getBountyForAmphi(_bounty));
         }else{
-            erc.transferFrom(msg.sender,_taskerIndex,utils.getBountyForVf(_bounty));
+           erc.transferFrom(msg.sender,_taskerIndex,utils.getBountyForVf(_bounty));
         }
         }
     }
