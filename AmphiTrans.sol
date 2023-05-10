@@ -381,6 +381,7 @@ contract AmphiTrans is Ownable{
         _pro.preferList = _t.preferList;
         _pro.translationType = _t.translationType;
         _pro.workLoad = _t.workLoad;
+        _pro.workLoadType =_t.workLoadType;
         _pro.bounty = _t.bounty;
         _pro.isNonDisclosure = _t.isNonDisclosure;
         _pro.isCustomize = _t.isCustomize;

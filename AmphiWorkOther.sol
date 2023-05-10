@@ -391,6 +391,11 @@ contract AmphiWorkOther is Ownable{
             LibProject.FileState.Accepted
         );
         emit changeFileStateEv(_index, _fileIndex,  LibProject.FileState.Accepted, _address);
+        service.changeProjectState(
+                    _index,
+                    LibProject.ProjectState.Completed
+         );
+        emit changeProjectStateEv(_index, LibProject.ProjectState.Completed, buyer);
         service.decutVfWaitNumber(_index,_address);
         if(service.getVfWaitNumber(_index,_address)<=0) {
             delete isNoTransferState[_address];

@@ -225,6 +225,7 @@ contract AmphiWorkImpl is Ownable {
         hasFine(msg.sender)
     {
         require(service.getTaskStateTrans(_index),"accept active is close");
+        require(service.getBuyer(_index)!=msg.sender,"buyer cannot accept");
         //已经成为校验者的用户不能成为翻译者
         address[] memory vfList= service.getVfList(_index);
         bool isVf = false;
@@ -248,6 +249,7 @@ contract AmphiWorkImpl is Ownable {
         hasFine(msg.sender)
     {
         require(service.getTaskStateVf(_index),"accept active is close");
+        require(service.getBuyer(_index)!=msg.sender,"buyer cannot accept");
         address[] memory transList= service.getTranslatorsList(_index);
         bool _isTrans = false;
         for (uint256 i = 0;i<transList.length;i++) {

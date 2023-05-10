@@ -89,6 +89,7 @@ library LibProject {
         uint256[] preferList; //偏好
         uint256 translationType; //类型
         uint256 workLoad; //工作量
+        uint256 workLoadType;
         bool isNonDisclosure; //是否保密
         bool isCustomize; //是否为自定义支付
         uint256 bounty; //赏金
@@ -118,6 +119,7 @@ library LibProject {
         uint256[] preferList; //偏好
         uint256 translationType; //类型
         uint256 workLoad;
+        uint256 workLoadType;
         bool isNonDisclosure; //是否保密
         bool isCustomize; //是否为自定义支付
         uint256 bounty; //赏金
