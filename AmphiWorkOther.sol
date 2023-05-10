@@ -391,11 +391,14 @@ contract AmphiWorkOther is Ownable{
             LibProject.FileState.Accepted
         );
         emit changeFileStateEv(_index, _fileIndex,  LibProject.FileState.Accepted, _address);
+        //判断任务中所有子任务是否完成，若该任务的所有子任务完成，则任务状态修改为Completed
+        if(isAllCompleted(_index)){
         service.changeProjectState(
                     _index,
                     LibProject.ProjectState.Completed
          );
         emit changeProjectStateEv(_index, LibProject.ProjectState.Completed, buyer);
+        }
         service.decutVfWaitNumber(_index,_address);
         if(service.getVfWaitNumber(_index,_address)<=0) {
             delete isNoTransferState[_address];
@@ -733,5 +736,16 @@ contract AmphiWorkOther is Ownable{
         );
         emit changeFileStateEv(_index, _fileIndex,  LibProject.FileState.Closed, _address);
     }
+    //判断该任务的所有子任务是否已经全部完成
+   function isAllCompleted(uint256 _index) private  view  returns(bool){
+     LibProject.TaskInfo[] memory tasks =  service.getFiles(_index);
+     //存在未完成的子任务信息
+     for(uint256 i=0;i<tasks.length;i++) {
+         if (tasks[i].state < LibProject.FileState.Accepted){
+             return  false;
+         }
+     }
+     return true;
+   }
     
 }
