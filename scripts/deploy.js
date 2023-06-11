@@ -36,11 +36,22 @@ async function main() {
   );
 
   // 首先部署 Erc20T 合约试试
-  const Erc20T = await ethers.getContractFactory("Erc20T");
+  const Erc20T = await hre.ethers.getContractFactory("Erc20T");
   const erc20T = await Erc20T.deploy();
-  console.log("erc20T contract address:", erc20T.address);
+  console.log("Erc20T合约部署成功，合约地址为:", erc20T.address);
 
-  console.log("一键部署成功");
+  // 部署AmphiTrans合约
+  const AmphiTrans = await hre.ethers.getContractFactory("AmphiTrans");
+  const amphiTrans = await AmphiTrans.deploy();
+  console.log("AmphiTrans合约部署成功，合约地址为:", amphiTrans.address);
+
+  // 部署AmphiPass合约
+  // const AmphiPass = await hre.ethers.getContractFactory("AmphiPass");
+  // const amphiPass = await AmphiPass.deploy("baseUri"); // TODO: baseUri的参数是什么含义？这里amphiPass合约部署的时候，需要有这个初始化参数
+  // console.log("AmphiPass合约部署成功，合约地址为:", amphiPass.address);
+
+  
+  console.log("一键部署完成");
 }
 
 // We recommend this pattern to be able to use async/await everywhere

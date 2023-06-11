@@ -1,3 +1,5 @@
+pragma solidity ^0.8.0;
+
 /**
  *Submitted for verification at moonbeam.moonscan.io on 2022-12-26
  */
@@ -19,8 +21,6 @@
 // File: @openzeppelin/contracts/utils/Strings.sol
 
 // OpenZeppelin Contracts (last updated v4.7.0) (utils/Strings.sol)
-
-pragma solidity ^0.8.0;
 
 /**
  * @dev String operations.
@@ -104,8 +104,6 @@ interface IAmphiWork {
 }
 // OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
 
-pragma solidity ^0.8.0;
-
 /**
  * @dev Provides information about the current execution context, including the
  * sender of the transaction and its data. While these are generally available
@@ -129,8 +127,6 @@ abstract contract Context {
 // File: @openzeppelin/contracts/access/Ownable.sol
 
 // OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
-
-pragma solidity ^0.8.0;
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -218,8 +214,6 @@ abstract contract Ownable is Context {
 // File: @openzeppelin/contracts/utils/Address.sol
 
 // OpenZeppelin Contracts (last updated v4.7.0) (utils/Address.sol)
-
-pragma solidity ^0.8.1;
 
 /**
  * @dev Collection of functions related to the address type
@@ -480,8 +474,6 @@ library Address {
 
 // OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/IERC721Receiver.sol)
 
-pragma solidity ^0.8.0;
-
 /**
  * @title ERC721 token receiver interface
  * @dev Interface for any contract that wants to support safeTransfers
@@ -509,8 +501,6 @@ interface IERC721Receiver {
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
 
-pragma solidity ^0.8.0;
-
 /**
  * @dev Interface of the ERC165 standard, as defined in the
  * https://eips.ethereum.org/EIPS/eip-165[EIP].
@@ -535,8 +525,6 @@ interface IERC165 {
 // File: @openzeppelin/contracts/utils/introspection/ERC165.sol
 
 // OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
-
-pragma solidity ^0.8.0;
 
 /**
  * @dev Implementation of the {IERC165} interface.
@@ -570,8 +558,6 @@ abstract contract ERC165 is IERC165 {
 // File: @openzeppelin/contracts/token/ERC721/IERC721.sol
 
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC721/IERC721.sol)
-
-pragma solidity ^0.8.0;
 
 /**
  * @dev Required interface of an ERC721 compliant contract.
@@ -732,8 +718,6 @@ interface IERC721 is IERC165 {
 
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC721/extensions/IERC721Enumerable.sol)
 
-pragma solidity ^0.8.0;
-
 /**
  * @title ERC-721 Non-Fungible Token Standard, optional enumeration extension
  * @dev See https://eips.ethereum.org/EIPS/eip-721
@@ -764,8 +748,6 @@ interface IERC721Enumerable is IERC721 {
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC721/extensions/IERC721Metadata.sol)
 
-pragma solidity ^0.8.0;
-
 /**
  * @title ERC-721 Non-Fungible Token Standard, optional metadata extension
  * @dev See https://eips.ethereum.org/EIPS/eip-721
@@ -790,8 +772,6 @@ interface IERC721Metadata is IERC721 {
 // File: @openzeppelin/contracts/token/ERC721/ERC721.sol
 
 // OpenZeppelin Contracts (last updated v4.7.0) (token/ERC721/ERC721.sol)
-
-pragma solidity ^0.8.0;
 
 /**
  * @dev Implementation of https://eips.ethereum.org/EIPS/eip-721[ERC721] Non-Fungible Token Standard, including
@@ -1320,8 +1300,6 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC721/extensions/ERC721Enumerable.sol)
 
-pragma solidity ^0.8.0;
-
 /**
  * @dev This implements an optional extension of {ERC721} defined in the EIP that adds
  * enumerability of all the token ids in the contract as well as all token ids owned by each
@@ -1509,8 +1487,6 @@ abstract contract ERC721Enumerable is ERC721, IERC721Enumerable {
 // File: contracts/CrptoSportMeta.sol
 
 //SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.7;
 
 contract AmphiPass is ERC721Enumerable, Ownable {
     using Strings for uint256;
