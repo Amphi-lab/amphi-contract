@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-import "./../contracts/utils/math/SafeMath.sol";
+import "./math/SafeMath.sol";
 error ParameterException(string);
 
 library CalculateUtils {

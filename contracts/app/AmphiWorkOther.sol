@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 import "./LibProject.sol";
 import "./AmphiTrans.sol";
-import "../../../contracts/access/Ownable.sol";
+import "../../contracts/access/Ownable.sol";
 
 error OperationException(string);
 error ErrorValue(string, uint256);

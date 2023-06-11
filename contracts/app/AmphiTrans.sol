@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./LibProject.sol";
-import "../../../contracts/access/Ownable.sol";
+import "../../contracts/access/Ownable.sol";
 
 interface IAmphiTrans {}
 error AccessError(string);
