@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 import "./LibProject.sol";
-import "./contracts/access/Ownable.sol";
+import "../../../contracts/access/Ownable.sol";
+
 interface IAmphiTrans {}
 error AccessError(string);
+
 contract AmphiTrans is Ownable{
     mapping(uint256 => LibProject.TranslationPro) private taskList;
     mapping(address => uint256) private payList;
