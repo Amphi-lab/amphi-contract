@@ -8,6 +8,7 @@ contract AmphiTrans is Ownable {
     mapping(address => uint256) private payList;
     mapping(uint256 => mapping(address => LibProject.Tasker)) private transInfo; //翻译者接单信息
     mapping(uint256 => mapping(address => LibProject.Tasker)) private vfInfo;
+    // mapping(uint256 => mapping(address => LibProject.ReturnRecord)) returnRecordList;
     uint256 private count;
     address private accessAddress;
 
@@ -38,6 +39,13 @@ contract AmphiTrans is Ownable {
         payList[_tasker] -= _money;
     }
 
+    //被打回者，打回者
+    // function addReturnRecord(uint256 _index,address _returned,address _address,string memory _file,string memory _ill) external isAccess{
+    //     returnRecordList[_index][_returned]=LibProject.ReturnRecord(_address,_file,_ill);
+    // }
+    // function getReturnRecord(uint256 _index, address _address) public view returns(LibProject.ReturnRecord memory) {
+    //     return returnRecordList[_index][_address];
+    // }
     function getPay(address _tasker) external view returns (uint256) {
         return payList[_tasker];
     }
@@ -126,55 +134,10 @@ contract AmphiTrans is Ownable {
         return vfInfo[_index][_taskerIndex].number;
     }
 
-    //获得翻译者名单
-    // function getTranslatorsList(uint256 _index)
-    //     public
-    //     view
-    //     returns (address[] memory)
-    // {
-    //     return taskList[_index].translators;
-    // }
     //获得任务的翻译类型
     function getTranslationType(uint256 _index) public view returns (uint256) {
         return taskList[_index].translationType;
     }
-
-    //获得校验者名单
-    // function getVfList(uint256 _index) public view returns (address[] memory) {
-    //     return taskList[_index].verifiers;
-    // }
-
-    // //是否为自定义支付
-    // function isCustomizeState(uint256 _index) public view returns (bool) {
-    //     return taskList[_index].isCustomize;
-    // }
-
-    //查询任务者超时未完成任务数
-    // function overTimeTasker(
-    //     uint256 _index,
-    //     address _taskerIndex,
-    //     bool _isTrans
-    // ) public view returns (uint256[] memory, uint256) {
-    //     uint256[] memory _filesIndex;
-    //     uint256[] memory _list;
-    //     uint256 money;
-    //     uint256 q;
-    //     if (_isTrans) {
-    //         _filesIndex = transInfo[_index][_taskerIndex].taskIndex;
-    //     } else {
-    //         _filesIndex = vfInfo[_index][_taskerIndex].taskIndex;
-    //     }
-    //     LibProject.FileIndexInfo memory _info;
-    //     for (uint256 i = 0; i < _filesIndex.length; i++) {
-    //         _info = transInfo[_index][_taskerIndex].info[_filesIndex[i]];
-    //         if (_info.state == LibProject.TaskerState.Processing) {
-    //             _list[q] = _filesIndex[i];
-    //             q++;
-    //             money += taskList[_index].tasks[_filesIndex[i]].bounty;
-    //         }
-    //     }
-    //     return (_list, money);
-    // }
 
     function getBuyer(uint256 _index) public view returns (address) {
         return taskList[_index].buyer;
@@ -421,7 +384,7 @@ contract AmphiTrans is Ownable {
     function submitFileByTrans(
         uint256 _index,
         string[] memory _files
-    ) public isAccess returns (uint256) {
+    ) public returns (uint256) {
         uint256 _time = block.timestamp;
         for (uint256 i = 0; i < _files.length; i++) {
             taskList[_index].tasks[i].transFile = _files[i];
@@ -433,11 +396,12 @@ contract AmphiTrans is Ownable {
     function submitFileByVf(
         uint256 _index,
         string[] memory _files
-    ) public isAccess returns (uint256) {
+    ) public returns (uint256) {
         uint256 _time = block.timestamp;
         for (uint256 i = 0; i < _files.length; i++) {
             taskList[_index].tasks[i].vfFile = _files[i];
             taskList[_index].tasks[i].lastUpload = _time;
         }
+        return _time;
     }
 }
