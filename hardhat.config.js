@@ -39,7 +39,12 @@ module.exports = {
         `0x11c651075f437afad6a71c8e64638efdb655dc8f3598c50efba6d11d1b1bebb0`,
         `0x2409737d753df17ec16719235cbb3436e961f5090690af9e35426de39cfad92e`
       ]
-    }
+    },
+    "moonbeamalpha": {
+      url: `https://rpc.testnet.moonbeam.network`,
+      accounts: [`0xXXX`], //不要上传这个key, 自己本地部署时替换就好了。
+      chainId: 1287
+    },
   },
   paths: {
     artifacts: "./artifacts",
