@@ -40,5 +40,10 @@ module.exports = {
         `0x2409737d753df17ec16719235cbb3436e961f5090690af9e35426de39cfad92e`
       ]
     }
-  }
+  },
+  paths: {
+    artifacts: "./artifacts",
+    cache: "./cache",
+    sources: "./contracts/app", // 确保这个路径正确
+  },
 };
