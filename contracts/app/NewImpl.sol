@@ -67,7 +67,7 @@ contract CalculateUtils {
 
     function getMatNumber(
         uint256 _transNumber
-    ) external pure returns (uint256) {
+    ) internal pure returns (uint256) {
         uint256 _maxV;
         if (_transNumber <= VF_N) {
             _maxV = 1;
@@ -80,19 +80,19 @@ contract CalculateUtils {
     //计算任务赏金-翻译者
     function getBountyForTrans(
         uint256 _bounty
-    ) public pure returns (uint256 _money) {
+    ) internal pure returns (uint256 _money) {
         _money = getPercentage(_bounty, 60);
     }
 
     function getBountyForVf(
         uint256 _bounty
-    ) external pure returns (uint256 _money) {
+    ) internal pure returns (uint256 _money) {
         _money = getPercentage(_bounty, 40);
     }
 
     function getBountyForAmphi(
         uint256 _bounty
-    ) external pure returns (uint256 _money) {
+    ) internal pure returns (uint256 _money) {
         _money = getPercentage(_bounty, 10);
     }
 
@@ -100,7 +100,7 @@ contract CalculateUtils {
     function getPercentage(
         uint256 _number,
         uint256 _ratio
-    ) public pure returns (uint256 returnNumber) {
+    ) internal pure returns (uint256 returnNumber) {
         returnNumber = (_number * _ratio) / 100;
     }
 
@@ -108,7 +108,7 @@ contract CalculateUtils {
     function getPunish(
         uint256 _ratio,
         uint256 _bounty
-    ) public pure returns (uint256) {
+    ) internal pure returns (uint256) {
         return _bounty / _ratio;
     }
 
@@ -116,7 +116,7 @@ contract CalculateUtils {
     function getDeductMoney(
         uint256 _bounty,
         uint256 _deduct
-    ) public pure returns (uint256) {
+    ) internal pure returns (uint256) {
         return getPercentage(_bounty, _deduct);
     }
 }
@@ -127,7 +127,6 @@ contract CalculateUtils {
 // 3.发单时不再分小任务，只需要一个翻译者一个校验者接单
 contract NewImpl is CalculateUtils, Ownable {
     IAmphiPass private amphi;
-    CalculateUtils private utils;
     AmphiTrans private service;
     //IAmphiWorkOther private  other;
     IERC20 private erc;
@@ -140,12 +139,10 @@ contract NewImpl is CalculateUtils, Ownable {
 
     constructor(
         address _passAddress,
-        address _utilsAddress,
         address _serviceAddress,
         address _ercAddress
     ) {
         amphi = IAmphiPass(_passAddress);
-        utils = CalculateUtils(_utilsAddress);
         service = AmphiTrans(_serviceAddress);
         erc = IERC20(_ercAddress);
         amphiFee = owner();
@@ -324,7 +321,7 @@ contract NewImpl is CalculateUtils, Ownable {
             _files,
             _illustrate
         );
-        uint256 _passBounty = utils.getPercentage(_bounty, PO_RATE);
+        uint256 _passBounty = getPercentage(_bounty, PO_RATE);
         address _buyer = service.getBuyer(_index);
         require(
             erc.allowance(_buyer, address(this)) >= _passBounty &&
@@ -337,13 +334,9 @@ contract NewImpl is CalculateUtils, Ownable {
             erc.transferFrom(
                 _buyer,
                 service.getTransloator(_index),
-                utils.getBountyForTrans(_bounty)
+                getBountyForTrans(_bounty)
             );
-            erc.transferFrom(
-                _buyer,
-                amphiFee,
-                utils.getBountyForAmphi(_bounty)
-            );
+            erc.transferFrom(_buyer, amphiFee, getBountyForAmphi(_bounty));
         }
     }
 
@@ -352,8 +345,8 @@ contract NewImpl is CalculateUtils, Ownable {
         address _tasker
     ) public isExist(_index) onlyAmphi(msg.sender) returns (uint256) {
         uint256 _money = _overTimeTrans(_index, _tasker);
-        uint256 _rate = utils.punishRatio(utils.getBountyForTrans(_money));
-        uint256 _punish = utils.getPunish(_money, _rate);
+        uint256 _rate = punishRatio(getBountyForTrans(_money));
+        uint256 _punish = getPunish(_money, _rate);
         addPay(_tasker, _punish);
         return _punish;
     }
@@ -364,9 +357,9 @@ contract NewImpl is CalculateUtils, Ownable {
     ) public isExist(_index) onlyAmphi(msg.sender) returns (uint256) {
         uint256 _money = _overTimeVf(_index, _tasker);
         //1.根据赏金获得处罚比率
-        uint256 _punish = utils.getPunish(
+        uint256 _punish = getPunish(
             _money,
-            utils.punishRatio(utils.getBountyForVf(_money))
+            punishRatio(getBountyForVf(_money))
         );
         addPay(_tasker, _punish);
         return _punish;
@@ -387,9 +380,9 @@ contract NewImpl is CalculateUtils, Ownable {
         if (_isPass && _bounty > 0) {
             //任务的翻译类型为validation或interpreting
             if (_taskType == 1 || _taskType == 5) {
-                _passBounty = utils.getPercentage(_bounty, PO_RATE_TWO);
+                _passBounty = getPercentage(_bounty, PO_RATE_TWO);
             } else {
-                _passBounty = utils.getBountyForVf(_bounty);
+                _passBounty = getBountyForVf(_bounty);
             }
             require(
                 erc.allowance(msg.sender, address(this)) >= _passBounty &&
@@ -406,13 +399,13 @@ contract NewImpl is CalculateUtils, Ownable {
                 erc.transferFrom(
                     msg.sender,
                     amphiFee,
-                    utils.getBountyForAmphi(_bounty)
+                    getBountyForAmphi(_bounty)
                 );
             } else {
                 erc.transferFrom(
                     msg.sender,
                     service.getVerfier(_index),
-                    utils.getBountyForVf(_bounty)
+                    getBountyForVf(_bounty)
                 );
             }
         }
