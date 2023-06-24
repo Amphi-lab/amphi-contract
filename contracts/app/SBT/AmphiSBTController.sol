@@ -1,13 +1,8 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.17;
-
-import "../../interfaces/IEffWorkloadSBT.sol";
+pragma solidity ^0.8.10;
 
 contract AmphiSBTController {
-    event NewOrg(address indexed owner, address orgAddress);
-
-    address private root; // 本合约管理权限所有者
-    mapping(string => address) effWorkloadSBTs; //工作量证明各等级sbt合约地址
+    address internal root; // 本合约管理权限所有者
 
     // 这部分地址作为管理地址也授权一部分操作，目前主要是为了给我们的智能合约放权
     mapping(address => bool) public orgAdmins;

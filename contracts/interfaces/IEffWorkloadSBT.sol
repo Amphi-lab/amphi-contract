@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.10;
 
 interface IEffWorkloadSBT {
     function mintToBatchAddress(
@@ -27,6 +27,4 @@ interface IEffWorkloadSBT {
     function setURI(string memory newuri) external;
 
     function setName(string memory newName) external;
-
-    function setContractURI(string memory contractURI_) external;
 }

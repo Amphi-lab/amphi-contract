@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.17;
+pragma solidity ^0.8.10;
 
 import "../ERC1155/ERC1155.sol";
 import "./ContractMetadata.sol";
@@ -11,12 +11,9 @@ contract EffWorkloadSBT is
     ERC1155,
     ContractMetadata,
     ERC1155Pausable,
-    IEffWorkloadSBT,
-    AmphiSBTController
+    IEffWorkloadSBT
 {
     string public name;
-
-    address private root; // 本合约管理权限所有者
 
     constructor() {
         root = msg.sender;
@@ -62,21 +59,30 @@ contract EffWorkloadSBT is
     }
 
     /* ================ TRANSACTION FUNCTIONS ================ */
+    // 每种SBT同一个账户下只能拥有一个
     function mint(
         address account,
-        uint256 id,
-        uint256 amount
+        uint256 id
     ) external onlyOrgAmin {
-        _mint(account, id, amount, "");
+        require(
+            balanceOf(account, id) == 0,
+            "ERR_USER_HAS_THIS_SBT"
+        );
+
+        _mint(account, id, 1, "");
     }
 
     function mintToBatchAddress(
         address[] memory toList,
-        uint256 tokenId,
-        uint256 amount
+        uint256 tokenId
     ) external onlyOrgAmin {
         for (uint256 i = 0; i < toList.length; i++) {
-            _mint(toList[i], tokenId, amount, "");
+            require(
+                balanceOf(toList[i], tokenId) == 0,
+                "ERR_SOME_USER_HAS_THIS_SBT"
+            );
+
+            _mint(toList[i], tokenId, 1, "");
         }
     }
 
@@ -84,7 +90,10 @@ contract EffWorkloadSBT is
         _burn(msg.sender, id, amount);
     }
 
-    function burnBatch(uint256[] memory ids, uint256[] memory amounts) external {
+    function burnBatch(
+        uint256[] memory ids,
+        uint256[] memory amounts
+    ) external onlyOrgAmin {
         _burnBatch(msg.sender, ids, amounts);
     }
 
@@ -104,9 +113,5 @@ contract EffWorkloadSBT is
 
     function setName(string memory newName) external onlyRoot {
         name = newName;
-    }
-
-    function setContractURI(string memory contractURI_) external onlyRoot {
-        _setContractURI(contractURI_);
     }
 }
