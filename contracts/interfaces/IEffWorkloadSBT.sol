@@ -4,14 +4,12 @@ pragma solidity ^0.8.10;
 interface IEffWorkloadSBT {
     function mintToBatchAddress(
         address[] memory toList,
-        uint256 tokenId,
-        uint256 amount
+        uint256 tokenId
     ) external;
 
     function mint(
         address account,
-        uint256 id,
-        uint256 amount
+        uint256 id
     ) external;
 
     function burn(uint256 id, uint256 amount) external;
