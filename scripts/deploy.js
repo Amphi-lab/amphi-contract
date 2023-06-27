@@ -36,14 +36,19 @@ async function main() {
   );
 
   // 首先部署 Erc20T 合约试试
-  const Erc20T = await hre.ethers.getContractFactory("Erc20T");
-  const erc20T = await Erc20T.deploy();
-  console.log("Erc20T合约部署成功，合约地址为:", erc20T.address);
+  // const Erc20T = await hre.ethers.getContractFactory("Erc20T");
+  // const erc20T = await Erc20T.deploy();
+  // console.log("Erc20T合约部署成功，合约地址为:", erc20T.address);
+
+  // 部署EffWorkloadSBT合约
+  const EffWorkloadSBT = await hre.ethers.getContractFactory("EffWorkloadSBT");
+  const effWorkloadSBT = await EffWorkloadSBT.deploy();
+  console.log("effWorkloadSBT合约部署成功，合约地址为:", effWorkloadSBT.address);
 
   // 部署AmphiTrans合约
-  const AmphiTrans = await hre.ethers.getContractFactory("AmphiTrans");
-  const amphiTrans = await AmphiTrans.deploy();
-  console.log("AmphiTrans合约部署成功，合约地址为:", amphiTrans.address);
+  // const AmphiTrans = await hre.ethers.getContractFactory("AmphiTrans");
+  // const amphiTrans = await AmphiTrans.deploy();
+  // console.log("AmphiTrans合约部署成功，合约地址为:", amphiTrans.address);
 
   // 部署AmphiPass合约
   // const AmphiPass = await hre.ethers.getContractFactory("AmphiPass");
