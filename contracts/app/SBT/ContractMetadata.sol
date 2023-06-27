@@ -38,4 +38,12 @@ contract ContractMetadata is AmphiSBTController {
         }
         emit MultipleMetadataChanged(tokenIds);
     }
+
+    function getTokenURI(uint256 tokenId) external view returns (string memory) {
+        require(
+            tokenId > 0,
+            "ERR_TOKENID_NEED_LARGE_ZERO"
+        );
+        return tokenMetadataURIs[tokenId];
+    }
 }
