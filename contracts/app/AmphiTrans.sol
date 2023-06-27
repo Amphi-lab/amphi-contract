@@ -57,6 +57,11 @@ contract AmphiTrans is Ownable {
         return taskList[_index].tasker;
     }
 
+    //判断是否加入了AI翻译
+    function isJoinAI(uint256 _index) external view returns (bool) {
+        return taskList[_index].isAITrans;
+    }
+
     function getFiles(
         uint256 _index
     ) external view returns (LibProject.FileInfo[] memory) {
@@ -71,6 +76,11 @@ contract AmphiTrans is Ownable {
     //删除不可转移名单
     function deleteNoTransferAddress(address _address) external {
         delete isNoTransferState[_address];
+    }
+
+    //获取该地址是否为可转移状态
+    function getIsTransferState(address _address) public view returns (bool) {
+        return !isNoTransferState[_address]; //true 可转移，false 不可转移
     }
 
     //获得任务的翻译类型

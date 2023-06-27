@@ -1,7 +1,7 @@
-// SPDX-License-Identifier: MIT;
+//SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./../interfaces/IERC20.sol";
+import "../interfaces/IERC20.sol";
 import "./LibProject.sol";
 import "./AmphiTrans.sol";
 import "./FundsContract.sol";
@@ -10,6 +10,15 @@ interface IAmphiPass {
     function walletOfOwner(
         address _owner
     ) external view returns (uint256[] memory);
+}
+
+interface IAmphiSBT {
+    function balanceOf(
+        address account,
+        uint256 id
+    ) external view returns (uint256);
+
+    function mint(address account, uint256 id) external;
 }
 
 contract CalculateUtils {
@@ -65,9 +74,13 @@ contract NewImpl is CalculateUtils, Ownable {
     IAmphiPass private amphi;
     AmphiTrans private service;
     IERC20 private erc;
+    IAmphiSBT private sbt;
     FundsContract funds;
     mapping(address => bool) private isAmphi;
-    uint256 constant PO_RATE = 90;
+    mapping(address => uint256) private workload; //服务者对应的工作量
+    uint256 constant PO_RATE = 80;
+    uint256 constant PO_RATE_AI = 40;
+    uint256 constant WORKLOAD_UNIT = 1024;
     address private fundsAddress;
     // mapping(address => bool) private isNoTransferState;
     mapping(uint256 => LibProject.ReturnRecord) returnRecordList;
@@ -76,12 +89,14 @@ contract NewImpl is CalculateUtils, Ownable {
         address _passAddress,
         address _serviceAddress,
         address _ercAddress,
-        address _fundsAddress
+        address _fundsAddress,
+        address _sbtAddrss
     ) {
         amphi = IAmphiPass(_passAddress);
         service = AmphiTrans(_serviceAddress);
         erc = IERC20(_ercAddress);
         fundsAddress = _fundsAddress;
+        sbt = IAmphiSBT(_sbtAddrss);
     }
 
     event returnFileEv(uint256 index, string returnFile, string illustrate);
@@ -106,7 +121,7 @@ contract NewImpl is CalculateUtils, Ownable {
     );
     event addPayEv(address tasker, uint256 money);
     event decutPayEv(address tasker, uint256 money);
-    event newSubmitFile(uint256 _index, bool _isTrans);
+    event newSubmitFile(uint256 _index);
     modifier isExist(uint256 _index) {
         require(_index <= service.getCount(), "Wrong index value!");
         _;
@@ -114,6 +129,30 @@ contract NewImpl is CalculateUtils, Ownable {
     modifier isHasNftModifer() {
         require(isHasNftPass(msg.sender), "Not Have Pass NFT!");
         _;
+    }
+
+    function newPassNft(address _address) external onlyOwner {
+        amphi = IAmphiPass(_address);
+    }
+
+    function newAmphiTrans(address _address) external onlyOwner {
+        service = AmphiTrans(_address);
+    }
+
+    function newErc20(address _address) external onlyOwner {
+        erc = IERC20(_address);
+    }
+
+    function newFundsAddress(address _address) external onlyOwner {
+        fundsAddress = _address;
+    }
+
+    function newSbt(address _address) external onlyOwner {
+        sbt = IAmphiSBT(_address);
+    }
+
+    function getIsTransferState(address _address) external view returns (bool) {
+        return service.getIsTransferState(_address);
     }
 
     //  AmphiWorkOther other;
@@ -151,7 +190,7 @@ contract NewImpl is CalculateUtils, Ownable {
         require(service.isTasker(_index, msg.sender), "sender not tasker");
         LibProject.TaskState _taskState = service.getTaskState(_index);
         require(
-            _taskState == LibProject.TaskState.Translating ||
+            _taskState == LibProject.TaskState.Processing ||
                 _taskState == LibProject.TaskState.WaitTaskerModify,
             "this tasker state cannot submit"
         );
@@ -187,13 +226,23 @@ contract NewImpl is CalculateUtils, Ownable {
         //验收通过
         if (_isPass && _bounty > 0) {
             //获得赏金比例
-            _passBounty = getPercentage(_bounty, PO_RATE);
+            if (service.isJoinAI(_index)) {
+                _passBounty = getPercentage(_bounty, PO_RATE_AI);
+            } else {
+                _passBounty = getPercentage(_bounty, PO_RATE);
+            }
             require(
                 erc.balanceOf(fundsAddress) >= _passBounty,
                 "funds contract not hava enought balance"
             );
+            address transerAddress = service.getTasker(_index);
             funds = FundsContract(fundsAddress);
-            funds.transferToAddress(service.getTasker(_index), _passBounty);
+            funds.transferToAddress(transerAddress, _passBounty);
+            uint256 level = getWorkloadLeve(transerAddress);
+            //满足条件mint nft
+            if (level > 0 && sbt.balanceOf(transerAddress, level) != 0) {
+                sbt.mint(transerAddress, level);
+            }
         }
     }
 
@@ -215,7 +264,7 @@ contract NewImpl is CalculateUtils, Ownable {
             service.getTaskState(_index) ==
             LibProject.TaskState.WaitTaskerModify
         ) {
-            emit newSubmitFile(_index, true);
+            emit newSubmitFile(_index);
         }
         service.changeProjectState(_index, LibProject.TaskState.BuyerReview);
         emit changeTaskStateEv(
@@ -328,5 +377,67 @@ contract NewImpl is CalculateUtils, Ownable {
             return true;
         }
         return false;
+    }
+
+    //累加指定任务者的工作量
+    function _addWorkload(address _tasker, uint256 _workload) internal {
+        workload[_tasker] += _workload;
+    }
+
+    //判断指定地址的工作量等级
+    //1b =1e9 1m=1e6
+    function getWorkloadLeve(address _tasker) internal view returns (uint8) {
+        uint256 number = workload[_tasker];
+        if (number >= 1 * 1e12) {
+            //1T
+            return 16;
+        } else if (number >= 1 * 1e11) {
+            //100b
+            return 15;
+        } else if (number >= 50 * 1e9) {
+            //50b
+            return 14;
+        } else if (number >= 1 * 1e9) {
+            //1b
+            return 13;
+        } else if (number >= 1 * 1e8) {
+            //100m
+            return 12;
+        } else if (number >= 50 * 1e6) {
+            //50m
+            return 11;
+        } else if (number >= 1 * 1e7) {
+            //10m
+            return 10;
+        } else if (number >= 5 * 1e6) {
+            //5m
+            return 9;
+        } else if (number >= 4 * 1e6) {
+            //4m
+            return 8;
+        } else if (number >= 3 * 1e6) {
+            //3m
+            return 7;
+        } else if (number >= 2 * 1e6) {
+            //2m
+            return 6;
+        } else if (number >= 1 * 1e6) {
+            //1m
+            return 5;
+        } else if (number >= 1 * 1e5) {
+            //100k
+            return 4;
+        } else if (number >= 1 * 1e4) {
+            //10k
+            return 3;
+        } else if (number >= 1 * 1e3) {
+            //1k
+            return 2;
+        } else if (number >= 300) {
+            //300
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

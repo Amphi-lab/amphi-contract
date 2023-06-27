@@ -12,15 +12,12 @@ library LibProject {
     }
     //任务状态
     enum TaskState {
-        Waiting,
-        Translating,
+        Processing,
         WaitTaskerModify,
         BuyerReview,
-        Accepted,
-        NoOnePick,
         Overtime,
-        Closed,
-        Completed
+        Completed,
+        Closed
     }
     //子任务详情
     struct FileInfo {
@@ -52,9 +49,10 @@ library LibProject {
         uint256[] preferList; //偏好
         uint256 translationType; //类型
         uint256 workLoad; //工作量
-        uint256 workLoadType;
+        uint256 workLoadType; //任务类型
         bool isNonDisclosure; //是否保密
-        bool isCustomize; //是否为自定义支付
+        bool isCustomize; //是否为组织
+        bool isAITrans; //是否加入了AI翻译
         uint256 bounty; //赏金
         FileInfo[] tasks; //子任务
         address tasker; //任务者地址
