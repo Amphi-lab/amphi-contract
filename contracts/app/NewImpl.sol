@@ -1,8 +1,10 @@
-// SPDX-License-Identifier: MIT;
+//SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "../interfaces/IERC20.sol";
 import "./LibProject.sol";
 import "./AmphiTrans.sol";
+import "./FundsContract.sol";
 
 interface IAmphiPass {
     function walletOfOwner(
@@ -10,40 +12,18 @@ interface IAmphiPass {
     ) external view returns (uint256[] memory);
 }
 
-interface IERC20 {
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
-
-    function totalSupply() external view returns (uint256);
-
-    function balanceOf(address account) external view returns (uint256);
-
-    function transfer(address to, uint256 amount) external returns (bool);
-
-    function allowance(
-        address owner,
-        address spender
+interface IAmphiSBT {
+    function balanceOf(
+        address account,
+        uint256 id
     ) external view returns (uint256);
 
-    function approve(address spender, uint256 amount) external returns (bool);
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 amount
-    ) external returns (bool);
+    function mint(address account, uint256 id) external;
 }
 
 contract CalculateUtils {
     uint256 constant RATE = 100;
-    uint256 constant VF_N = 3;
 
-    // uint256 private TransRate ;
     //获得罚金比率
     function punishRatio(uint256 _bounts) public pure returns (uint256) {
         uint256 ratio;
@@ -63,37 +43,6 @@ contract CalculateUtils {
             ratio = 0;
         }
         return ratio;
-    }
-
-    function getMatNumber(
-        uint256 _transNumber
-    ) internal pure returns (uint256) {
-        uint256 _maxV;
-        if (_transNumber <= VF_N) {
-            _maxV = 1;
-        } else {
-            _maxV = _transNumber / VF_N;
-        }
-        return _maxV;
-    }
-
-    //计算任务赏金-翻译者
-    function getBountyForTrans(
-        uint256 _bounty
-    ) internal pure returns (uint256 _money) {
-        _money = getPercentage(_bounty, 60);
-    }
-
-    function getBountyForVf(
-        uint256 _bounty
-    ) internal pure returns (uint256 _money) {
-        _money = getPercentage(_bounty, 40);
-    }
-
-    function getBountyForAmphi(
-        uint256 _bounty
-    ) internal pure returns (uint256 _money) {
-        _money = getPercentage(_bounty, 10);
     }
 
     //计算任务赏金
@@ -121,111 +70,89 @@ contract CalculateUtils {
     }
 }
 
-//新合约
-// 1.合约接单完成后提交到链上
-// 2.发单人去掉nft限制
-// 3.发单时不再分小任务，只需要一个翻译者一个校验者接单
 contract NewImpl is CalculateUtils, Ownable {
     IAmphiPass private amphi;
     AmphiTrans private service;
-    //IAmphiWorkOther private  other;
     IERC20 private erc;
+    IAmphiSBT private sbt;
+    FundsContract funds;
     mapping(address => bool) private isAmphi;
-    uint256 constant PO_RATE = 70;
-    uint256 constant PO_RATE_TWO = 110;
-    address private amphiFee;
-    mapping(address => bool) private isNoTransferState;
+    mapping(address => uint256) private workload; //服务者对应的工作量
+    uint256 constant PO_RATE = 80;
+    uint256 constant PO_RATE_AI = 40;
+    uint256 constant WORKLOAD_UNIT = 1024;
+    address private fundsAddress;
+    // mapping(address => bool) private isNoTransferState;
     mapping(uint256 => LibProject.ReturnRecord) returnRecordList;
 
     constructor(
         address _passAddress,
         address _serviceAddress,
-        address _ercAddress
+        address _ercAddress,
+        address _fundsAddress,
+        address _sbtAddrss
     ) {
         amphi = IAmphiPass(_passAddress);
         service = AmphiTrans(_serviceAddress);
         erc = IERC20(_ercAddress);
-        amphiFee = owner();
+        fundsAddress = _fundsAddress;
+        sbt = IAmphiSBT(_sbtAddrss);
     }
 
-    event returnFileEv(
-        uint256 index,
-        address to,
-        string returnFile,
-        string illustrate
-    );
-    event acceptTaskEv(
-        uint256 taskIndex,
-        uint256 fileIndex,
-        address taskerAddress,
-        bool isTrans
-    );
+    event returnFileEv(uint256 index, string returnFile, string illustrate);
     event postProjectEv(address buyer, uint256 taskIndex);
-    event acceptTaskEv(
-        uint256 taskIndex,
-        uint256[] fileIndex,
-        address taskerAddress,
-        bool isTrans
-    );
     //任务索引值，文件索引值，文件状态，操作者
-    event changeFileStateEv(
+    event changeTaskStateEv(
         uint256 taskIndex,
-        LibProject.FileState fileSate,
+        LibProject.TaskState taskSate,
         address opSender
     );
-    //任务索引值，文件状态，操作者
-    // event changeProjectStateEv(
-    //     uint256 taskIndex,
-    //     LibProject.TaskerState taskState,
-    //     address opSender
-    // );
-    //任务索引值、任务者地址、文件索引值，任务者状态，是否为翻译者,操作者
+    //任务索引值、任务者地址、文件索引值，任务者状态，,操作者
     event changeTaskerStateEv(
         uint256 taskIndex,
         LibProject.TaskerState taskerState,
-        bool isTrans,
-        address opSender
-    );
-    //任务索引值，是否关闭，操作者
-    event changeTransActiveEv(
-        uint256 taskIndex,
-        bool transActive,
-        address opSender
-    );
-    event changeVerActiveEv(
-        uint256 taskIndex,
-        bool verActive,
         address opSender
     );
     event submitFileEv(
         uint256 index,
         uint256 uploadtime,
         string[] file,
-        address sender,
-        bool isTrans
+        address sender
     );
     event addPayEv(address tasker, uint256 money);
     event decutPayEv(address tasker, uint256 money);
-    event newSubmitFile(uint256 _index, bool _isTrans);
-    modifier onlyAmphi(address _amphiAddress) {
-        require(isAmphi[_amphiAddress], "only amphi team can call the method");
-        _;
-    }
-    modifier onlyBuyer(uint256 _index) {
-        require(service.getBuyer(_index) == msg.sender, "Only buyer");
-        _;
-    }
+    event newSubmitFile(uint256 _index);
     modifier isExist(uint256 _index) {
         require(_index <= service.getCount(), "Wrong index value!");
         _;
     }
-    modifier hasFine(address _address) {
-        require(service.getPay(_address) == 0, "unpaid penalty!");
+    modifier isHasNftModifer() {
+        require(isHasNftPass(msg.sender), "Not Have Pass NFT!");
         _;
     }
-    modifier isHasNftPass() {
-        require(_isHasNftPass(msg.sender), "Not Have Pass NFT!");
-        _;
+
+    function newPassNft(address _address) external onlyOwner {
+        amphi = IAmphiPass(_address);
+    }
+
+    function newAmphiTrans(address _address) external onlyOwner {
+        service = AmphiTrans(_address);
+    }
+
+    function newErc20(address _address) external onlyOwner {
+        erc = IERC20(_address);
+    }
+
+    function newFundsAddress(address _address) external onlyOwner {
+        fundsAddress = _address;
+    }
+
+    function newSbt(address _address) external onlyOwner {
+        sbt = IAmphiSBT(_address);
+    }
+
+    function getIsTransferState(address _address) external view returns (bool) {
+        return service.getIsTransferState(_address);
     }
 
     //  AmphiWorkOther other;
@@ -233,11 +160,12 @@ contract NewImpl is CalculateUtils, Ownable {
     //文件状态修改：翻译等待，校验等待
     function postTask(
         LibProject.TranslationPro memory _t
-    ) public hasFine(msg.sender) returns (uint256 _index) {
-        //判断用户是否有授权额度
+    ) external returns (uint256 _index) {
+        //判断用户是否存在未支付罚金
+        require(service.getPay(msg.sender) == 0, "unpaid penalty!");
+        //判断用户是否有足够的金额支付赏金
         require(
-            erc.allowance(msg.sender, address(this)) >=
-                getPercentage(_t.bounty, PO_RATE_TWO),
+            erc.balanceOf(msg.sender) >= (_t.bounty),
             "not hava enought approve"
         );
         //截至时间不能低于发布时间
@@ -247,120 +175,36 @@ contract NewImpl is CalculateUtils, Ownable {
         );
         // 新增
         _index = _addTask(_t);
+        //将赏金质押给平台中
+        require(erc.transfer(msg.sender, _t.bounty), "Transfer failed");
         emit postProjectEv(msg.sender, _index);
         return _index;
     }
 
-    //翻译者提交文件
-    function sumbitTaskTrans(
+    //服务者提交文件
+    function sumbitTask(
         uint256 _index,
         string[] memory _files
-    ) public isExist(_index) {
-        LibProject.FileState _taskState = service.getTaskState(_index);
+    ) public isExist(_index) isHasNftModifer {
+        //调用者是否为服务者
+        require(service.isTasker(_index, msg.sender), "sender not tasker");
+        LibProject.TaskState _taskState = service.getTaskState(_index);
         require(
-            _taskState == LibProject.FileState.WaitingForVf ||
-                _taskState == LibProject.FileState.Translating ||
-                _taskState == LibProject.FileState.WaitTransModify,
-            "this file state cannot submit"
+            _taskState == LibProject.TaskState.Processing ||
+                _taskState == LibProject.TaskState.WaitTaskerModify,
+            "this tasker state cannot submit"
         );
-        //文件不能为空
-        // require(keccak256(abi.encode(_file)) != keccak256(abi.encode("")),"file cannot null");
-        //是否为校验者
-        require(
-            service.isTranslator(_index, msg.sender),
-            "sender not translator"
-        );
-        _sumbitTaskTrans(_index, _files);
+        _sumbitTaskTrans(_index, _files, msg.sender);
     }
 
-    //校验者提交文件
-    function sumbitVf(
-        uint256 _index,
-        string[] memory _files
-    ) public isExist(_index) {
-        LibProject.FileState _fileState = service.getTaskState(_index);
-        require(
-            _fileState == LibProject.FileState.WaitVfModify ||
-                _fileState == LibProject.FileState.BuyerReview ||
-                _fileState == LibProject.FileState.Validating ||
-                _fileState == LibProject.FileState.WaitingForTrans,
-            "this file state cannot submit"
-        );
-        //是否为校验者
-        require(service.isVerfier(_index, msg.sender), "sender not verifiers");
-        _sumbitVf(_index, _files);
-    }
-
-    function validate(
-        uint256 _index,
-        bool _isPass,
-        string memory _file,
-        string[] memory _files,
-        string memory _illustrate
-    ) public isExist(_index) {
-        LibProject.FileState _taskState = service.getTaskState(_index);
-        require(
-            _taskState == LibProject.FileState.Validating ||
-                _taskState == LibProject.FileState.Translating ||
-                _taskState == LibProject.FileState.WaitTransModify,
-            "this file state cannot validate"
-        );
-        //文件不能为空
-        require(
-            keccak256(abi.encode(_file)) != keccak256(abi.encode("")),
-            "file cannot null"
-        );
-        //是否为校验者
-        require(service.isVerfier(_index, msg.sender), "sender not verifiers");
-        uint256 _bounty = _validate(
-            _index,
-            service.getTransloator(_index),
-            msg.sender,
-            _isPass,
-            _file,
-            _files,
-            _illustrate
-        );
-        uint256 _passBounty = getPercentage(_bounty, PO_RATE);
-        address _buyer = service.getBuyer(_index);
-        require(
-            erc.allowance(_buyer, address(this)) >= _passBounty &&
-                erc.balanceOf(_buyer) >= _passBounty,
-            "buyer not hava enought approve or balance"
-        );
-        //校验者验收，支付翻译者60%赏金,平台10%的赏金
-        //发赏金
-        if (_bounty > 0) {
-            erc.transferFrom(
-                _buyer,
-                service.getTransloator(_index),
-                getBountyForTrans(_bounty)
-            );
-            erc.transferFrom(_buyer, amphiFee, getBountyForAmphi(_bounty));
-        }
-    }
-
-    function overTimeTrans(
+    function overTime(
         uint256 _index,
         address _tasker
-    ) public isExist(_index) onlyAmphi(msg.sender) returns (uint256) {
-        uint256 _money = _overTimeTrans(_index, _tasker);
-        uint256 _rate = punishRatio(getBountyForTrans(_money));
+    ) public isExist(_index) returns (uint256) {
+        require(isAmphi[msg.sender], "only amphi team can call the method");
+        uint256 _money = _overTime(_index);
+        uint256 _rate = punishRatio(getPercentage(_money, PO_RATE));
         uint256 _punish = getPunish(_money, _rate);
-        addPay(_tasker, _punish);
-        return _punish;
-    }
-
-    function overTimeVf(
-        uint256 _index,
-        address _tasker
-    ) public isExist(_index) onlyAmphi(msg.sender) returns (uint256) {
-        uint256 _money = _overTimeVf(_index, _tasker);
-        //1.根据赏金获得处罚比率
-        uint256 _punish = getPunish(
-            _money,
-            punishRatio(getBountyForVf(_money))
-        );
         addPay(_tasker, _punish);
         return _punish;
     }
@@ -370,43 +214,34 @@ contract NewImpl is CalculateUtils, Ownable {
         bool _isPass,
         string memory _file,
         string memory _illustrate
-    ) public isExist(_index) onlyBuyer(_index) {
-        uint256 _taskType = service.getTranslationType(_index);
+    ) public isExist(_index) {
+        require(
+            service.getBuyer(_index) == msg.sender || isAmphi[msg.sender],
+            "only amphi team or buyer can call the method"
+        );
         uint256 _passBounty;
         uint256 _bounty;
         _bounty = service.getTaskBounty(_index);
-        _receiveTask(_index, _isPass, _file, _illustrate);
+        _receiveTask(_index, _isPass, _file, _illustrate, msg.sender);
         //验收通过
         if (_isPass && _bounty > 0) {
-            //任务的翻译类型为validation或interpreting
-            if (_taskType == 1 || _taskType == 5) {
-                _passBounty = getPercentage(_bounty, PO_RATE_TWO);
+            //获得赏金比例
+            if (service.isJoinAI(_index)) {
+                _passBounty = getPercentage(_bounty, PO_RATE_AI);
             } else {
-                _passBounty = getBountyForVf(_bounty);
+                _passBounty = getPercentage(_bounty, PO_RATE);
             }
             require(
-                erc.allowance(msg.sender, address(this)) >= _passBounty &&
-                    erc.balanceOf(msg.sender) >= _passBounty,
-                "buyer not hava enought approve or balance"
+                erc.balanceOf(fundsAddress) >= _passBounty,
+                "funds contract not hava enought balance"
             );
-            // address _buyer = service.getBuyer(_index);
-            if (_taskType == 1 || _taskType == 5) {
-                erc.transferFrom(
-                    msg.sender,
-                    service.getVerfier(_index),
-                    _bounty
-                );
-                erc.transferFrom(
-                    msg.sender,
-                    amphiFee,
-                    getBountyForAmphi(_bounty)
-                );
-            } else {
-                erc.transferFrom(
-                    msg.sender,
-                    service.getVerfier(_index),
-                    getBountyForVf(_bounty)
-                );
+            address transerAddress = service.getTasker(_index);
+            funds = FundsContract(fundsAddress);
+            funds.transferToAddress(transerAddress, _passBounty);
+            uint256 level = getWorkloadLeve(transerAddress);
+            //满足条件mint nft
+            if (level > 0 && sbt.balanceOf(transerAddress, level) != 0) {
+                sbt.mint(transerAddress, level);
             }
         }
     }
@@ -420,155 +255,48 @@ contract NewImpl is CalculateUtils, Ownable {
     }
 
     //翻译者提交任务
-    function _sumbitTaskTrans(uint256 _index, string[] memory _files) internal {
-        //     service = AmphiTrans(serviceAddess);
-        if (
-            service.getTaskState(_index) == LibProject.FileState.WaitTransModify
-        ) {
-            emit newSubmitFile(_index, true);
-        }
-        service.changeProjectState(_index, LibProject.FileState.Validating);
-        emit changeFileStateEv(
-            _index,
-            LibProject.FileState.Validating,
-            msg.sender
-        );
-        uint256 _time = service.submitFileByTrans(_index, _files);
-        emit submitFileEv(_index, _time, _files, msg.sender, true);
-        service.changeTaskTransState(_index, LibProject.TaskerState.Submitted);
-        emit changeTaskerStateEv(
-            _index,
-            LibProject.TaskerState.Submitted,
-            true,
-            msg.sender
-        );
-    }
-
-    //校验者验收
-    function _validate(
+    function _sumbitTaskTrans(
         uint256 _index,
-        address _transAddress,
-        address _vfAddress,
-        bool _isPass,
-        string memory _file,
         string[] memory _files,
-        string memory _illustrate
-    ) internal returns (uint256 _payBounty) {
-        // service = AmphiTrans(serviceAddess);
-        //若校验通过，将任务者的状态修改为已完成
-        if (_isPass) {
-            //_sumbitVfTask(_index, _transAddress, _vfAddress, _fileIndex, _file);
-            service.changeTaskTransState(
-                _index,
-                LibProject.TaskerState.Completed
-            );
-            emit changeTaskerStateEv(
-                _index,
-                LibProject.TaskerState.Completed,
-                true,
-                msg.sender
-            );
-            _sumbitVf(_index, _files);
-            return service.getTaskBounty(_index);
-        } else {
-            //任务不通过，将任务者的状态修改为被打回状态
-            service.changeTaskTransState(_index, LibProject.TaskerState.Return);
-            emit changeTaskerStateEv(
-                _index,
-                LibProject.TaskerState.Return,
-                true,
-                msg.sender
-            );
-
-            service.changeProjectState(
-                _index,
-                LibProject.FileState.WaitTransModify
-            );
-            emit changeFileStateEv(
-                _index,
-                LibProject.FileState.WaitTransModify,
-                msg.sender
-            );
-            _payBounty = 0;
+        address _operAddress
+    ) internal {
+        if (
+            service.getTaskState(_index) ==
+            LibProject.TaskState.WaitTaskerModify
+        ) {
+            emit newSubmitFile(_index);
         }
-        //记录打回记录_transAddress
-        // service.addReturnRecord(_index,_transAddress,_vfAddress,_file,_illustrate);
-        returnRecordList[_index] = LibProject.ReturnRecord(
-            _transAddress,
-            _file,
-            _illustrate
-        );
-        emit returnFileEv(_index, _transAddress, _file, _illustrate);
-    }
-
-    function _sumbitVf(uint256 _index, string[] memory _files) internal {
-        // service = AmphiTrans(serviceAddess);
-        if (service.getTaskState(_index) == LibProject.FileState.WaitVfModify) {
-            emit newSubmitFile(_index, false);
-        }
-        service.changeProjectState(_index, LibProject.FileState.BuyerReview);
-        emit changeFileStateEv(
+        service.changeProjectState(_index, LibProject.TaskState.BuyerReview);
+        emit changeTaskStateEv(
             _index,
-            LibProject.FileState.BuyerReview,
-            msg.sender
+            LibProject.TaskState.BuyerReview,
+            _operAddress
         );
-        service.changeTaskVfState(_index, LibProject.TaskerState.Submitted);
+        uint256 _time = service.submitFileByTasker(_index, _files);
+        emit submitFileEv(_index, _time, _files, _operAddress);
+        service.changeTaskerState(_index, LibProject.TaskerState.Submitted);
         emit changeTaskerStateEv(
             _index,
             LibProject.TaskerState.Submitted,
-            false,
-            msg.sender
+            _operAddress
         );
-        uint256 _time = service.submitFileByVf(_index, _files);
-        emit submitFileEv(_index, _time, _files, msg.sender, false);
     }
 
-    //超时未提交-翻译者
-    function _overTimeTrans(
-        uint256 _index,
-        address _taskerIndex
-    ) public returns (uint256) {
-        // service = AmphiTrans(serviceAddess);
+    //超时未提交
+    function _overTime(uint256 _index) internal returns (uint256) {
         uint256 _money = service.getTaskBounty(_index);
         //修改任务状态
-        service.changeTaskTransState(_index, LibProject.TaskerState.Overtime);
+        service.changeTaskerState(_index, LibProject.TaskerState.Overtime);
         emit changeTaskerStateEv(
             _index,
             LibProject.TaskerState.Overtime,
-            true,
             msg.sender
         );
-        // uint256 _allBounty;
-        // if (service.isCustomizeState(_index)) {
-        //     for (uint256 i = 0; i < _unCompleted.length; i++) {
-        //         _allBounty += service.getFileBounty(_index, _unCompleted[i]);
-        //     }
-        // } else {
-        //     _allBounty = service.getTaskBounty(_index);
-        // }
-        delete isNoTransferState[_taskerIndex];
+        //移除不可转移nft名单
+        service.deleteNoTransferAddress(service.getTasker(_index));
+        // delete isNoTransferState[_taskerIndex];
         //返回罚金
         return _money;
-    }
-
-    //超时未提交-校验者
-    function _overTimeVf(
-        uint256 _index,
-        address _taskerIndex
-    ) public returns (uint256) {
-        // service = AmphiTrans(serviceAddess);
-        //查询超时任务
-        //查询超时任务数
-        uint256 _money = service.getTaskBounty(_index);
-        service.changeTaskVfState(_index, LibProject.TaskerState.Overtime);
-        emit changeTaskerStateEv(
-            _index,
-            LibProject.TaskerState.Overtime,
-            false,
-            msg.sender
-        );
-        delete isNoTransferState[_taskerIndex];
-        return (_money);
     }
 
     //发布者验收
@@ -576,81 +304,140 @@ contract NewImpl is CalculateUtils, Ownable {
         uint256 _index,
         bool _isPass,
         string memory _file,
-        string memory _illustrate
+        string memory _illustrate,
+        address _operAddress
     ) public {
         // service = AmphiTrans(serviceAddess);
         address buyer = service.getBuyer(_index);
         //若校验通过，将任务者的状态修改为已完成
         if (_isPass) {
-            service.changeTaskVfState(_index, LibProject.TaskerState.Completed);
+            service.changeTaskerState(_index, LibProject.TaskerState.Completed);
             emit changeTaskerStateEv(
                 _index,
                 LibProject.TaskerState.Completed,
-                false,
                 buyer
             );
-            service.changeProjectState(_index, LibProject.FileState.Completed);
-            emit changeFileStateEv(
+            service.changeProjectState(_index, LibProject.TaskState.Completed);
+            emit changeTaskStateEv(
                 _index,
-                LibProject.FileState.Completed,
-                buyer
+                LibProject.TaskState.Completed,
+                _operAddress
             );
+            //移除不可转移nft名单
+            service.deleteNoTransferAddress(service.getTasker(_index));
+            service.deleteNoTransferAddress(service.getBuyer(_index));
         } else {
             //任务不通过，将任务者的状态修改为被打回状态
-            service.changeTaskVfState(_index, LibProject.TaskerState.Return);
+            service.changeTaskerState(_index, LibProject.TaskerState.Return);
             emit changeTaskerStateEv(
                 _index,
                 LibProject.TaskerState.Return,
-                false,
                 buyer
             );
             service.changeProjectState(
                 _index,
-                LibProject.FileState.WaitVfModify
+                LibProject.TaskState.WaitTaskerModify
             );
-            emit changeFileStateEv(
+            emit changeTaskStateEv(
                 _index,
-                LibProject.FileState.WaitVfModify,
-                service.getVerfier(_index)
+                LibProject.TaskState.WaitTaskerModify,
+                _operAddress
             );
-            //service.addReturnRecord(_index,_address,buyer,_file,_illustrate);
             returnRecordList[_index] = LibProject.ReturnRecord(
-                service.getVerfier(_index),
+                service.getTasker(_index),
                 _file,
                 _illustrate
             );
-            emit returnFileEv(
-                _index,
-                service.getVerfier(_index),
-                _file,
-                _illustrate
-            );
+            emit returnFileEv(_index, _file, _illustrate);
         }
     }
 
-    function deductPay(address _to, uint256 _value) public {
-        // service = AmphiTrans(serviceAddess);
+    function deductPay(address _to, uint256 _value) external {
         service.deductPay(_to, _value);
         emit decutPayEv(_to, _value);
     }
 
-    function addPay(address _to, uint256 _value) public {
-        // service = AmphiTrans(serviceAddess);
+    function addPay(address _to, uint256 _value) internal {
         service.addPay(_to, _value);
         emit addPayEv(_to, _value);
     }
 
     function closeTask(uint256 _index) public {
-        // service = AmphiTrans(serviceAddess);
-        service.changeProjectState(_index, LibProject.FileState.Closed);
-        emit changeFileStateEv(_index, LibProject.FileState.Closed, msg.sender);
+        require(
+            service.getBuyer(_index) == msg.sender || isAmphi[msg.sender],
+            "only amphi team or buyer can call the method"
+        );
+        service.changeProjectState(_index, LibProject.TaskState.Closed);
+        emit changeTaskStateEv(_index, LibProject.TaskState.Closed, msg.sender);
     }
 
-    function _isHasNftPass(address _address) internal view returns (bool) {
+    function isHasNftPass(address _address) public view returns (bool) {
         // uint256[] memory _list = amphi.walletOfOwner(_address);
         if (amphi.walletOfOwner(_address).length > 0) {
             return true;
         }
         return false;
+    }
+
+    //累加指定任务者的工作量
+    function _addWorkload(address _tasker, uint256 _workload) internal {
+        workload[_tasker] += _workload;
+    }
+
+    //判断指定地址的工作量等级
+    //1b =1e9 1m=1e6
+    function getWorkloadLeve(address _tasker) internal view returns (uint8) {
+        uint256 number = workload[_tasker];
+        if (number >= 1 * 1e12) {
+            //1T
+            return 16;
+        } else if (number >= 1 * 1e11) {
+            //100b
+            return 15;
+        } else if (number >= 50 * 1e9) {
+            //50b
+            return 14;
+        } else if (number >= 1 * 1e9) {
+            //1b
+            return 13;
+        } else if (number >= 1 * 1e8) {
+            //100m
+            return 12;
+        } else if (number >= 50 * 1e6) {
+            //50m
+            return 11;
+        } else if (number >= 1 * 1e7) {
+            //10m
+            return 10;
+        } else if (number >= 5 * 1e6) {
+            //5m
+            return 9;
+        } else if (number >= 4 * 1e6) {
+            //4m
+            return 8;
+        } else if (number >= 3 * 1e6) {
+            //3m
+            return 7;
+        } else if (number >= 2 * 1e6) {
+            //2m
+            return 6;
+        } else if (number >= 1 * 1e6) {
+            //1m
+            return 5;
+        } else if (number >= 1 * 1e5) {
+            //100k
+            return 4;
+        } else if (number >= 1 * 1e4) {
+            //10k
+            return 3;
+        } else if (number >= 1 * 1e3) {
+            //1k
+            return 2;
+        } else if (number >= 300) {
+            //300
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }

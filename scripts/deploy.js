@@ -26,7 +26,7 @@ async function main() {
     )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
   );
   */
-  
+
   // 我们的部署脚本从这里开始
   const [deployer] = await hre.ethers.getSigners();
 
@@ -34,6 +34,8 @@ async function main() {
     "当前部署合约的账号为：",
     deployer.address
   );
+  //sbt合约地址
+  const sbtAddress = "0x71d7917603b4E6BCA309BCA397870B8beE746884"
 
   // 首先部署 Erc20T 合约试试
   // const Erc20T = await hre.ethers.getContractFactory("Erc20T");
@@ -51,12 +53,33 @@ async function main() {
   // console.log("AmphiTrans合约部署成功，合约地址为:", amphiTrans.address);
 
   // 部署AmphiPass合约
-  // const AmphiPass = await hre.ethers.getContractFactory("AmphiPass");
-  // const amphiPass = await AmphiPass.deploy("baseUri"); // TODO: baseUri的参数是什么含义？这里amphiPass合约部署的时候，需要有这个初始化参数
-  // console.log("AmphiPass合约部署成功，合约地址为:", amphiPass.address);
+  const AmphiPass = await hre.ethers.getContractFactory("AmphiPass");
+  const amphiPass = await AmphiPass.deploy("ipfs://bafybeih7pmj6yqlhpaniaad7sofxuo556mzoeyoviqpzlxhryu3ic62c54/"); // TODO: baseUri的参数是什么含义？这里amphiPass合约部署的时候，需要有这个初始化参数
+  console.log("AmphiPass合约部署成功，合约地址为:", amphiPass.address);
 
-  
-  console.log("一键部署完成");
+  //部署Funds合约
+  const Funds = await hre.ethers.getContractFactory("FundsContract");
+  const funds = await Funds.deploy(erc20T.address);
+  console.log("Funds合约部署成功，合约地址为:", funds.address);
+
+
+  //部署业务合约
+  const NewImpl = await hre.ethers.getContractFactory("NewImpl");
+  const newImpl = await NewImpl.deploy(amphiPass.address, amphiTrans.address, erc20T.address, funds.address, sbtAddress)
+  console.log("NewImpl合约部署成功，合约地址为:", newImpl.address);
+
+
+  amphiTrans.setAccessAddress(newImpl.address);
+  console.log("======设置AmphiTrans可访问合约地址成功===============");
+
+  amphiPass.setAmphiWorkAddress(newImpl.address);
+  console.log("======设置AmphiPass访问合约地址成功===============");
+
+  funds.setAccessAddress(newImpl.address);
+  console.log("======设置Funds可访问合约地址成功===============");
+
+  console.log("合约部署完成");
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere
