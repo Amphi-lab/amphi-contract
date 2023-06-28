@@ -20,6 +20,8 @@ contract EffWorkloadSBT is
         orgAdmins[msg.sender] = true;
     }
 
+    event Mint(address account, uint256 id);
+
     /* ================ UTIL FUNCTIONS ================ */
 
     function _beforeTokenTransfer(
@@ -70,6 +72,8 @@ contract EffWorkloadSBT is
         );
 
         _mint(account, id, 1, "");
+        
+        emit Mint(account, id);
     }
 
     function mintToBatchAddress(
@@ -83,6 +87,8 @@ contract EffWorkloadSBT is
             );
 
             _mint(toList[i], tokenId, 1, "");
+
+            emit Mint(toList[i], tokenId);
         }
     }
 
