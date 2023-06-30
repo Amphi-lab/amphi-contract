@@ -38,6 +38,7 @@ async function main() {
   const EffWorkloadSBT = await hre.ethers.getContractFactory("EffWorkloadSBT");
   const effWorkloadSBT = await EffWorkloadSBT.deploy();
   console.log("effWorkloadSBT合约部署成功，合约地址为:", effWorkloadSBT.address);
+  //  const sbtAddress = "0x71d7917603b4E6BCA309BCA397870B8beE746884"; //之前部署的sbt合约地址
 
   // 部署AmphiTrans合约
   // const AmphiTrans = await hre.ethers.getContractFactory("AmphiTrans");
