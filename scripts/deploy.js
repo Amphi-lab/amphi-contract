@@ -34,14 +34,6 @@ async function main() {
     "当前部署合约的账号为：",
     deployer.address
   );
-  //sbt合约地址
-  const sbtAddress = "0x71d7917603b4E6BCA309BCA397870B8beE746884"
-
-  // 首先部署 Erc20T 合约试试
-  // const Erc20T = await hre.ethers.getContractFactory("Erc20T");
-  // const erc20T = await Erc20T.deploy();
-  // console.log("Erc20T合约部署成功，合约地址为:", erc20T.address);
-
   // 部署EffWorkloadSBT合约
   const EffWorkloadSBT = await hre.ethers.getContractFactory("EffWorkloadSBT");
   const effWorkloadSBT = await EffWorkloadSBT.deploy();
@@ -65,7 +57,7 @@ async function main() {
 
   //部署业务合约
   const NewImpl = await hre.ethers.getContractFactory("NewImpl");
-  const newImpl = await NewImpl.deploy(amphiPass.address, amphiTrans.address, erc20T.address, funds.address, sbtAddress)
+  const newImpl = await NewImpl.deploy(amphiPass.address, amphiTrans.address, erc20T.address, funds.address, effWorkloadSBT.address);
   console.log("NewImpl合约部署成功，合约地址为:", newImpl.address);
 
 
