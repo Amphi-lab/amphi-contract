@@ -29,6 +29,7 @@ async function main() {
     let balance = await sbtSigner.balanceOf("0x4d29360c2F7Cc54b8d8A28CB4f29343df867748b", 1);
     if (balance == 0) {
         await sbtSigner.mint("0x4d29360c2F7Cc54b8d8A28CB4f29343df867748b", 1);
+        console.log("try to mint one sbt");
         balance = await sbtSigner.balanceOf("0x4d29360c2F7Cc54b8d8A28CB4f29343df867748b", 1);
     }
     console.log("balance: ", balance);
