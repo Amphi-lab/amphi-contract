@@ -12,6 +12,7 @@ library LibProject {
     }
     //任务状态
     enum TaskState {
+        Waiting,
         Processing,
         WaitTaskerModify,
         BuyerReview,
