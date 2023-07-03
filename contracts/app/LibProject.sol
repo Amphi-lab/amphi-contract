@@ -59,5 +59,6 @@ library LibProject {
         address tasker; //任务者地址
         TaskerState transState; //服务者任务状态
         TaskState state; //项目状态
+        string translationIndex;
     }
 }

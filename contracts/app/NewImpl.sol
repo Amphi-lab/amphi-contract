@@ -100,7 +100,7 @@ contract NewImpl is CalculateUtils, Ownable {
     }
 
     event returnFileEv(uint256 index, string returnFile, string illustrate);
-    event postProjectEv(address buyer, uint256 taskIndex);
+    event postProjectEv(address buyer, uint256 taskIndex,address tasker);
     //任务索引值，文件索引值，文件状态，操作者
     event changeTaskStateEv(
         uint256 taskIndex,
@@ -177,7 +177,7 @@ contract NewImpl is CalculateUtils, Ownable {
         _index = _addTask(_t);
         //将赏金质押给平台中
         require(erc.transfer(msg.sender, _t.bounty), "Transfer failed");
-        emit postProjectEv(msg.sender, _index);
+        emit postProjectEv(msg.sender, _index,_t.tasker);
         return _index;
     }
 
