@@ -29,7 +29,7 @@ library LibProject {
         uint256 words;
         uint256 fileType; //文件类型
         string path; //文件链接
-        string transFile;
+        string transFile; //任务者提交的文件
         string taskerFile;
         uint256 lastUpload; //最后更新时间
     }
@@ -59,6 +59,6 @@ library LibProject {
         address tasker; //任务者地址
         TaskerState transState; //服务者任务状态
         TaskState state; //项目状态
-        string translationIndex;
+        string translationIndex; //任务索引值
     }
 }

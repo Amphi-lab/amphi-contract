@@ -7,8 +7,16 @@ contract FundsContract is Ownable {
     IERC20 private _token;
     event WithdrawEv(address indexed to, uint256 amount);
     event TransferEv(address to, uint256 amout);
-    address private accessAddress;
+     mapping(address => bool) private isAccessList;
+    // address private accessAddress;
 
+    function setAccessAddress(address _address) public onlyOwner {
+        isAccessList[_address] = true;
+    }
+    function isHasAccessRole(address _address) public view returns(bool)
+    {
+        return isAccessList[_address];
+    }
     constructor(address tokenAddress) {
         _token = IERC20(tokenAddress);
     }
@@ -27,7 +35,7 @@ contract FundsContract is Ownable {
     //转账
     function transferToAddress(address _to, uint256 _amount) external {
         require(
-            accessAddress != address(0) || msg.sender == accessAddress,
+            msg.sender == owner()||isAccessList[msg.sender],
             "Invalid access address"
         );
         require(
@@ -50,10 +58,5 @@ contract FundsContract is Ownable {
     //更改新的erc20合约
     function newErc20Address(address _newAddress) external onlyOwner {
         _token = IERC20(_newAddress);
-    }
-
-    //设置访问合约地址
-    function setAccessAddress(address _address) external onlyOwner {
-        accessAddress = _address;
     }
 }

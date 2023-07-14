@@ -80,10 +80,10 @@ contract NewImpl is CalculateUtils, Ownable {
     mapping(address => uint256) private workload; //服务者对应的工作量
     uint256 constant PO_RATE = 80;
     uint256 constant PO_RATE_AI = 40;
-    uint256 constant WORKLOAD_UNIT = 1024;
+    // uint256 constant WORKLOAD_UNIT = 1024;
     address private fundsAddress;
     // mapping(address => bool) private isNoTransferState;
-    mapping(uint256 => LibProject.ReturnRecord) returnRecordList;
+    mapping(string => LibProject.ReturnRecord) returnRecordList;
 
     constructor(
         address _passAddress,
@@ -99,31 +99,31 @@ contract NewImpl is CalculateUtils, Ownable {
         sbt = IAmphiSBT(_sbtAddrss);
     }
 
-    event returnFileEv(uint256 index, string returnFile, string illustrate);
-    event postProjectEv(address buyer, uint256 taskIndex,address tasker);
+    event returnFileEv(string index, string returnFile, string illustrate);
+    event postProjectEv(address buyer, string taskIndex,address tasker);
     //任务索引值，文件索引值，文件状态，操作者
     event changeTaskStateEv(
-        uint256 taskIndex,
+        string taskIndex,
         LibProject.TaskState taskSate,
         address opSender
     );
     //任务索引值、任务者地址、文件索引值，任务者状态，,操作者
     event changeTaskerStateEv(
-        uint256 taskIndex,
+        string taskIndex,
         LibProject.TaskerState taskerState,
         address opSender
     );
     event submitFileEv(
-        uint256 index,
+        string index,
         uint256 uploadtime,
         string[] file,
         address sender
     );
     event addPayEv(address tasker, uint256 money);
     event decutPayEv(address tasker, uint256 money);
-    event newSubmitFile(uint256 _index);
-    modifier isExist(uint256 _index) {
-        require(_index <= service.getCount(), "Wrong index value!");
+    event newSubmitFile(string _index);
+    modifier isExist(string memory _index) {
+        require(service.getBuyer(_index)!=address(0)||service.getBuyer(_index)!=address(0x0));
         _;
     }
     modifier isHasNftModifer() {
@@ -154,19 +154,34 @@ contract NewImpl is CalculateUtils, Ownable {
     function getIsTransferState(address _address) external view returns (bool) {
         return service.getIsTransferState(_address);
     }
+    //  function AddresstoString(address account) public pure returns (string memory) {
+    //     return toString(abi.encodePacked(account));
+    // }
+    // function toString(bytes memory data) public pure returns (string memory) {
+    //     bytes memory alphabet = "0123456789abcdef";
+
+    //     bytes memory str = new bytes(2 + data.length * 2);
+    //     str[0] = "0";
+    //     str[1] = "x";
+    //     for (uint i = 0; i < data.length; i++) {
+    //         str[2 + i * 2] = alphabet[uint(uint8(data[i] >> 4))];
+    //         str[3 + i * 2] = alphabet[uint(uint8(data[i] & 0x0f))];
+    //     }
+    //     return string(str);
+    // }
 
     //  AmphiWorkOther other;
     //发布任务-改成质押100%
     //文件状态修改：翻译等待，校验等待
     function postTask(
         LibProject.TranslationPro memory _t
-    ) external returns (uint256 _index) {
+    ) external {
         //判断用户是否存在未支付罚金
         require(service.getPay(msg.sender) == 0, "unpaid penalty!");
         //判断用户是否有足够的金额支付赏金
         require(
             erc.balanceOf(msg.sender) >= (_t.bounty),
-            "not hava enought approve"
+             "not have enought tokens pay"
         );
         //截至时间不能低于发布时间
         require(
@@ -174,16 +189,18 @@ contract NewImpl is CalculateUtils, Ownable {
             "The releaseTime is greater than the deadline"
         );
         // 新增
-        _index = _addTask(_t);
+       _addTask(_t);
         //将赏金质押给平台中
-        require(erc.transfer(msg.sender, _t.bounty), "Transfer failed");
-        emit postProjectEv(msg.sender, _index,_t.tasker);
-        return _index;
+        // bytes memory method = abi.encodeWithSignature("transfer(address to, uint256 amount)",fundsAddress,_t.bounty);
+        // (bool success,) = (msg.sender).call(method);
+        // require(success, "Transfer failed");
+        require(erc.transferFrom(msg.sender,fundsAddress, _t.bounty), "Transfer failed");
+        emit postProjectEv(msg.sender, _t.translationIndex,_t.tasker);
     }
 
     //服务者提交文件
     function sumbitTask(
-        uint256 _index,
+        string memory _index,
         string[] memory _files
     ) public isExist(_index) isHasNftModifer {
         //调用者是否为服务者
@@ -198,7 +215,7 @@ contract NewImpl is CalculateUtils, Ownable {
     }
 
     function overTime(
-        uint256 _index,
+        string memory _index,
         address _tasker
     ) public isExist(_index) returns (uint256) {
         require(isAmphi[msg.sender], "only amphi team can call the method");
@@ -210,7 +227,7 @@ contract NewImpl is CalculateUtils, Ownable {
     }
 
     function receiveTask(
-        uint256 _index,
+        string memory _index,
         bool _isPass,
         string memory _file,
         string memory _illustrate
@@ -245,18 +262,20 @@ contract NewImpl is CalculateUtils, Ownable {
             }
         }
     }
+    function getTaskInfo(string memory _index) external view  returns(LibProject.TranslationPro memory) {
+        return service.getProjectOne(_index);
+    }
 
     //添加任务
     function _addTask(
         LibProject.TranslationPro memory _t
-    ) public returns (uint256) {
-        uint256 _index = service.addProject(_t);
-        return _index;
+    ) internal  {
+        service.addProject(_t);
     }
 
     //翻译者提交任务
     function _sumbitTaskTrans(
-        uint256 _index,
+        string memory _index,
         string[] memory _files,
         address _operAddress
     ) internal {
@@ -283,7 +302,7 @@ contract NewImpl is CalculateUtils, Ownable {
     }
 
     //超时未提交
-    function _overTime(uint256 _index) internal returns (uint256) {
+    function _overTime(string memory _index) internal returns (uint256) {
         uint256 _money = service.getTaskBounty(_index);
         //修改任务状态
         service.changeTaskerState(_index, LibProject.TaskerState.Overtime);
@@ -301,12 +320,12 @@ contract NewImpl is CalculateUtils, Ownable {
 
     //发布者验收
     function _receiveTask(
-        uint256 _index,
+        string memory _index,
         bool _isPass,
         string memory _file,
         string memory _illustrate,
         address _operAddress
-    ) public {
+    ) internal  {
         // service = AmphiTrans(serviceAddess);
         address buyer = service.getBuyer(_index);
         //若校验通过，将任务者的状态修改为已完成
@@ -362,7 +381,7 @@ contract NewImpl is CalculateUtils, Ownable {
         emit addPayEv(_to, _value);
     }
 
-    function closeTask(uint256 _index) public {
+    function closeTask(string memory _index) public {
         require(
             service.getBuyer(_index) == msg.sender || isAmphi[msg.sender],
             "only amphi team or buyer can call the method"

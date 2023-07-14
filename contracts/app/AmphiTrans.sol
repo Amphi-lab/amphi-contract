@@ -4,29 +4,23 @@ import "./LibProject.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract AmphiTrans is Ownable {
-    mapping(uint256 => LibProject.TranslationPro) private taskList;
+    mapping(string => LibProject.TranslationPro) private taskList;
     mapping(address => uint256) private payList;
     mapping(address => bool) private isNoTransferState; //地址是否为可转移状态
-    uint256 private count;
-    address private accessAddress;
+    mapping(address => bool) private isAccessList;
 
     modifier isAccess() {
-        require(msg.sender == accessAddress, "Error Access Address!");
+        require(msg.sender == owner()||isAccessList[msg.sender], "Error Access Address!");
         _;
     }
 
     function setAccessAddress(address _address) public onlyOwner {
-        accessAddress = _address;
+        isAccessList[_address] = true;
     }
-
-    function addCount() external isAccess {
-        ++count;
+    function isHasAccessRole(address _address) public view returns(bool)
+    {
+        return isAccessList[_address];
     }
-
-    function getCount() external view returns (uint256) {
-        return count;
-    }
-
     //payList
     function addPay(address _tasker, uint256 _money) external isAccess {
         payList[_tasker] += _money;
@@ -42,7 +36,7 @@ contract AmphiTrans is Ownable {
 
     //判断该地址是否为任务的服务者
     function isTasker(
-        uint256 _index,
+        string memory _index,
         address _address
     ) external view returns (bool) {
         if (_address == getTasker(_index)) {
@@ -53,17 +47,17 @@ contract AmphiTrans is Ownable {
     }
 
     //获得任务的服务者
-    function getTasker(uint256 _index) public view returns (address) {
+    function getTasker(string memory _index) public view returns (address) {
         return taskList[_index].tasker;
     }
 
     //判断是否加入了AI翻译
-    function isJoinAI(uint256 _index) external view returns (bool) {
+    function isJoinAI(string memory _index) external view returns (bool) {
         return taskList[_index].isAITrans;
     }
 
     function getFiles(
-        uint256 _index
+        string memory _index
     ) external view returns (LibProject.FileInfo[] memory) {
         return taskList[_index].tasks;
     }
@@ -85,33 +79,33 @@ contract AmphiTrans is Ownable {
 
     //获得任务的翻译类型
     function getTranslationType(
-        uint256 _index
+        string memory _index
     ) external view returns (uint256) {
         return taskList[_index].translationType;
     }
 
-    function getBuyer(uint256 _index) public view returns (address) {
+    function getBuyer(string memory _index) public view returns (address) {
         return taskList[_index].buyer;
     }
 
     function getTaskState(
-        uint256 _index
+        string memory _index
     ) external view returns (LibProject.TaskState) {
         return taskList[_index].state;
     }
 
     function getProjectOne(
-        uint256 _index
+        string memory _index
     ) external view returns (LibProject.TranslationPro memory) {
         return taskList[_index];
     }
 
-    function getTaskBounty(uint256 _index) external view returns (uint256) {
+    function getTaskBounty(string memory _index) external view returns (uint256) {
         return taskList[_index].bounty;
     }
 
     function changeTaskerState(
-        uint256 _index,
+        string memory _index,
         LibProject.TaskerState _state
     ) public isAccess {
         taskList[_index].transState = _state;
@@ -119,7 +113,7 @@ contract AmphiTrans is Ownable {
 
     //修改任务状态
     function changeProjectState(
-        uint256 _index,
+        string memory _index,
         LibProject.TaskState _state
     ) public isAccess {
         taskList[_index].state = _state;
@@ -128,9 +122,8 @@ contract AmphiTrans is Ownable {
 
     function addProject(
         LibProject.TranslationPro memory _t
-    ) public isAccess returns (uint256) {
-        count++;
-        LibProject.TranslationPro storage _pro = taskList[count];
+    ) public isAccess {
+        LibProject.TranslationPro storage _pro = taskList[_t.translationIndex];
         _pro.buyer = _t.buyer;
         _pro.releaseTime = _t.releaseTime;
         _pro.introduce = _t.introduce;
@@ -154,11 +147,10 @@ contract AmphiTrans is Ownable {
         //将该任务的发布者和服务者地址均存入到不可转移名单中
         addNoTransferAddress(_pro.buyer);
         addNoTransferAddress(_pro.tasker);
-        return count;
     }
 
     function submitFileByTasker(
-        uint256 _index,
+        string memory _index,
         string[] memory _files
     ) public returns (uint256) {
         uint256 _time = block.timestamp;
